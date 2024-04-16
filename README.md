@@ -11,6 +11,6 @@ To understand  The software-defined networking well, I trying to create a simple
 
 ## Learning resources
 
-[rust_ofp](https://github.com/baxtersa/rust_ofp)
-[awesome-sdn](https://github.com/sdnds-tw/awesome-sdn)
-[ryu](https://github.com/faucetsdn/ryu)
+- [rust_ofp](https://github.com/baxtersa/rust_ofp)
+- [awesome-sdn](https://github.com/sdnds-tw/awesome-sdn)
+- [ryu](https://github.com/faucetsdn/ryu)
