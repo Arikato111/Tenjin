@@ -1,6 +1,7 @@
 use std::{io::Write, mem::size_of, net::TcpStream};
 
 use byteorder::{BigEndian, WriteBytesExt};
+use etherparse::SlicedPacket;
 
 use super::OfpHeader;
 
@@ -25,6 +26,16 @@ impl Controller {
         let mut bytes: Vec<u8> = Vec::new();
         header.marshal(&mut bytes);
         stream.write_all(&bytes).unwrap();
+    }
+
+    pub fn packetIn(&self, xid: u32, payload: &Vec<u8>, stream: &mut TcpStream) {
+        match SlicedPacket::from_ethernet(&payload) {
+            Ok(value) => {
+                println!("vlan {:?}", value.vlan);
+                println!("net {:?}", value.net);
+            }, 
+            Err(_) => println!("Error"),
+        }
     }
 
     pub fn send(&self, xid: u32, message: u8, payload: &Vec<u8>, stream: &mut TcpStream) {

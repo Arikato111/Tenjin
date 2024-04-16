@@ -1,0 +1,15 @@
+pub enum EtherType {
+    IP = 0x0800,
+    ARP = 0x0806,
+    TEB = 0x6558,
+    VLAN = 0x8100,
+    IPV6 = 0x86dd,
+    SLOW = 0x8809,
+    MPLS = 0x8847,
+    SVLAN = 0x88a8,
+    LLDP = 0x88cc,
+    PBB = 0x88e7,
+    IEEE802_3 = 0x05dc,
+    CFM = 0x8902,
+    NSH = 0x894f,
+}
