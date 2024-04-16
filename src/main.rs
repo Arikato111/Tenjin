@@ -40,7 +40,7 @@ fn main() -> Result<(), std::io::Error> {
                                     println!("Hello event");
                                 }
                                 Msg::PacketIn(b) => {
-                                    controller.packetIn(xid, &payload, &mut stream);
+                                    controller.packetIn(packet.xid, &payload, &mut stream);
                                     println!("PacketIn event");
                                 }
                                 _ => {

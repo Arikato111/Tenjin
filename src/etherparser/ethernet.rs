@@ -16,7 +16,7 @@ struct EthernetFrame {
 
 impl EthernetFrame {
     fn parse(payload: &Vec<u8>) {
-        let mut bytes = Cursor::new(*payload);
+        let mut bytes = Cursor::new(payload.to_vec());
         let mut mac_des = vec![0u8; 6];
         let mut mac_src = vec![0u8; 6];
         for i in 0..6 {
