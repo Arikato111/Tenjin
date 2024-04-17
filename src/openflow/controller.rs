@@ -4,7 +4,7 @@ use byteorder::{BigEndian, WriteBytesExt};
 
 use crate::etherparser::ethernet::EthernetFrame;
 
-use super::OfpHeader;
+use super::{events::packet_in::PacketInEvent, OfpHeader};
 
 pub struct Controller {
     version: u8,
@@ -33,7 +33,12 @@ impl Controller {
         stream.write_all(&bytes).unwrap();
     }
 
-    pub fn packetIn(&self, xid: u32, payload: EthernetFrame, stream: &mut TcpStream) {}
+    pub fn packetIn(&mut self, xid: u32, packetin: PacketInEvent, stream: &mut TcpStream) {
+        let ether = packetin.payload;
+        self.mac_to_port.insert(ether.mac_src, packetin.port);
+
+        
+    }
 
     pub fn send(&self, xid: u32, message: u8, payload: &Vec<u8>, stream: &mut TcpStream) {
         let length = size_of::<OfpHeader>() + payload.len();

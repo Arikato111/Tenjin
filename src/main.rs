@@ -1,12 +1,13 @@
-use tenjin::etherparser::ethernet::EthernetFrame;
-use tenjin::openflow::{Controller, Msg, OfpHeader};
 use std::io::Read;
 use std::net::TcpListener;
+use tenjin::etherparser::ethernet::EthernetFrame;
+use tenjin::openflow::events::packet_in::PacketInEvent;
+use tenjin::openflow::{Controller, Msg, OfpHeader};
 
 extern crate byteorder;
 
 fn main() -> Result<(), std::io::Error> {
-    let controller = Controller::new(Controller::OFP_1_0);
+    let mut controller = Controller::new(Controller::OFP_1_0);
 
     let listener = TcpListener::bind(("127.0.0.1", 6633)).unwrap();
     let mut buf = vec![0u8; 8];
@@ -41,7 +42,11 @@ fn main() -> Result<(), std::io::Error> {
                                     println!("Hello event");
                                 }
                                 Msg::PacketIn(b) => {
-                                    controller.packetIn(packet.xid, EthernetFrame::parse(&payload), &mut stream);
+                                    controller.packetIn(
+                                        packet.xid,
+                                        PacketInEvent::parse(&payload),
+                                        &mut stream,
+                                    );
                                     println!("PacketIn event");
                                 }
                                 _ => {
