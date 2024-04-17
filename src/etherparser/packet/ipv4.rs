@@ -45,7 +45,7 @@ impl IP {
         let fragment = bytes.read_u16::<BigEndian>().unwrap();
         let flags = Flags {
             dont_flagment: (fragment & 0x8000) > 0,
-            more_fragments: (fragment >> 0x4000) > 0,
+            more_fragments: (fragment & 0x4000) > 0,
         };
         let ttl = bytes.read_u8().unwrap();
         let protocol = bytes.read_u8().unwrap();
