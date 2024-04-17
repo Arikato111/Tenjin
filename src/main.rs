@@ -1,3 +1,4 @@
+use tenjin::etherparser::ethernet::EthernetFrame;
 use tenjin::openflow::{Controller, Msg, OfpHeader};
 use std::io::Read;
 use std::net::TcpListener;
@@ -40,7 +41,7 @@ fn main() -> Result<(), std::io::Error> {
                                     println!("Hello event");
                                 }
                                 Msg::PacketIn(b) => {
-                                    controller.packetIn(packet.xid, &payload, &mut stream);
+                                    controller.packetIn(packet.xid, EthernetFrame::parse(&payload), &mut stream);
                                     println!("PacketIn event");
                                 }
                                 _ => {
