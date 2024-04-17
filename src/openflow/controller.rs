@@ -1,6 +1,6 @@
 use std::{collections::HashMap, io::Write, mem::size_of, net::TcpStream};
 
-use super::{events::packet_in::PacketInEvent, OfpHeader};
+use super::{events::PacketInEvent, OfpHeader};
 
 pub struct Controller {
     version: u8,
