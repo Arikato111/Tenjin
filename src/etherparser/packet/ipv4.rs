@@ -2,10 +2,17 @@ use super::{tcp::TCP, udp::UDP, ICMP};
 use byteorder::{BigEndian, ReadBytesExt};
 use std::io::{BufRead, Cursor, Read};
 
-struct Flags {
-    dont_flagment: bool,
-    more_fragments: bool,
+pub struct Flags {
+    pub dont_flagment: bool,
+    pub more_fragments: bool,
 }
+
+pub enum IpProtocol {
+    ICMP = 0x01,
+    TCP = 0x06,
+    UDP = 0x11,
+}
+
 pub struct IP {
     pub version: u8,
     pub ihl: u8,
@@ -20,12 +27,7 @@ pub struct IP {
     pub src: u32,
     pub des: u32,
     pub options: Vec<u8>,
-}
-
-pub enum IpProtocol {
-    ICMP = 0x01,
-    TCP = 0x06,
-    UDP = 0x11,
+    pub ptcol: EtherData,
 }
 
 impl IP {
@@ -96,6 +98,7 @@ impl IP {
             src,
             des,
             options,
+            ptcol,
         })
     }
 }

@@ -1,6 +1,5 @@
 use std::io::Read;
 use std::net::TcpListener;
-use tenjin::etherparser::ethernet::EthernetFrame;
 use tenjin::openflow::events::packet_in::PacketInEvent;
 use tenjin::openflow::{Controller, Msg, OfpHeader};
 
@@ -32,7 +31,7 @@ fn main() -> Result<(), std::io::Error> {
                             let length_payload = packet.size();
                             let mut payload = vec![0u8; length_payload];
                             stream.read(&mut payload)?;
-                            let message = Msg::parse(packet.message, &payload);
+                            let message = Msg::parse(packet.message);
 
                             match message {
                                 // 0 is Hello message
@@ -41,8 +40,8 @@ fn main() -> Result<(), std::io::Error> {
                                     controller.feture_req(packet.xid, &mut stream);
                                     println!("Hello event");
                                 }
-                                Msg::PacketIn(b) => {
-                                    controller.packetIn(
+                                Msg::PacketIn => {
+                                    controller.packet_in(
                                         packet.xid,
                                         PacketInEvent::parse(&payload),
                                         &mut stream,

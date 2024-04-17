@@ -1,9 +1,5 @@
 use std::{collections::HashMap, io::Write, mem::size_of, net::TcpStream};
 
-use byteorder::{BigEndian, WriteBytesExt};
-
-use crate::etherparser::ethernet::EthernetFrame;
-
 use super::{events::packet_in::PacketInEvent, OfpHeader};
 
 pub struct Controller {
@@ -33,11 +29,9 @@ impl Controller {
         stream.write_all(&bytes).unwrap();
     }
 
-    pub fn packetIn(&mut self, xid: u32, packetin: PacketInEvent, stream: &mut TcpStream) {
+    pub fn packet_in(&mut self, xid: u32, packetin: PacketInEvent, stream: &mut TcpStream) {
         let ether = packetin.payload;
         self.mac_to_port.insert(ether.mac_src, packetin.port);
-
-        
     }
 
     pub fn send(&self, xid: u32, message: u8, payload: &Vec<u8>, stream: &mut TcpStream) {
