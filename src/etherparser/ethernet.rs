@@ -8,17 +8,17 @@ use super::{
     tools::bits::mac_to_bytes,
 };
 
-struct EthernetFrame {
-    mac_des: u64,
-    mac_src: u64,
-    vlan_pcp: u8,
-    vlan_dei: bool,
-    vlan_vid: Option<u16>,
-    ip_header: Network,
+pub struct EthernetFrame {
+    pub mac_des: u64,
+    pub mac_src: u64,
+    pub vlan_pcp: u8,
+    pub vlan_dei: bool,
+    pub vlan_vid: Option<u16>,
+    pub ip_header: Network,
 }
 
 impl EthernetFrame {
-    fn parse(payload: &Vec<u8>) -> EthernetFrame {
+    pub fn parse(payload: &Vec<u8>) -> EthernetFrame {
         let mut bytes = Cursor::new(payload.to_vec());
         let mut mac_des = [0u8; 6];
         let mut mac_src = [0u8; 6];
