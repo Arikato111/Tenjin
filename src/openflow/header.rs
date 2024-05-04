@@ -17,7 +17,7 @@ impl OfpHeader {
         Self {
             version,
             message,
-            length,
+            length: length + 8,
             xid,
         }
     }

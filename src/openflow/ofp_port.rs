@@ -68,3 +68,19 @@ impl PseudoPort {
         let _ = bytes.write_u16::<BigEndian>(port);
     }
 }
+
+impl Clone for PseudoPort {
+    fn clone(&self) -> Self {
+        match self {
+            Self::PhysicalPort(arg0) => Self::PhysicalPort(arg0.clone()),
+            Self::InPort => Self::InPort,
+            Self::Table => Self::Table,
+            Self::Normal => Self::Normal,
+            Self::Flood => Self::Flood,
+            Self::AllPorts => Self::AllPorts,
+            Self::Controller(arg0) => Self::Controller(arg0.clone()),
+            Self::Local => Self::Local,
+            Self::Unsupport => Self::Unsupport,
+        }
+    }
+}

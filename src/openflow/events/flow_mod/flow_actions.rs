@@ -28,7 +28,7 @@ pub enum FlowAction {
 }
 
 impl FlowAction {
-    pub fn to_action_code(&self) -> FlowActionType {
+   pub fn to_action_code(&self) -> FlowActionType {
         match self {
             FlowAction::Oputput(_) => FlowActionType::Output,
             FlowAction::SetDlVlan(_) => FlowActionType::SetVlanId,
@@ -198,6 +198,26 @@ impl FlowAction {
                 FlowAction::Enqueue(PseudoPort::new(pt, Some(0)), qid)
             }
             _ => FlowAction::Unparsable,
+        }
+    }
+}
+
+
+impl Clone for FlowAction {
+    fn clone(&self) -> Self {
+        match self {
+            Self::Oputput(v) => Self::Oputput(v.clone()),
+            Self::SetDlVlan(v) => Self::SetDlVlan(v.clone()),
+            Self::SetDlVlanPcp(v) => Self::SetDlVlanPcp(v.clone()),
+            Self::SetDlSrc(v) => Self::SetDlSrc(v.clone()),
+            Self::SetDlDest(v) => Self::SetDlDest(v.clone()),
+            Self::SetIpSrc(v) => Self::SetIpSrc(v.clone()),
+            Self::SetIpDes(v) => Self::SetIpDes(v.clone()),
+            Self::SetTos(v) => Self::SetTos(v.clone()),
+            Self::SetTpSrc(v) => Self::SetTpSrc(v.clone()),
+            Self::SetTpDest(v) => Self::SetTpDest(v.clone()),
+            Self::Enqueue(v, arg1) => Self::Enqueue(v.clone(), arg1.clone()),
+            Self::Unparsable => Self::Unparsable,
         }
     }
 }

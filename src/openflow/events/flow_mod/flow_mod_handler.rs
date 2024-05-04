@@ -2,7 +2,7 @@ use std::io::Cursor;
 
 use byteorder::{BigEndian, ReadBytesExt, WriteBytesExt};
 
-use crate::openflow::{OfpPort, PseudoPort};
+use crate::openflow::{trait_marshal::MessageMarshal, OfpMsg, OfpPort, PseudoPort};
 
 use super::{FlowAction, FlowModCommand, MatchFields};
 
@@ -25,7 +25,7 @@ impl Timeout {
     }
 }
 
-pub struct FlowMod {
+pub struct FlowModEvent {
     command: FlowModCommand,
     match_fields: MatchFields,
     priority: u16,
@@ -39,26 +39,23 @@ pub struct FlowMod {
     check_overlap: bool,
 }
 
-impl FlowMod {
-    pub fn get_controller_last(actions: Vec<FlowAction>) -> Vec<FlowAction> {
+impl FlowModEvent {
+    pub fn get_controller_last(&self) -> Vec<FlowAction> {
         let mut not_ctrl: Vec<FlowAction> = Vec::new();
         let mut is_ctrl: Vec<FlowAction> = Vec::new();
-        for act in actions {
+        for act in &self.actions {
             match act {
                 FlowAction::Oputput(PseudoPort::Controller(_)) => {
-                    is_ctrl.push(act);
+                    is_ctrl.push(act.clone());
                 }
-                _ => not_ctrl.push(act),
+                _ => not_ctrl.push(act.clone()),
             }
         }
         not_ctrl.append(&mut is_ctrl);
         not_ctrl
     }
 
-    pub fn size_of() -> usize {
-        24
-    }
-    pub fn parse(buf: &[u8]) -> FlowMod {
+    pub fn parse(buf: &[u8]) -> FlowModEvent {
         let mut bytes = Cursor::new(buf.to_vec());
         let match_fields = MatchFields::parse(&mut bytes);
         let cookie = bytes.read_u64::<BigEndian>().unwrap();
@@ -70,7 +67,7 @@ impl FlowMod {
         let out_port = PseudoPort::parse(bytes.read_u16::<BigEndian>().unwrap());
         let flags = bytes.read_u16::<BigEndian>().unwrap();
         let actions = FlowAction::parse_sequence(&mut bytes);
-        FlowMod {
+        FlowModEvent {
             command,
             match_fields,
             cookie,
@@ -89,30 +86,35 @@ impl FlowMod {
             check_overlap: flags & 2 != 0,
         }
     }
-    pub fn marshal(flowmod: FlowMod, bytes: &mut Vec<u8>) {
-        flowmod.match_fields.marshal(bytes);
-        let _ = bytes.write_u64::<BigEndian>(flowmod.cookie);
-        let _ = bytes.write_u16::<BigEndian>(flowmod.command as u16);
-        let _ = bytes.write_u16::<BigEndian>(flowmod.idle_timeout.to_int());
-        let _ = bytes.write_u16::<BigEndian>(flowmod.hard_timeout.to_int());
-        let _ = bytes.write_u16::<BigEndian>(flowmod.priority);
-        let _ = bytes.write_i32::<BigEndian>(match flowmod.apply_to_packet {
+}
+
+impl MessageMarshal for FlowModEvent {
+    fn size_of(&self) -> usize {
+        24
+    }
+    fn msg_code(&self) -> OfpMsg {
+        OfpMsg::FlowMod
+    }
+    fn marshal(&self, bytes: &mut Vec<u8>) {
+        self.match_fields.marshal(bytes);
+        let _ = bytes.write_u64::<BigEndian>(self.cookie);
+        let _ = bytes.write_u16::<BigEndian>(self.command.to_number() as u16);
+        let _ = bytes.write_u16::<BigEndian>(self.idle_timeout.to_int());
+        let _ = bytes.write_u16::<BigEndian>(self.hard_timeout.to_int());
+        let _ = bytes.write_u16::<BigEndian>(self.priority);
+        let _ = bytes.write_i32::<BigEndian>(match self.apply_to_packet {
             None => -1,
             Some(buf_id) => buf_id as i32,
         });
-        match flowmod.out_port {
+        match self.out_port.as_ref() {
             None => bytes.write_u16::<BigEndian>(OfpPort::None as u16).unwrap(),
             Some(p) => p.marshal(bytes),
         }
         let _ = bytes.write_u16::<BigEndian>(
-            (if flowmod.check_overlap { 1 << 1 } else { 0 })
-                | (if flowmod.notify_when_removed {
-                    1 << 0
-                } else {
-                    0
-                }),
+            (if self.check_overlap { 1 << 1 } else { 0 })
+                | (if self.notify_when_removed { 1 << 0 } else { 0 }),
         );
-        for act in FlowMod::get_controller_last(flowmod.actions) {
+        for act in self.get_controller_last() {
             match act {
                 FlowAction::Oputput(PseudoPort::Table) => {
                     panic!("Openflow table not allowed")

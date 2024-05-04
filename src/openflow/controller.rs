@@ -1,6 +1,10 @@
-use std::{collections::HashMap, io::Write, mem::size_of, net::TcpStream};
+use std::{collections::HashMap, io::Write, net::TcpStream};
 
-use super::{events::PacketInEvent, OfpHeader};
+use super::{
+    events::{FeaturesReq, HelloEvent, PacketInEvent},
+    trait_marshal::MessageMarshal,
+    OfpHeader,
+};
 
 pub struct Controller {
     version: u8,
@@ -15,32 +19,37 @@ impl Controller {
             mac_to_port: HashMap::new(),
         }
     }
-    pub fn hello(&self, stream: &mut TcpStream) {
-        let header = OfpHeader::new(self.version, 0, size_of::<OfpHeader>() as u16, 0);
-        let mut bytes: Vec<u8> = Vec::new();
-        header.marshal(&mut bytes);
-        stream.write_all(&bytes).unwrap();
+
+    pub fn send_msg<T: MessageMarshal>(&self, msg: T, xid: u32, stream: &mut TcpStream) {
+        let mut header_bytes: Vec<u8> = Vec::new();
+        let mut body_bytes: Vec<u8> = Vec::new();
+        msg.marshal(&mut body_bytes);
+        let ofpheader = OfpHeader::new(
+            self.version,
+            msg.msg_code() as u8,
+            body_bytes.len() as u16,
+            xid,
+        );
+        ofpheader.marshal(&mut header_bytes);
+        header_bytes.append(&mut body_bytes);
+        let _ = stream.write_all(&header_bytes);
     }
 
-    pub fn feture_req(&self, xid: u32, stream: &mut TcpStream) {
-        let header = OfpHeader::new(self.version, 5, 8, xid);
-        let mut bytes: Vec<u8> = Vec::new();
-        header.marshal(&mut bytes);
-        stream.write_all(&bytes).unwrap();
+    /**
+     * example of sending message
+     */
+    pub fn hello(&self, stream: &mut TcpStream) {
+        let hello_msg = HelloEvent::new();
+        self.send_msg(hello_msg, 0, stream);
+    }
+
+    pub fn fetures_req(&self, xid: u32, stream: &mut TcpStream) {
+        let fetreq_msg = FeaturesReq::new();
+        self.send_msg(fetreq_msg, xid, stream);
     }
 
     pub fn packet_in(&mut self, xid: u32, packetin: PacketInEvent, stream: &mut TcpStream) {
         let ether = packetin.payload;
         self.mac_to_port.insert(ether.mac_src, packetin.port);
-    }
-
-    pub fn send(&self, xid: u32, message: u8, payload: &Vec<u8>, stream: &mut TcpStream) {
-        let length = size_of::<OfpHeader>() + payload.len();
-        let header = OfpHeader::new(self.version, message, length as u16, xid);
-        let mut bytes: Vec<u8> = Vec::new();
-
-        header.marshal(&mut bytes);
-
-        stream.write_all(&bytes).unwrap();
     }
 }

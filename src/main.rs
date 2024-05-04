@@ -1,7 +1,7 @@
 use std::io::Read;
 use std::net::TcpListener;
 use tenjin::openflow::events::packet_in::PacketInEvent;
-use tenjin::openflow::{Controller, Msg, OfpHeader};
+use tenjin::openflow::{Controller, OfpMsg, OfpHeader};
 
 extern crate byteorder;
 
@@ -31,16 +31,16 @@ fn main() -> Result<(), std::io::Error> {
                             let length_payload = packet.size();
                             let mut payload = vec![0u8; length_payload];
                             stream.read(&mut payload)?;
-                            let message = Msg::parse(packet.message);
+                            let message = OfpMsg::parse(packet.message);
 
                             match message {
                                 // 0 is Hello message
-                                Msg::Hello => {
+                                OfpMsg::Hello => {
                                     // after get Hello, send fetureReq
-                                    controller.feture_req(packet.xid, &mut stream);
+                                    controller.fetures_req(packet.xid, &mut stream);
                                     println!("Hello event");
                                 }
-                                Msg::PacketIn => {
+                                OfpMsg::PacketIn => {
                                     controller.packet_in(
                                         packet.xid,
                                         PacketInEvent::parse(&payload),

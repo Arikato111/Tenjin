@@ -75,7 +75,7 @@ pub struct MatchFields {
 }
 
 impl MatchFields {
-    pub fn marshal(self, bytes: &mut Vec<u8>) {
+    pub fn marshal(&self, bytes: &mut Vec<u8>) {
         let mut match_f = 0u32;
         match_f = set_bit(match_f, 0, self.in_port.is_some());
         match_f = set_bit(match_f, 1, self.vlan_vid.is_some());
@@ -85,8 +85,8 @@ impl MatchFields {
         match_f = set_bit(match_f, 5, self.protocol.is_some());
         match_f = set_bit(match_f, 6, self.ip_src.is_some());
         match_f = set_bit(match_f, 7, self.ip_dest.is_some());
-        match_f = MatchFields::set_nw_mask(match_f, 8, self.ip_src.unwrap().ip);
-        match_f = MatchFields::set_nw_mask(match_f, 14, self.ip_dest.unwrap().ip);
+        match_f = MatchFields::set_nw_mask(match_f, 8, self.ip_src.as_ref().unwrap().ip);
+        match_f = MatchFields::set_nw_mask(match_f, 14, self.ip_dest.as_ref().unwrap().ip);
         match_f = set_bit(match_f, 20, self.vlan_pcp.is_some());
         match_f = set_bit(match_f, 21, self.tos.is_some());
         bytes.write_u32::<BigEndian>(match_f).unwrap();

@@ -1,4 +1,5 @@
 pub mod flow_mod_handler;
+pub use flow_mod_handler::FlowModEvent;
 
 pub mod command;
 pub use command::FlowModCommand;
@@ -11,3 +12,4 @@ pub use flow_actions_type::FlowActionType;
 
 pub mod match_fields;
 pub use match_fields::{Mask, MatchFields};
+
