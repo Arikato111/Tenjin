@@ -1,12 +1,13 @@
 use std::io::Read;
 use std::net::TcpListener;
 use tenjin::openflow::events::packet_in::PacketInEvent;
-use tenjin::openflow::{Controller, OfpMsg, OfpHeader};
+use tenjin::openflow::message::Openflow10;
+use tenjin::openflow::{Controller, OfpHeader, OfpMsg};
 
 extern crate byteorder;
 
 fn main() -> Result<(), std::io::Error> {
-    let mut controller = Controller::new(Controller::OFP_1_0);
+    let mut controller = Controller::new(Openflow10::new());
 
     let listener = TcpListener::bind(("127.0.0.1", 6633)).unwrap();
     let mut buf = vec![0u8; 8];

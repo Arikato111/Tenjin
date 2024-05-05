@@ -14,7 +14,15 @@ pub enum OfpMsg {
     NotFound = -1,
 }
 
-impl OfpMsgEvent for OfpMsg {
+pub struct Openflow10 {}
+
+impl Openflow10 {
+    pub fn new() -> Self {
+        Openflow10 {}
+    }
+}
+
+impl OfpMsgEvent for Openflow10 {
     fn hello_event(&self) -> HelloEvent {
         HelloEvent::new()
     }
