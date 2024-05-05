@@ -1,21 +1,19 @@
 use std::{collections::HashMap, io::Write, net::TcpStream};
 
 use super::{
-    events::{FeaturesReq, HelloEvent, PacketInEvent},
-    trait_marshal::MessageMarshal,
-    OfpHeader,
+    events::PacketInEvent, message::OfpMsgEvent, trait_marshal::MessageMarshal, OfpHeader,
 };
 
-pub struct Controller {
-    version: u8,
+pub struct Controller<OME: OfpMsgEvent> {
+    ofp: OME,
     mac_to_port: HashMap<u64, u16>,
 }
 
-impl Controller {
+impl<OME: OfpMsgEvent> Controller<OME> {
     pub const OFP_1_0: u8 = 1;
-    pub fn new(version: u8) -> Self {
+    pub fn new(ofp: OME) -> Self {
         Self {
-            version,
+            ofp,
             mac_to_port: HashMap::new(),
         }
     }
@@ -25,7 +23,7 @@ impl Controller {
         let mut body_bytes: Vec<u8> = Vec::new();
         msg.marshal(&mut body_bytes);
         let ofpheader = OfpHeader::new(
-            self.version,
+            self.ofp.version() as u8,
             msg.msg_code() as u8,
             body_bytes.len() as u16,
             xid,
@@ -39,12 +37,12 @@ impl Controller {
      * example of sending message
      */
     pub fn hello(&self, stream: &mut TcpStream) {
-        let hello_msg = HelloEvent::new();
+        let hello_msg = self.ofp.hello_event();
         self.send_msg(hello_msg, 0, stream);
     }
 
     pub fn fetures_req(&self, xid: u32, stream: &mut TcpStream) {
-        let fetreq_msg = FeaturesReq::new();
+        let fetreq_msg = self.ofp.fetures_req();
         self.send_msg(fetreq_msg, xid, stream);
     }
 
