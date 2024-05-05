@@ -1,4 +1,4 @@
-use crate::openflow::trait_marshal::MessageMarshal;
+use crate::openflow::messages::{MessageMarshal, OfpMsg, OfpMsgEvent};
 
 pub struct FeaturesReq {}
 
@@ -11,11 +11,15 @@ impl FeaturesReq {
 impl MessageMarshal for FeaturesReq {
     fn marshal(&self, _: &mut Vec<u8>) {}
 
-    fn msg_code(&self) -> crate::openflow::OfpMsg {
-        crate::openflow::OfpMsg::FeaturesReq
+    fn msg_code(&self) -> OfpMsg {
+        OfpMsg::FeaturesReq
     }
 
     fn size_of(&self) -> usize {
         0
+    }
+
+    fn msg_usize<OFP: OfpMsgEvent>(&self, ofp: &OFP) -> usize {
+        ofp.msg_usize(OfpMsg::FeaturesReq)
     }
 }

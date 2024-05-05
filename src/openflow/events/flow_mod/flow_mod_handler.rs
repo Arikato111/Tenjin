@@ -2,7 +2,10 @@ use std::io::Cursor;
 
 use byteorder::{BigEndian, ReadBytesExt, WriteBytesExt};
 
-use crate::openflow::{trait_marshal::MessageMarshal, OfpMsg, OfpPort, PseudoPort};
+use crate::openflow::{
+    messages::{MessageMarshal, OfpMsg, OfpMsgEvent},
+    OfpPort, PseudoPort,
+};
 
 use super::{FlowAction, FlowModCommand, MatchFields};
 
@@ -89,6 +92,9 @@ impl FlowModEvent {
 }
 
 impl MessageMarshal for FlowModEvent {
+    fn msg_usize<OFP: OfpMsgEvent>(&self, ofp: &OFP) -> usize {
+        ofp.msg_usize(OfpMsg::FlowMod)
+    }
     fn size_of(&self) -> usize {
         24
     }

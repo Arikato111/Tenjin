@@ -1,8 +1,9 @@
 use std::io::Read;
 use std::net::TcpListener;
 use tenjin::openflow::events::packet_in::PacketInEvent;
-use tenjin::openflow::message::Openflow10;
-use tenjin::openflow::{Controller, OfpHeader, OfpMsg};
+use tenjin::openflow::messages::{OfpMsg, Openflow10};
+use tenjin::openflow::traiter::OfpMsgEvent;
+use tenjin::openflow::{Controller, OfpHeader};
 
 extern crate byteorder;
 
@@ -32,7 +33,7 @@ fn main() -> Result<(), std::io::Error> {
                             let length_payload = packet.size();
                             let mut payload = vec![0u8; length_payload];
                             stream.read(&mut payload)?;
-                            let message = OfpMsg::parse(packet.message);
+                            let message = controller.ofp.msg_parse(packet.message as u16);
 
                             match message {
                                 // 0 is Hello message

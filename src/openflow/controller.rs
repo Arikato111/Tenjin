@@ -1,11 +1,16 @@
 use std::{collections::HashMap, io::Write, net::TcpStream};
 
 use super::{
-    events::PacketInEvent, message::OfpMsgEvent, trait_marshal::MessageMarshal, OfpHeader,
+    events::PacketInEvent,
+    messages::traiter::{MessageMarshal, OfpMsgEvent},
 };
 
 pub struct Controller<OME: OfpMsgEvent> {
-    ofp: OME,
+    /*
+     * pub is temporary, remove soon;
+     * for test in main func
+     */
+    pub ofp: OME,
     mac_to_port: HashMap<u64, u16>,
 }
 
@@ -22,12 +27,9 @@ impl<OME: OfpMsgEvent> Controller<OME> {
         let mut header_bytes: Vec<u8> = Vec::new();
         let mut body_bytes: Vec<u8> = Vec::new();
         msg.marshal(&mut body_bytes);
-        let ofpheader = OfpHeader::new(
-            self.ofp.version() as u8,
-            msg.msg_code() as u8,
-            body_bytes.len() as u16,
-            xid,
-        );
+        let ofpheader =
+            self.ofp
+                .header(msg.msg_usize(&self.ofp) as u8, body_bytes.len() as u16, xid);
         ofpheader.marshal(&mut header_bytes);
         header_bytes.append(&mut body_bytes);
         let _ = stream.write_all(&header_bytes);
