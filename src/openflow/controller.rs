@@ -26,11 +26,12 @@ impl<OME: OfpMsgEvent> Controller<OME> {
     pub fn send_msg<T: MessageMarshal>(&self, msg: T, xid: u32, stream: &mut TcpStream) {
         let mut header_bytes: Vec<u8> = Vec::new();
         let mut body_bytes: Vec<u8> = Vec::new();
+
         msg.marshal(&mut body_bytes);
-        let ofpheader =
+        let ofp_header =
             self.ofp
                 .header(msg.msg_usize(&self.ofp) as u8, body_bytes.len() as u16, xid);
-        ofpheader.marshal(&mut header_bytes);
+        ofp_header.marshal(&mut header_bytes);
         header_bytes.append(&mut body_bytes);
         let _ = stream.write_all(&header_bytes);
     }
