@@ -16,10 +16,6 @@ use super::{
 };
 
 pub struct Controller<OME: OfpMsgEvent> {
-    /*
-     * pub is temporary, remove soon;
-     * for test in main func
-     */
     pub ofp: OME,
     mac_to_port: HashMap<u64, u16>,
 }
