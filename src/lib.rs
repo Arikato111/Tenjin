@@ -2,4 +2,5 @@ pub mod openflow;
 
 pub mod etherparser;
 
-mod tcp_listener;
+pub mod controller;
+pub use controller::Controller;

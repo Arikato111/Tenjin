@@ -25,7 +25,9 @@ impl OfpMsgEvent for Openflow10 {
     fn fetures_req(&self) -> FeaturesReq {
         FeaturesReq::new()
     }
-
+    fn ofp_version() -> usize {
+        1
+    }
     fn version(&self) -> usize {
         1
     }

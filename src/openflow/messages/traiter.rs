@@ -22,6 +22,7 @@ pub trait MessageMarshal {
 pub trait OfpMsgEvent {
     fn header(&self, message: u8, length: u16, xid: u32) -> OfpHeader;
     fn version(&self) -> usize;
+    fn ofp_version() -> usize;
     fn header_size(&self) -> usize;
 
     fn msg_usize(&self, msg: OfpMsg) -> usize;
