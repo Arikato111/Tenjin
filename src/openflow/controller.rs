@@ -1,8 +1,18 @@
-use std::{collections::HashMap, io::Write, net::TcpStream};
+use std::{
+    collections::HashMap,
+    io::{Read, Write},
+    net::TcpStream,
+};
+
+use crate::tcp_listener::tcp_listener_handler;
 
 use super::{
     events::PacketInEvent,
-    messages::traiter::{MessageMarshal, OfpMsgEvent},
+    messages::{
+        traiter::{MessageMarshal, OfpMsgEvent},
+        OfpMsg,
+    },
+    OfpHeader,
 };
 
 pub struct Controller<OME: OfpMsgEvent> {
@@ -20,6 +30,26 @@ impl<OME: OfpMsgEvent> Controller<OME> {
         Self {
             ofp,
             mac_to_port: HashMap::new(),
+        }
+    }
+
+    pub fn listener(&mut self, address: &str) {
+        tcp_listener_handler(self, address);
+    }
+
+    pub fn request_handler(&mut self, buf: &mut Vec<u8>, stream: &mut TcpStream) {
+        let ofp_header = OfpHeader::parse(&buf);
+        let mut payload = vec![0u8; ofp_header.pkt_size()];
+        let _ = stream.read(&mut payload);
+        let message = self.ofp.msg_parse(ofp_header.message as u16);
+        match message {
+            OfpMsg::Hello => self.send_msg(self.ofp.fetures_req(), ofp_header.xid, stream),
+            OfpMsg::FeaturesReq => todo!(),
+            OfpMsg::PacketIn => {
+                self.packet_in_handler(ofp_header.xid, PacketInEvent::parse(&payload), stream);
+            }
+            OfpMsg::FlowMod => todo!(),
+            OfpMsg::NotFound => todo!(),
         }
     }
 
@@ -49,7 +79,7 @@ impl<OME: OfpMsgEvent> Controller<OME> {
         self.send_msg(fetreq_msg, xid, stream);
     }
 
-    pub fn packet_in(&mut self, xid: u32, packetin: PacketInEvent, stream: &mut TcpStream) {
+    pub fn packet_in_handler(&mut self, xid: u32, packetin: PacketInEvent, stream: &mut TcpStream) {
         let ether = packetin.payload;
         self.mac_to_port.insert(ether.mac_src, packetin.port);
     }

@@ -10,7 +10,10 @@ pub struct OfpHeader {
 }
 
 impl OfpHeader {
-    pub fn size(&self) -> usize {
+    pub fn header_size(&self) -> usize {
+        size_of::<OfpHeader>()
+    }
+    pub fn pkt_size(&self) -> usize {
         return self.length as usize - size_of::<OfpHeader>();
     }
     pub fn new(version: u8, message: u8, length: u16, xid: u32) -> Self {
