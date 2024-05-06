@@ -7,3 +7,5 @@ pub use traiter::OfpMsgEvent;
 
 pub mod ofp_v1_0;
 pub use ofp_v1_0::Openflow10;
+
+pub mod macro_selector;

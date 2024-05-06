@@ -15,6 +15,9 @@ impl Openflow10 {
 }
 
 impl OfpMsgEvent for Openflow10 {
+    fn header_size(&self) -> usize {
+        8
+    }
     fn hello_event(&self) -> HelloEvent {
         HelloEvent::new()
     }

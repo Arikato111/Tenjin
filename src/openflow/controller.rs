@@ -33,8 +33,8 @@ impl<OME: OfpMsgEvent> Controller<OME> {
         }
     }
 
-    pub fn listener(&mut self, address: &str) {
-        tcp_listener_handler(self, address);
+    pub fn listener(address: &str, ofp: OME) {
+        tcp_listener_handler(ofp.version() as u8, address);
     }
 
     pub fn request_handler(&mut self, buf: &mut Vec<u8>, stream: &mut TcpStream) {
