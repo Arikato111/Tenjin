@@ -3,7 +3,7 @@ use std::io::Cursor;
 use byteorder::{BigEndian, ReadBytesExt, WriteBytesExt};
 
 use crate::openflow::{
-    messages::{MessageMarshal, OfpMsg, OfpMsgEvent},
+    ofp_manager::{MessageMarshal, OfpMsg, OfpMsgEvent},
     OfpPort, PseudoPort,
 };
 

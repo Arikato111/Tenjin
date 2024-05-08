@@ -1,4 +1,4 @@
-use crate::openflow::{messages::Openflow10, traiter::OfpMsgEvent};
+use crate::openflow::{ofp_manager::Openflow10, traiter::OfpMsgEvent};
 use crate::{ofp_from_version, Controller};
 use std::sync::{Arc, Mutex};
 use std::{io::Read, net::TcpListener, thread};

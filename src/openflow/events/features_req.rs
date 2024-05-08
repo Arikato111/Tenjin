@@ -1,4 +1,4 @@
-use crate::openflow::messages::{MessageMarshal, OfpMsg, OfpMsgEvent};
+use crate::openflow::ofp_manager::{MessageMarshal, OfpMsg, OfpMsgEvent};
 
 pub struct FeaturesReq {}
 

@@ -5,25 +5,25 @@ use std::{
 
 use super::{
     events::PacketInEvent,
-    messages::{
+    ofp_manager::{
         traiter::{MessageMarshal, OfpMsgEvent},
         OfpMsg,
     },
-    tcp_listener_handler, OfpHeader,
+    tcp_listener_handler,
 };
 
 pub trait ControllerFrame<OME: OfpMsgEvent> {
     fn get_ofp(&self) -> &impl OfpMsgEvent;
     fn packet_in_handler(&mut self, xid: u32, packetin: PacketInEvent, stream: &mut TcpStream);
     fn new(ofp: OME) -> Self;
-    
+
     fn listener(address: &str, ofp: OME) {
         tcp_listener_handler::<OME>(address, ofp.version() as u8);
     }
 
     fn request_handler(&mut self, buf: &mut Vec<u8>, stream: &mut TcpStream) {
         let ofp = self.get_ofp();
-        let ofp_header = OfpHeader::parse(&buf);
+        let ofp_header = ofp.header_parse(&buf);
         let mut payload = vec![0u8; ofp_header.pkt_size()];
         let _ = stream.read(&mut payload);
         let message = ofp.msg_parse(ofp_header.message as u16);
@@ -50,4 +50,3 @@ pub trait ControllerFrame<OME: OfpMsgEvent> {
         let _ = stream.write_all(&header_bytes);
     }
 }
-
