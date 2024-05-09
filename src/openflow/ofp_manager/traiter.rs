@@ -1,5 +1,6 @@
 use crate::openflow::{
     events::{FeaturesReq, HelloEvent},
+    ofp_header::OpenflowHeader,
     OfpHeader,
 };
 
@@ -20,11 +21,11 @@ pub trait MessageMarshal {
  * for works with controller to create OfpMsgEvent
  */
 pub trait OfpMsgEvent {
-    fn header(&self, message: u8, length: u16, xid: u32) -> OfpHeader;
+    fn header(&self, message: u8, length: u16, xid: u32) -> OfpHeader<impl OpenflowHeader>;
+    fn header_parse(&self, bytes: &Vec<u8>) -> OfpHeader<impl OpenflowHeader>;
     fn version(&self) -> usize;
     fn ofp_version() -> usize;
     fn header_size(&self) -> usize;
-    fn header_parse(&self, bytes:&Vec<u8>) -> OfpHeader;
 
     fn msg_usize(&self, msg: OfpMsg) -> usize;
     fn msg_parse(&self, msg: u16) -> OfpMsg;

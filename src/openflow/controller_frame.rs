@@ -21,17 +21,25 @@ pub trait ControllerFrame<OME: OfpMsgEvent> {
         tcp_listener_handler::<OME>(address, ofp.version() as u8);
     }
 
+    fn handle_header(&mut self, buf: &mut Vec<u8>) -> (u8, usize, u32) {
+        let ofp_header = self.get_ofp().header_parse(&buf);
+        (
+            ofp_header.message(),
+            ofp_header.pkt_size(),
+            ofp_header.xid(),
+        )
+    }
+
     fn request_handler(&mut self, buf: &mut Vec<u8>, stream: &mut TcpStream) {
-        let ofp = self.get_ofp();
-        let ofp_header = ofp.header_parse(&buf);
-        let mut payload = vec![0u8; ofp_header.pkt_size()];
+        let (message, pkt_size, xid) = self.handle_header(buf);
+        let mut payload = vec![0u8; pkt_size];
         let _ = stream.read(&mut payload);
-        let message = ofp.msg_parse(ofp_header.message as u16);
+        let message = self.get_ofp().msg_parse(message as u16);
         match message {
-            OfpMsg::Hello => self.send_msg(ofp.fetures_req(), ofp_header.xid, stream),
+            OfpMsg::Hello => self.send_msg(self.get_ofp().fetures_req(), xid, stream),
             OfpMsg::FeaturesReq => todo!(),
             OfpMsg::PacketIn => {
-                self.packet_in_handler(ofp_header.xid, PacketInEvent::parse(&payload), stream);
+                self.packet_in_handler(xid, PacketInEvent::parse(&payload), stream);
             }
             OfpMsg::FlowMod => todo!(),
             OfpMsg::NotFound => todo!(),

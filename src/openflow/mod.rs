@@ -1,5 +1,5 @@
-pub mod header;
-pub use header::OfpHeader;
+pub mod ofp_header;
+pub use ofp_header::OfpHeader;
 
 pub mod controller_frame;
 
