@@ -75,6 +75,22 @@ pub struct MatchFields {
 }
 
 impl MatchFields {
+    pub fn match_all() -> Self {
+        Self {
+            ethernet_type: None,
+            in_port: None,
+            ip_dest: None,
+            ip_src: None,
+            mac_dest: None,
+            mac_src: None,
+            protocol: None,
+            tos: None,
+            transport_dest: None,
+            transport_src: None,
+            vlan_pcp: None,
+            vlan_vid: None,
+        }
+    }
     pub fn marshal(&self, bytes: &mut Vec<u8>) {
         let mut match_f = 0u32;
         match_f = set_bit(match_f, 0, self.in_port.is_some());

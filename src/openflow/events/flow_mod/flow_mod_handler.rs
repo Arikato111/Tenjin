@@ -43,6 +43,21 @@ pub struct FlowModEvent {
 }
 
 impl FlowModEvent {
+    pub fn add_flow(priority: u16, match_fileds: MatchFields, actions: Vec<FlowAction>) -> Self {
+        Self {
+            command: FlowModCommand::Add,
+            match_fields: match_fileds,
+            priority,
+            actions,
+            cookie: 0,
+            idle_timeout: Timeout::Permanent,
+            hard_timeout: Timeout::Permanent,
+            notify_when_removed: false,
+            apply_to_packet: None,
+            out_port: None,
+            check_overlap: false,
+        }
+    }
     pub fn get_controller_last(&self) -> Vec<FlowAction> {
         let mut not_ctrl: Vec<FlowAction> = Vec::new();
         let mut is_ctrl: Vec<FlowAction> = Vec::new();
