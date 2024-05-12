@@ -2,6 +2,7 @@ pub mod packet_in;
 pub use packet_in::{PacketInEvent, PacketInReason};
 
 pub mod packet_out;
+pub use packet_out::PacketOutEvent;
 
 pub mod flow_mod;
 pub use flow_mod::{FlowAction, FlowModEvent};

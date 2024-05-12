@@ -28,7 +28,7 @@ pub enum FlowAction {
 }
 
 impl FlowAction {
-   pub fn to_action_code(&self) -> FlowActionType {
+    pub fn to_action_code(&self) -> FlowActionType {
         match self {
             FlowAction::Oputput(_) => FlowActionType::Output,
             FlowAction::SetDlVlan(_) => FlowActionType::SetVlanId,
@@ -202,6 +202,31 @@ impl FlowAction {
     }
 }
 
+pub trait SizeCheck {
+    fn size_of_sequence(&self) -> usize;
+    fn move_controller_last(&self) -> Vec<FlowAction>;
+}
+
+impl SizeCheck for Vec<FlowAction> {
+    fn size_of_sequence(&self) -> usize {
+        self.iter().fold(0, |acc, x| x.length() + acc)
+    }
+
+    fn move_controller_last(&self) -> Vec<FlowAction> {
+        let mut not_ctrl: Vec<FlowAction> = Vec::new();
+        let mut is_ctrl: Vec<FlowAction> = Vec::new();
+        for act in self {
+            match act {
+                FlowAction::Oputput(PseudoPort::Controller(_)) => {
+                    is_ctrl.push(act.clone());
+                }
+                _ => not_ctrl.push(act.clone()),
+            }
+        }
+        not_ctrl.append(&mut is_ctrl);
+        not_ctrl
+    }
+}
 
 impl Clone for FlowAction {
     fn clone(&self) -> Self {

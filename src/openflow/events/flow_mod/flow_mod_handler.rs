@@ -7,7 +7,7 @@ use crate::openflow::{
     OfpPort, PseudoPort,
 };
 
-use super::{FlowAction, FlowModCommand, MatchFields};
+use super::{FlowAction, FlowModCommand, MatchFields, SizeCheck};
 
 pub enum Timeout {
     Permanent,
@@ -57,20 +57,6 @@ impl FlowModEvent {
             out_port: None,
             check_overlap: false,
         }
-    }
-    pub fn get_controller_last(&self) -> Vec<FlowAction> {
-        let mut not_ctrl: Vec<FlowAction> = Vec::new();
-        let mut is_ctrl: Vec<FlowAction> = Vec::new();
-        for act in &self.actions {
-            match act {
-                FlowAction::Oputput(PseudoPort::Controller(_)) => {
-                    is_ctrl.push(act.clone());
-                }
-                _ => not_ctrl.push(act.clone()),
-            }
-        }
-        not_ctrl.append(&mut is_ctrl);
-        not_ctrl
     }
 
     pub fn parse(buf: &[u8]) -> FlowModEvent {
@@ -135,7 +121,7 @@ impl MessageMarshal for FlowModEvent {
             (if self.check_overlap { 1 << 1 } else { 0 })
                 | (if self.notify_when_removed { 1 << 0 } else { 0 }),
         );
-        for act in self.get_controller_last() {
+        for act in self.actions.move_controller_last() {
             match act {
                 FlowAction::Oputput(PseudoPort::Table) => {
                     panic!("Openflow table not allowed")
