@@ -30,6 +30,8 @@ impl<OME: OfpMsgEvent> ControllerFrame<OME> for Controller<OME> {
      */
     fn packet_in_handler(&mut self, xid: u32, packetin: PacketInEvent, stream: &mut TcpStream) {
         let pkt = packetin.ether_parse();
+        self.mac_to_port.insert(pkt.mac_src, packetin.port);
+
         let mac_dst = pkt.mac_des;
         let mac_src = pkt.mac_src;
         let out_port = self.mac_to_port.get(&mac_dst);
@@ -57,7 +59,13 @@ impl<OME: OfpMsgEvent> ControllerFrame<OME> for Controller<OME> {
                 );
                 self.send_msg(packet_out, xid, stream);
             }
-            None => todo!(),
+            None => {
+                let packet_out = self.ofp.packet_out(
+                    None,
+                    packetin.payload,
+                    vec![FlowAction::Oputput(PseudoPort::AllPorts)],
+                );
+            }
         }
     }
 }
