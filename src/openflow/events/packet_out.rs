@@ -1,8 +1,14 @@
-use std::io::{BufRead, Cursor, Read};
+use std::{
+    io::{BufRead, Cursor, Read},
+    mem::size_of,
+};
 
 use byteorder::{BigEndian, ReadBytesExt, WriteBytesExt};
 
-use crate::openflow::{OfpPort, PseudoPort};
+use crate::openflow::{
+    ofp_manager::{MessageMarshal, OfpMsg, OfpMsgEvent},
+    OfpPort, PseudoPort,
+};
 
 use super::{flow_mod::SizeCheck, FlowAction, Payload};
 
@@ -10,6 +16,40 @@ pub struct PacketOutEvent {
     pub payload: Payload,
     pub port_id: Option<u16>,
     pub actions: Vec<FlowAction>,
+}
+
+impl MessageMarshal for PacketOutEvent {
+    fn marshal(&self, bytes: &mut Vec<u8>) {
+        let _ = bytes.write_i32::<BigEndian>(match self.payload {
+            Payload::Buffered(n, _) => n as i32,
+            Payload::NoBuffered(_) => -1,
+        });
+        match self.port_id {
+            Some(id) => {
+                PseudoPort::PhysicalPort(id).marshal(bytes);
+            }
+            None => {
+                let _ = bytes.write_u16::<BigEndian>(OfpPort::None as u16);
+            }
+        }
+        let _ = bytes.write_u16::<BigEndian>(self.actions.size_of_sequence() as u16);
+        for act in self.actions.move_controller_last() {
+            act.marshal(bytes);
+        }
+        self.payload.marshal(bytes);
+    }
+
+    fn msg_code(&self) -> OfpMsg {
+        OfpMsg::PacketOut
+    }
+
+    fn msg_usize<OFP: OfpMsgEvent>(&self, ofp: &OFP) -> usize {
+        ofp.msg_usize(OfpMsg::PacketOut)
+    }
+
+    fn size_of(&self) -> usize {
+        size_of::<(u32, u16, u16)>() + self.actions.size_of_sequence() + self.payload.length()
+    }
 }
 
 impl PacketOutEvent {
@@ -51,25 +91,5 @@ impl PacketOutEvent {
             },
             actions,
         }
-    }
-
-    pub fn marshal(&self, bytes: &mut Vec<u8>) {
-        let _ = bytes.write_i32::<BigEndian>(match self.payload {
-            Payload::Buffered(n, _) => n as i32,
-            Payload::NoBuffered(_) => -1,
-        });
-        match self.port_id {
-            Some(id) => {
-                PseudoPort::PhysicalPort(id).marshal(bytes);
-            }
-            None => {
-                let _ = bytes.write_u16::<BigEndian>(OfpPort::None as u16);
-            }
-        }
-        let _ = bytes.write_u16::<BigEndian>(self.actions.size_of_sequence() as u16);
-        for act in self.actions.move_controller_last() {
-            act.marshal(bytes);
-        }
-        self.payload.marshal(bytes);
     }
 }

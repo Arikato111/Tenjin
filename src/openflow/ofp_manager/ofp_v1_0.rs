@@ -53,6 +53,7 @@ impl OfpMsgEvent for Openflow10 {
             0 => OfpMsg::Hello,
             5 => OfpMsg::FeaturesReq,
             8 => OfpMsg::PacketIn,
+            13 => OfpMsg::PacketOut,
             14 => OfpMsg::FlowMod,
             _ => OfpMsg::NotFound,
         }
@@ -63,6 +64,7 @@ impl OfpMsgEvent for Openflow10 {
             OfpMsg::Hello => 0,
             OfpMsg::FeaturesReq => 5,
             OfpMsg::PacketIn => 8,
+            OfpMsg::PacketOut => 13,
             OfpMsg::FlowMod => 14,
             _ => 1024,
         }

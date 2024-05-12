@@ -41,6 +41,7 @@ pub trait ControllerFrame<OME: OfpMsgEvent> {
             OfpMsg::PacketIn => {
                 self.packet_in_handler(xid, PacketInEvent::parse(&payload), stream);
             }
+            OfpMsg::PacketOut => (),
             OfpMsg::FlowMod => todo!(),
             OfpMsg::NotFound => todo!(),
         }
