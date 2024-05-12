@@ -29,8 +29,9 @@ impl<OME: OfpMsgEvent> ControllerFrame<OME> for Controller<OME> {
      * Start here for handle packetIn message.
      */
     fn packet_in_handler(&mut self, xid: u32, packetin: PacketInEvent, stream: &mut TcpStream) {
-        let mac_dst = packetin.payload.mac_des;
-        let mac_src = packetin.payload.mac_src;
+        let pkt = packetin.ether_parse();
+        let mac_dst = pkt.mac_des;
+        let mac_src = pkt.mac_src;
         let out_port = self.mac_to_port.get(&mac_dst);
         match out_port {
             Some(p) => {
@@ -49,7 +50,7 @@ impl<OME: OfpMsgEvent> ControllerFrame<OME> for Controller<OME> {
                 let actions = vec![FlowAction::Oputput(PseudoPort::PhysicalPort(src_port))];
                 self.add_flow(xid, dst_src_match, actions, stream);
 
-                // let pkt_out = 
+                // let pkt_out =
             }
             None => todo!(),
         }
