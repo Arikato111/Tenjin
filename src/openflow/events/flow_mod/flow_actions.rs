@@ -113,7 +113,7 @@ impl FlowAction {
                 }
                 let _ = bytes.write_u32::<BigEndian>(*qid);
             }
-            FlowAction::Unparsable => todo!(),
+            FlowAction::Unparsable => (),
         }
     }
     pub fn parse_sequence(bytes: &mut Cursor<Vec<u8>>) -> Vec<FlowAction> {

@@ -37,13 +37,13 @@ pub trait ControllerFrame<OME: OfpMsgEvent> {
         let message = self.get_ofp().msg_parse(message as u16);
         match message {
             OfpMsg::Hello => self.send_msg(self.get_ofp().fetures_req(), xid, stream),
-            OfpMsg::FeaturesReq => todo!(),
+            OfpMsg::FeaturesReq => (),
             OfpMsg::PacketIn => {
                 self.packet_in_handler(xid, PacketInEvent::parse(&payload), stream);
             }
             OfpMsg::PacketOut => (),
-            OfpMsg::FlowMod => todo!(),
-            OfpMsg::NotFound => todo!(),
+            OfpMsg::FlowMod => (),
+            OfpMsg::NotFound => (),
         }
     }
 
