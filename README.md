@@ -19,6 +19,9 @@ To understand  The software-defined networking well, I trying to create a simple
 
 ## Plan
 
+<details>
+<summary>Diagram</summary>
+
 ```mermaid
 stateDiagram
 con: Controller
@@ -43,3 +46,5 @@ ofp --> ofpe
 ofpe --> ofpv10_e
 ofpe --> ofpv13_e
 ```
+
+</details>
