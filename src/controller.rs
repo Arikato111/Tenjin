@@ -65,6 +65,7 @@ impl<OME: OfpMsgEvent> ControllerFrame<OME> for Controller<OME> {
                     packetin.payload,
                     vec![FlowAction::Oputput(PseudoPort::AllPorts)],
                 );
+                self.send_msg(packet_out, xid, stream);
             }
         }
     }
