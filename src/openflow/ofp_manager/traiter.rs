@@ -1,5 +1,5 @@
 use crate::openflow::{
-    events::{FeaturesReq, HelloEvent},
+    events::{FeaturesReq, FlowAction, HelloEvent, PacketOutEvent, Payload},
     ofp_header::OpenflowHeader,
     OfpHeader,
 };
@@ -31,4 +31,5 @@ pub trait OfpMsgEvent {
     fn msg_parse(&self, msg: u16) -> OfpMsg;
     fn hello_event(&self) -> HelloEvent;
     fn fetures_req(&self) -> FeaturesReq;
+    fn packet_out(&self, port_id: Option<u16>, payload: Payload, actions: Vec<FlowAction>) -> PacketOutEvent;
 }

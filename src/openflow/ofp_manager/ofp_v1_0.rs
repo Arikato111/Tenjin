@@ -1,5 +1,5 @@
 use crate::openflow::{
-    events::{FeaturesReq, HelloEvent},
+    events::{FeaturesReq, FlowAction, HelloEvent, PacketOutEvent, Payload},
     ofp_header::{OfpHeader10, OpenflowHeader},
     OfpHeader,
 };
@@ -28,6 +28,14 @@ impl OfpMsgEvent for Openflow10 {
 
     fn fetures_req(&self) -> FeaturesReq {
         FeaturesReq::new()
+    }
+    fn packet_out(
+        &self,
+        port_id: Option<u16>,
+        payload: Payload,
+        actions: Vec<FlowAction>,
+    ) -> PacketOutEvent {
+        PacketOutEvent::new(port_id, payload, actions)
     }
     fn ofp_version() -> usize {
         1

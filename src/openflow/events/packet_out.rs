@@ -13,6 +13,13 @@ pub struct PacketOutEvent {
 }
 
 impl PacketOutEvent {
+    pub fn new(port_id: Option<u16>, payload: Payload, actions: Vec<FlowAction>) -> Self {
+        Self {
+            port_id,
+            payload,
+            actions,
+        }
+    }
     pub fn parse(buf: &Vec<u8>) -> Self {
         let mut bytes = Cursor::new(buf);
         let buf_id = match bytes
