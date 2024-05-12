@@ -45,12 +45,17 @@ impl<OME: OfpMsgEvent> ControllerFrame<OME> for Controller<OME> {
                 dst_src_match.mac_src = Some(mac_dst);
 
                 let actions = vec![FlowAction::Oputput(PseudoPort::PhysicalPort(*p))];
-                self.add_flow(xid, src_dst_match, actions, stream);
+                self.add_flow(0, src_dst_match, actions, stream);
 
                 let actions = vec![FlowAction::Oputput(PseudoPort::PhysicalPort(src_port))];
-                self.add_flow(xid, dst_src_match, actions, stream);
+                self.add_flow(0, dst_src_match, actions, stream);
 
-                // let pkt_out =
+                let packet_out = self.ofp.packet_out(
+                    None,
+                    packetin.payload,
+                    vec![FlowAction::Oputput(PseudoPort::PhysicalPort(*p))],
+                );
+                self.send_msg(packet_out, xid, stream);
             }
             None => todo!(),
         }
