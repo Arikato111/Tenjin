@@ -2,7 +2,7 @@ use std::io::{BufRead, Cursor};
 
 use byteorder::{BigEndian, ReadBytesExt, WriteBytesExt};
 
-use crate::etherparser::tools::bits::{bit_bool, mac_to_bytes, set_bit};
+use crate::etherparser::tools::bits::{bit_bool, bytes_to_mac, mac_to_bytes, set_bit};
 
 pub struct Mask<T> {
     pub ip: T,
@@ -36,6 +36,22 @@ struct Wildcards {
 }
 
 impl Wildcards {
+    pub fn from_match_fields(match_fields: &MatchFields) -> Wildcards {
+        Wildcards {
+            in_port: match_fields.in_port.is_none(),
+            vlan_vid: match_fields.vlan_vid.is_none(),
+            mac_src: match_fields.mac_src.is_none(),
+            mac_dest: match_fields.mac_dest.is_none(),
+            ethernet_type: match_fields.ethernet_type.is_none(),
+            protocol: match_fields.protocol.is_none(),
+            transport_src: match_fields.transport_src.is_none(),
+            transport_dest: match_fields.transport_dest.is_none(),
+            ip_src: Wildcards::mask_bits(&match_fields.ip_src),
+            ip_dest: Wildcards::mask_bits(&match_fields.ip_dest),
+            vlan_pcp: match_fields.vlan_pcp.is_none(),
+            tos: match_fields.tos.is_none(),
+        }
+    }
     pub fn parse(byte: u32) -> Wildcards {
         Wildcards {
             in_port: bit_bool(0, byte),
@@ -52,8 +68,37 @@ impl Wildcards {
             tos: bit_bool(21, byte),
         }
     }
+    pub fn marshal(&self, bytes: &mut Vec<u8>) {
+        let mut match_field = 0u32;
+        match_field = set_bit(match_field, 0, self.in_port);
+        match_field = set_bit(match_field, 1, self.vlan_vid);
+        match_field = set_bit(match_field, 2, self.mac_src);
+        match_field = set_bit(match_field, 3, self.mac_dest);
+        match_field = set_bit(match_field, 4, self.ethernet_type);
+        match_field = set_bit(match_field, 5, self.protocol);
+        match_field = set_bit(match_field, 6, self.transport_src);
+        match_field = set_bit(match_field, 7, self.transport_dest);
+        match_field = Wildcards::set_nw_mask(match_field, 8, self.ip_src);
+        match_field = Wildcards::set_nw_mask(match_field, 14, self.ip_dest);
+        match_field = set_bit(match_field, 20, self.vlan_pcp);
+        match_field = set_bit(match_field, 21, self.tos);
+        let _ = bytes.write_u32::<BigEndian>(match_field);
+    }
     pub fn get_nw_mask(f: u32, offset: usize) -> u32 {
         (f >> offset) & 0x3f
+    }
+    pub fn set_nw_mask(byte: u32, offset: usize, set: u32) -> u32 {
+        let value = (0x3f & set) << offset;
+        byte | value
+    }
+    pub fn mask_bits(mask: &Option<Mask<u32>>) -> u32 {
+        match mask {
+            None => 32,
+            Some(m) => match m.mask {
+                None => 0,
+                Some(m) => m,
+            },
+        }
     }
 }
 
@@ -92,29 +137,49 @@ impl MatchFields {
         }
     }
     pub fn marshal(&self, bytes: &mut Vec<u8>) {
-        let mut match_f = 0u32;
-        match_f = set_bit(match_f, 0, self.in_port.is_some());
-        match_f = set_bit(match_f, 1, self.vlan_vid.is_some());
-        match_f = set_bit(match_f, 2, self.mac_src.is_some());
-        match_f = set_bit(match_f, 3, self.mac_dest.is_some());
-        match_f = set_bit(match_f, 4, self.ethernet_type.is_some());
-        match_f = set_bit(match_f, 5, self.protocol.is_some());
-        match_f = set_bit(match_f, 6, self.ip_src.is_some());
-        match_f = set_bit(match_f, 7, self.ip_dest.is_some());
-        match_f = MatchFields::set_nw_mask(match_f, 8, self.ip_src.as_ref().unwrap().ip);
-        match_f = MatchFields::set_nw_mask(match_f, 14, self.ip_dest.as_ref().unwrap().ip);
-        match_f = set_bit(match_f, 20, self.vlan_pcp.is_some());
-        match_f = set_bit(match_f, 21, self.tos.is_some());
-        bytes.write_u32::<BigEndian>(match_f).unwrap();
+        let wildcard = Wildcards::from_match_fields(self);
+        wildcard.marshal(bytes);
+        let _ = bytes.write_u16::<BigEndian>(match self.in_port {
+            Some(p) => p,
+            None => 0,
+        });
+        let mac_src = match self.mac_src {
+            Some(mac) => bytes_to_mac(mac),
+            None => bytes_to_mac(0),
+        };
+        for m in mac_src {
+            let _ = bytes.write_u8(m);
+        }
+        let mac_dest = match self.mac_dest {
+            Some(mac) => bytes_to_mac(mac),
+            None => bytes_to_mac(0),
+        };
+        for m in mac_dest {
+            let _ = bytes.write_u8(m);
+        }
+        let vlan = match self.vlan_vid {
+            Some(v) => v,
+            None => 0xffff,
+        };
+        let _ = bytes.write_u16::<BigEndian>(vlan);
+        let _ = bytes.write_u8(self.vlan_pcp.unwrap_or(0));
+        let _ = bytes.write_u8(0);
+        let _ = bytes.write_u16::<BigEndian>(self.ethernet_type.unwrap_or(0));
+        let _ = bytes.write_u8(self.tos.unwrap_or(0));
+        let _ = bytes.write_u8(self.protocol.unwrap_or(0));
+        let _ = bytes.write_u16::<BigEndian>(0);
+        let _ = bytes.write_u32::<BigEndian>(match &self.ip_src {
+            Some(ip) => ip.ip,
+            None => 0,
+        });
+        let _ = bytes.write_u32::<BigEndian>(match &self.ip_dest {
+            Some(ip) => ip.ip,
+            None => 0,
+        });
+        let _ = bytes.write_u16::<BigEndian>(self.transport_src.unwrap_or(0));
+        let _ = bytes.write_u16::<BigEndian>(self.transport_dest.unwrap_or(0));
     }
 
-    pub fn set_nw_mask(byte: u32, offset: usize, set: u32) -> u32 {
-        let value = (0x3f & set) << offset;
-        byte | value
-    }
-    pub fn get_ns_mask(byte: u32, offset: usize) -> u32 {
-        (byte >> offset) & 0x3f
-    }
     pub fn parse(bytes: &mut Cursor<Vec<u8>>) -> MatchFields {
         let wildcards = Wildcards::parse(bytes.read_u32::<BigEndian>().unwrap());
         let in_port = if wildcards.in_port {
