@@ -128,6 +128,7 @@ impl MessageMarshal for FlowModEvent {
                 }
                 _ => (),
             }
+            act.marshal(bytes);
         }
     }
 }
