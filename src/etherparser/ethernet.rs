@@ -9,6 +9,7 @@ use super::{
 };
 
 pub struct EthernetFrame {
+    pub ether_type: EtherType,
     pub mac_des: u64,
     pub mac_src: u64,
     pub vlan_pcp: u8,
@@ -60,6 +61,7 @@ impl EthernetFrame {
             _ => Network::Unparsable(typ, bytes.fill_buf().unwrap().to_vec()),
         };
         EthernetFrame {
+            ether_type: EtherType::parse(typ),
             mac_des: mac_to_bytes(mac_des),
             mac_src: mac_to_bytes(mac_src),
             vlan_pcp,
