@@ -14,7 +14,7 @@ use super::{flow_mod::SizeCheck, FlowAction, Payload};
 
 pub struct PacketOutEvent {
     pub payload: Payload,
-    pub port_id: Option<u16>,
+    pub in_port: Option<u16>,
     pub actions: Vec<FlowAction>,
 }
 
@@ -24,7 +24,7 @@ impl MessageMarshal for PacketOutEvent {
             Payload::Buffered(n, _) => n as i32,
             Payload::NoBuffered(_) => -1,
         });
-        match self.port_id {
+        match self.in_port {
             Some(id) => {
                 PseudoPort::PhysicalPort(id).marshal(bytes);
             }
@@ -53,9 +53,9 @@ impl MessageMarshal for PacketOutEvent {
 }
 
 impl PacketOutEvent {
-    pub fn new(port_id: Option<u16>, payload: Payload, actions: Vec<FlowAction>) -> Self {
+    pub fn new(in_port: Option<u16>, payload: Payload, actions: Vec<FlowAction>) -> Self {
         Self {
-            port_id,
+            in_port,
             payload,
             actions,
         }
@@ -82,7 +82,7 @@ impl PacketOutEvent {
                     Payload::Buffered(n as u32, bytes.fill_buf().unwrap().to_ascii_lowercase())
                 }
             },
-            port_id: {
+            in_port: {
                 if in_port == OfpPort::None as u16 {
                     None
                 } else {
