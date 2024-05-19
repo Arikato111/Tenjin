@@ -163,11 +163,9 @@ impl MatchFields {
         };
         let _ = bytes.write_u16::<BigEndian>(vlan);
         let _ = bytes.write_u8(self.vlan_pcp.unwrap_or(0));
-        let _ = bytes.write_u8(0);
         let _ = bytes.write_u16::<BigEndian>(self.ethernet_type.unwrap_or(0));
         let _ = bytes.write_u8(self.tos.unwrap_or(0));
         let _ = bytes.write_u8(self.protocol.unwrap_or(0));
-        let _ = bytes.write_u16::<BigEndian>(0);
         let _ = bytes.write_u32::<BigEndian>(match &self.ip_src {
             Some(ip) => ip.ip,
             None => 0,
