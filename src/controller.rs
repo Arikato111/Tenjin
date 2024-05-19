@@ -31,7 +31,7 @@ impl<OME: OfpMsgEvent> ControllerFrame<OME> for Controller<OME> {
      */
     fn packet_in_handler(&mut self, xid: u32, packetin: PacketInEvent, stream: &mut TcpStream) {
         let pkt = packetin.ether_parse();
-        self.mac_to_port.insert(pkt.mac_src, packetin.port);
+        self.mac_to_port.insert(pkt.mac_src, packetin.in_port);
 
         let mac_dst = pkt.mac_des;
         let mac_src = pkt.mac_src;
@@ -49,7 +49,7 @@ impl<OME: OfpMsgEvent> ControllerFrame<OME> for Controller<OME> {
 
         if let PseudoPort::PhysicalPort(_) = out_port {
             let mut match_fields = MatchFields::match_all();
-            match_fields.in_port = Some(packetin.port);
+            match_fields.in_port = Some(packetin.in_port);
             match_fields.mac_dest = Some(mac_dst);
             match_fields.mac_src = Some(mac_src);
             if let Some(buf_id) = packetin.buf_id {
@@ -61,7 +61,7 @@ impl<OME: OfpMsgEvent> ControllerFrame<OME> for Controller<OME> {
         }
         let packet_out = self
             .ofp
-            .packet_out(Some(packetin.port), packetin.payload, actions);
+            .packet_out(Some(packetin.in_port), packetin.payload, actions);
         self.send_msg(packet_out, xid, stream);
     }
 }

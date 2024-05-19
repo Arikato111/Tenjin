@@ -13,7 +13,7 @@ pub enum PacketInReason {
 pub struct PacketInEvent {
     pub buf_id: Option<u32>,
     pub total_len: u16,
-    pub port: u16,
+    pub in_port: u16,
     pub reason: PacketInReason,
     pub table_id: u8,
     pub payload: Payload,
@@ -32,7 +32,7 @@ impl PacketInEvent {
             n => Some(n as u32),
         };
         let total_len = bytes.read_u16::<BigEndian>().unwrap();
-        let port = bytes.read_u16::<BigEndian>().unwrap();
+        let in_port = bytes.read_u16::<BigEndian>().unwrap();
         let reason = match bytes.read_u8().unwrap() {
             1 => PacketInReason::NoMatch,
             2 => PacketInReason::Action,
@@ -47,7 +47,7 @@ impl PacketInEvent {
         PacketInEvent {
             buf_id,
             total_len,
-            port,
+            in_port,
             reason,
             table_id,
             payload,
