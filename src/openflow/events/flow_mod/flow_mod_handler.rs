@@ -37,13 +37,18 @@ pub struct FlowModEvent {
     idle_timeout: Timeout,
     hard_timeout: Timeout,
     notify_when_removed: bool,
-    apply_to_packet: Option<u32>,
+    buffer_id: Option<u32>,
     out_port: Option<PseudoPort>,
     check_overlap: bool,
 }
 
 impl FlowModEvent {
-    pub fn add_flow(priority: u16, match_fileds: MatchFields, actions: Vec<FlowAction>) -> Self {
+    pub fn add_flow(
+        priority: u16,
+        match_fileds: MatchFields,
+        actions: Vec<FlowAction>,
+        buffer_id: Option<u32>,
+    ) -> Self {
         Self {
             command: FlowModCommand::Add,
             match_fields: match_fileds,
@@ -53,7 +58,7 @@ impl FlowModEvent {
             idle_timeout: Timeout::Permanent,
             hard_timeout: Timeout::Permanent,
             notify_when_removed: false,
-            apply_to_packet: None,
+            buffer_id,
             out_port: None,
             check_overlap: false,
         }
@@ -80,7 +85,7 @@ impl FlowModEvent {
             idle_timeout,
             hard_timeout,
             notify_when_removed: flags & 1 != 0,
-            apply_to_packet: {
+            buffer_id: {
                 match buffer_id {
                     -1 => None,
                     n => Some(n as u32),
@@ -109,7 +114,7 @@ impl MessageMarshal for FlowModEvent {
         let _ = bytes.write_u16::<BigEndian>(self.idle_timeout.to_int());
         let _ = bytes.write_u16::<BigEndian>(self.hard_timeout.to_int());
         let _ = bytes.write_u16::<BigEndian>(self.priority);
-        let _ = bytes.write_i32::<BigEndian>(match self.apply_to_packet {
+        let _ = bytes.write_i32::<BigEndian>(match self.buffer_id {
             None => -1,
             Some(buf_id) => buf_id as i32,
         });

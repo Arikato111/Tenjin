@@ -1,5 +1,6 @@
 #![allow(unused)]
 #![allow(unused_variables)]
+use crate::etherparser::ether_type::EtherType;
 use crate::openflow::events::flow_mod::{FlowModCommand, MatchFields};
 /**
  * Here is Controller you can modify and write the process or more you need.
@@ -35,7 +36,9 @@ impl<OME: OfpMsgEvent> ControllerFrame<OME> for Controller<OME> {
         let mac_dst = pkt.mac_des;
         let mac_src = pkt.mac_src;
 
-        // if pkt.
+        if let EtherType::LLDP = pkt.ether_type {
+            return;
+        }
 
         let out_port = self.mac_to_port.get(&mac_dst);
         match out_port {
@@ -82,6 +85,6 @@ impl<OME: OfpMsgEvent> Controller<OME> {
         actions: Vec<FlowAction>,
         stream: &mut TcpStream,
     ) {
-        self.send_msg(FlowModEvent::add_flow(10, flow, actions), xid, stream)
+        self.send_msg(FlowModEvent::add_flow(10, flow, actions, None), xid, stream)
     }
 }
