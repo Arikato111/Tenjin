@@ -1,15 +1,12 @@
 #![allow(unused)]
 #![allow(unused_variables)]
-use crate::etherparser::ether_type::EtherType;
-use crate::openflow::events::flow_mod::{FlowModCommand, MatchFields};
+use std::{collections::HashMap, net::TcpStream};
+
+use crate::{etherparser::ether_type::EtherType, openflow::{controller_frame::ControllerFrame, ofp10::{self, events::{flow_mod::MatchFields, Action}, traiter::OfpMsgEvent, FlowModEvent, PacketInEvent}}};
 /**
  * Here is Controller you can modify and write the process or more you need.
  * In production please remove allow unused.
  */
-use crate::openflow::events::{FlowAction, FlowModEvent, PacketInEvent};
-use crate::openflow::PseudoPort;
-use crate::openflow::{controller_frame::ControllerFrame, traiter::OfpMsgEvent};
-use std::{collections::HashMap, net::TcpStream};
 
 pub struct Controller<OME: OfpMsgEvent> {
     ofp: OME,
@@ -41,13 +38,13 @@ impl<OME: OfpMsgEvent> ControllerFrame<OME> for Controller<OME> {
         }
 
         let out_port = match self.mac_to_port.get(&mac_dst) {
-            Some(p) => PseudoPort::PhysicalPort(*p),
-            None => PseudoPort::Flood,
+            Some(p) => ofp10::PseudoPort::PhysicalPort(*p),
+            None => ofp10::PseudoPort::Flood,
         };
 
-        let actions = vec![FlowAction::Oputput(out_port.clone())];
+        let actions = vec![Action::Oputput(out_port.clone())];
 
-        if let PseudoPort::PhysicalPort(_) = out_port {
+        if let ofp10::PseudoPort::PhysicalPort(_) = out_port {
             let mut match_fields = MatchFields::match_all();
             match_fields.in_port = Some(packetin.in_port);
             match_fields.mac_dest = Some(mac_dst);
@@ -72,7 +69,7 @@ impl<OME: OfpMsgEvent> Controller<OME> {
         xid: u32,
         priority: u16,
         flow: MatchFields,
-        actions: &Vec<FlowAction>,
+        actions: &Vec<Action>,
         buffer_id: Option<u32>,
         stream: &mut TcpStream,
     ) {

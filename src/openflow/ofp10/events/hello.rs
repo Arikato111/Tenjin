@@ -1,5 +1,6 @@
-use crate::openflow::ofp_manager::{MessageMarshal, OfpMsg};
-use crate::openflow::traiter::OfpMsgEvent;
+use crate::openflow::ofp10::{traiter::{MessageMarshal, OfpMsgEvent}, Msg};
+
+
 
 pub struct HelloEvent {}
 
@@ -12,8 +13,8 @@ impl HelloEvent {
 impl MessageMarshal for HelloEvent {
     fn marshal(&self, _: &mut Vec<u8>) {}
 
-    fn msg_code(&self) -> OfpMsg {
-        OfpMsg::Hello
+    fn msg_code(&self) -> Msg {
+        Msg::Hello
     }
 
     fn size_of(&self) -> usize {
@@ -21,6 +22,6 @@ impl MessageMarshal for HelloEvent {
     }
 
     fn msg_usize<OFP: OfpMsgEvent>(&self, ofp: &OFP) -> usize {
-        ofp.msg_usize(OfpMsg::Hello)
+        ofp.msg_usize(Msg::Hello)
     }
 }

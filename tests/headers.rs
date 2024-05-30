@@ -2,9 +2,8 @@
 mod tests {
     use tenjin::{
         openflow::{
-            controller_frame::ControllerFrame,
-            ofp_manager::{OfpMsg, OfpMsgEvent},
-            ofp_v1_0::Openflow10,
+            controller_frame::ControllerFrame, ofp10::ofp_v1_0::Openflow10,
+            ofp10::traiter::OfpMsgEvent, ofp10::Msg,
         },
         Controller,
     };
@@ -28,7 +27,7 @@ mod tests {
 
         let controller = Controller::new(Openflow10::new());
         let ofp = controller.get_ofp();
-        let ofp_header = ofp.header(ofp.msg_usize(OfpMsg::Hello) as u8, 0, 0);
+        let ofp_header = ofp.header(ofp.msg_usize(Msg::Hello) as u8, 0, 0);
         let mut bytes: Vec<u8> = Vec::new();
         ofp_header.marshal(&mut bytes);
 

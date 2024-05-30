@@ -1,10 +1,8 @@
 use crate::openflow::{
-    events::{FeaturesReq, FlowAction, HelloEvent, PacketOutEvent, Payload},
-    ofp_header::OpenflowHeader,
-    OfpHeader,
+    ofp10::events::{FeaturesReqEvent, Action, HelloEvent, PacketOutEvent, Payload},
 };
 
-use super::OfpMsg;
+use super::{ofp_header::{OfpHeader, OpenflowHeader}, Msg};
 
 /**
  * the trait for parse value to bytes.
@@ -12,7 +10,7 @@ use super::OfpMsg;
  */
 pub trait MessageMarshal {
     fn marshal(&self, bytes: &mut Vec<u8>);
-    fn msg_code(&self) -> OfpMsg;
+    fn msg_code(&self) -> Msg;
     fn msg_usize<OFP: OfpMsgEvent>(&self, ofp: &OFP) -> usize;
     fn size_of(&self) -> usize;
 }
@@ -27,9 +25,14 @@ pub trait OfpMsgEvent {
     fn ofp_version() -> usize;
     fn header_size(&self) -> usize;
 
-    fn msg_usize(&self, msg: OfpMsg) -> usize;
-    fn msg_parse(&self, msg: u16) -> OfpMsg;
+    fn msg_usize(&self, msg: Msg) -> usize;
+    fn msg_parse(&self, msg: u16) -> Msg;
     fn hello_event(&self) -> HelloEvent;
-    fn fetures_req(&self) -> FeaturesReq;
-    fn packet_out(&self, port_id: Option<u16>, payload: Payload, actions: Vec<FlowAction>) -> PacketOutEvent;
+    fn fetures_req(&self) -> FeaturesReqEvent;
+    fn packet_out(
+        &self,
+        port_id: Option<u16>,
+        payload: Payload,
+        actions: Vec<Action>,
+    ) -> PacketOutEvent;
 }

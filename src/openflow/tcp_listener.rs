@@ -1,10 +1,10 @@
-use crate::openflow::{ofp_manager::Openflow10, traiter::OfpMsgEvent};
 use crate::{ofp_from_version, Controller};
 use std::sync::{Arc, Mutex};
 use std::{io::Read, net::TcpListener, thread};
 
 use super::controller_frame::ControllerFrame;
-use super::events::HelloEvent;
+use super::ofp10::ofp_v1_0::Openflow10;
+use crate::openflow::ofp10::{traiter::OfpMsgEvent, HelloEvent};
 
 pub fn tcp_listener_handler<OME: OfpMsgEvent>(address: &str, ofp_version: u8) {
     let controller = Arc::new(Mutex::from(Controller::new(ofp_from_version!(ofp_version))));

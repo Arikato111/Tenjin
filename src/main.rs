@@ -1,5 +1,5 @@
 use tenjin::{
-    openflow::{controller_frame::ControllerFrame, ofp_v1_0::Openflow10},
+    openflow::{controller_frame::ControllerFrame, ofp10::ofp_v1_0::Openflow10},
     Controller,
 };
 

@@ -7,12 +7,25 @@ use byteorder::{BigEndian, ReadBytesExt, WriteBytesExt};
 
 use crate::{
     etherparser::tools::bits::{bytes_to_mac, mac_to_bytes},
-    openflow::PseudoPort,
+    openflow::ofp10::PseudoPort,
 };
 
-use super::flow_actions_type::FlowActionType;
+pub enum ActionType {
+    Output = 0,
+    SetVlanId = 1,
+    SetVlanPCP = 2,
+    StripVlan = 3,
+    SetSrcMac = 4,
+    SetDstMac = 5,
+    SetIPv4Src = 6,
+    SetIPv4Des = 7,
+    SetTos = 8,
+    SetTpSrc = 9,
+    SetTpDst = 10,
+    Enqueue = 11,
+}
 
-pub enum FlowAction {
+pub enum Action {
     Oputput(PseudoPort),
     SetDlVlan(Option<u16>),
     SetDlVlanPcp(u8),
@@ -27,38 +40,38 @@ pub enum FlowAction {
     Unparsable,
 }
 
-impl FlowAction {
-    pub fn to_action_code(&self) -> FlowActionType {
+impl Action {
+    pub fn to_action_code(&self) -> ActionType {
         match self {
-            FlowAction::Oputput(_) => FlowActionType::Output,
-            FlowAction::SetDlVlan(_) => FlowActionType::SetVlanId,
-            FlowAction::SetDlVlanPcp(_) => FlowActionType::SetVlanPCP,
-            FlowAction::SetDlSrc(_) => FlowActionType::SetSrcMac,
-            FlowAction::SetDlDest(_) => FlowActionType::SetDstMac,
-            FlowAction::SetIpSrc(_) => FlowActionType::SetIPv4Src,
-            FlowAction::SetIpDes(_) => FlowActionType::SetIPv4Des,
-            FlowAction::SetTos(_) => FlowActionType::SetTos,
-            FlowAction::SetTpSrc(_) => FlowActionType::SetTpSrc,
-            FlowAction::SetTpDest(_) => FlowActionType::SetTpDst,
-            FlowAction::Enqueue(_, _) => FlowActionType::Enqueue,
-            FlowAction::Unparsable => panic!("Unparse FlowAction to FlowActionType"),
+            Action::Oputput(_) => ActionType::Output,
+            Action::SetDlVlan(_) => ActionType::SetVlanId,
+            Action::SetDlVlanPcp(_) => ActionType::SetVlanPCP,
+            Action::SetDlSrc(_) => ActionType::SetSrcMac,
+            Action::SetDlDest(_) => ActionType::SetDstMac,
+            Action::SetIpSrc(_) => ActionType::SetIPv4Src,
+            Action::SetIpDes(_) => ActionType::SetIPv4Des,
+            Action::SetTos(_) => ActionType::SetTos,
+            Action::SetTpSrc(_) => ActionType::SetTpSrc,
+            Action::SetTpDest(_) => ActionType::SetTpDst,
+            Action::Enqueue(_, _) => ActionType::Enqueue,
+            Action::Unparsable => panic!("Unparse Action to ActionType"),
         }
     }
     pub fn length(&self) -> usize {
         let header = size_of::<(u16, u16)>();
         let body = match self {
-            FlowAction::Oputput(_) => size_of::<(u16, u16)>(),
-            FlowAction::SetDlVlan(_) => size_of::<(u16, u16)>(),
-            FlowAction::SetDlVlanPcp(_) => size_of::<(u8, [u8; 3])>(),
-            FlowAction::SetDlSrc(_) => size_of::<([u8; 6], [u8; 6])>(),
-            FlowAction::SetDlDest(_) => size_of::<([u8; 6], [u8; 6])>(),
-            FlowAction::SetIpSrc(_) => size_of::<u32>(),
-            FlowAction::SetIpDes(_) => size_of::<u32>(),
-            FlowAction::SetTos(_) => size_of::<(u8, [u8; 3])>(),
-            FlowAction::SetTpSrc(_) => size_of::<(u16, u16)>(),
-            FlowAction::SetTpDest(_) => size_of::<(u16, u16)>(),
-            FlowAction::Enqueue(_, _) => size_of::<(u16, [u8; 6], u32)>(),
-            FlowAction::Unparsable => 0,
+            Action::Oputput(_) => size_of::<(u16, u16)>(),
+            Action::SetDlVlan(_) => size_of::<(u16, u16)>(),
+            Action::SetDlVlanPcp(_) => size_of::<(u8, [u8; 3])>(),
+            Action::SetDlSrc(_) => size_of::<([u8; 6], [u8; 6])>(),
+            Action::SetDlDest(_) => size_of::<([u8; 6], [u8; 6])>(),
+            Action::SetIpSrc(_) => size_of::<u32>(),
+            Action::SetIpDes(_) => size_of::<u32>(),
+            Action::SetTos(_) => size_of::<(u8, [u8; 3])>(),
+            Action::SetTpSrc(_) => size_of::<(u16, u16)>(),
+            Action::SetTpDest(_) => size_of::<(u16, u16)>(),
+            Action::Enqueue(_, _) => size_of::<(u16, [u8; 6], u32)>(),
+            Action::Unparsable => 0,
         };
         header + body
     }
@@ -67,27 +80,27 @@ impl FlowAction {
         let _ = bytes.write_u16::<BigEndian>(self.to_action_code() as u16);
         let _ = bytes.write_u16::<BigEndian>(self.length() as u16);
         match self {
-            FlowAction::Oputput(pseudo) => {
+            Action::Oputput(pseudo) => {
                 pseudo.marshal(bytes);
                 let _ = bytes.write_u16::<BigEndian>(match pseudo {
                     PseudoPort::Controller(w) => *w as u16,
                     _ => 0,
                 });
             }
-            FlowAction::SetDlVlan(None) => {
+            Action::SetDlVlan(None) => {
                 let _ = bytes.write_u32::<BigEndian>(0xffff);
             }
-            FlowAction::SetDlVlan(Some(vid)) => {
+            Action::SetDlVlan(Some(vid)) => {
                 let _ = bytes.write_u16::<BigEndian>(*vid);
                 let _ = bytes.write_u16::<BigEndian>(0);
             }
-            FlowAction::SetDlVlanPcp(pcp) => {
+            Action::SetDlVlanPcp(pcp) => {
                 let _ = bytes.write_u8(*pcp);
                 for _ in 0..3 {
                     let _ = bytes.write_u8(0);
                 }
             }
-            FlowAction::SetDlSrc(mac) | FlowAction::SetDlDest(mac) => {
+            Action::SetDlSrc(mac) | Action::SetDlDest(mac) => {
                 let mac = bytes_to_mac(*mac);
                 for m in mac {
                     let _ = bytes.write_u8(m);
@@ -96,128 +109,128 @@ impl FlowAction {
                     let _ = bytes.write_u8(0);
                 }
             }
-            FlowAction::SetIpSrc(address) | FlowAction::SetIpDes(address) => {
+            Action::SetIpSrc(address) | Action::SetIpDes(address) => {
                 let _ = bytes.write_u32::<BigEndian>(*address);
             }
-            FlowAction::SetTos(n) => {
+            Action::SetTos(n) => {
                 let _ = bytes.write_u8(*n);
             }
-            FlowAction::SetTpSrc(pt) | FlowAction::SetTpDest(pt) => {
+            Action::SetTpSrc(pt) | Action::SetTpDest(pt) => {
                 let _ = bytes.write_u16::<BigEndian>(*pt);
                 let _ = bytes.write_u16::<BigEndian>(0);
             }
-            FlowAction::Enqueue(pp, qid) => {
+            Action::Enqueue(pp, qid) => {
                 pp.marshal(bytes);
                 for _ in 0..6 {
                     let _ = bytes.write_u8(0);
                 }
                 let _ = bytes.write_u32::<BigEndian>(*qid);
             }
-            FlowAction::Unparsable => (),
+            Action::Unparsable => (),
         }
     }
-    pub fn parse_sequence(bytes: &mut Cursor<Vec<u8>>) -> Vec<FlowAction> {
+    pub fn parse_sequence(bytes: &mut Cursor<Vec<u8>>) -> Vec<Action> {
         if bytes.get_ref().is_empty() {
             vec![]
         } else {
-            let action = FlowAction::parse(bytes);
+            let action = Action::parse(bytes);
             let mut v = vec![action];
-            v.append(&mut FlowAction::parse_sequence(bytes));
+            v.append(&mut Action::parse_sequence(bytes));
             v
         }
     }
 
-    pub fn parse(bytes: &mut Cursor<Vec<u8>>) -> FlowAction {
+    pub fn parse(bytes: &mut Cursor<Vec<u8>>) -> Action {
         let action_code = bytes.read_u16::<BigEndian>().unwrap();
         let _ = bytes.read_u16::<BigEndian>().unwrap();
         match action_code {
-            t if t == (FlowActionType::Output as u16) => {
+            t if t == (ActionType::Output as u16) => {
                 let port_code = bytes.read_u16::<BigEndian>().unwrap();
                 let len = bytes.read_u16::<BigEndian>().unwrap();
-                FlowAction::Oputput(PseudoPort::new(port_code, Some(len as u64)))
+                Action::Oputput(PseudoPort::new(port_code, Some(len as u64)))
             }
-            t if t == (FlowActionType::SetVlanId as u16) => {
+            t if t == (ActionType::SetVlanId as u16) => {
                 let vid = bytes.read_u16::<BigEndian>().unwrap();
                 bytes.consume(2);
                 if vid == 0xffff {
-                    FlowAction::SetDlVlan(None)
+                    Action::SetDlVlan(None)
                 } else {
-                    FlowAction::SetDlVlan(Some(vid))
+                    Action::SetDlVlan(Some(vid))
                 }
             }
-            t if t == (FlowActionType::SetVlanPCP as u16) => {
+            t if t == (ActionType::SetVlanPCP as u16) => {
                 let pcp = bytes.read_u8().unwrap();
                 bytes.consume(3);
-                FlowAction::SetDlVlanPcp(pcp)
+                Action::SetDlVlanPcp(pcp)
             }
-            t if t == (FlowActionType::StripVlan as u16) => {
+            t if t == (ActionType::StripVlan as u16) => {
                 bytes.consume(4);
-                FlowAction::SetDlVlan(None)
+                Action::SetDlVlan(None)
             }
-            t if t == (FlowActionType::SetSrcMac as u16) => {
+            t if t == (ActionType::SetSrcMac as u16) => {
                 let mut addr = [0u8; 6];
                 for i in 0..6 {
                     addr[i] = bytes.read_u8().unwrap();
                 }
                 bytes.consume(6);
-                FlowAction::SetDlSrc(mac_to_bytes(addr))
+                Action::SetDlSrc(mac_to_bytes(addr))
             }
-            t if t == (FlowActionType::SetDstMac as u16) => {
+            t if t == (ActionType::SetDstMac as u16) => {
                 let mut addr = [0u8; 6];
                 for i in 0..6 {
                     addr[i] = bytes.read_u8().unwrap();
                 }
                 bytes.consume(6);
-                FlowAction::SetDlDest(mac_to_bytes(addr))
+                Action::SetDlDest(mac_to_bytes(addr))
             }
-            t if t == (FlowActionType::SetIPv4Src as u16) => {
-                FlowAction::SetIpSrc(bytes.read_u32::<BigEndian>().unwrap())
+            t if t == (ActionType::SetIPv4Src as u16) => {
+                Action::SetIpSrc(bytes.read_u32::<BigEndian>().unwrap())
             }
-            t if t == (FlowActionType::SetIPv4Des as u16) => {
-                FlowAction::SetIpDes(bytes.read_u32::<BigEndian>().unwrap())
+            t if t == (ActionType::SetIPv4Des as u16) => {
+                Action::SetIpDes(bytes.read_u32::<BigEndian>().unwrap())
             }
-            t if t == (FlowActionType::SetTos as u16) => {
+            t if t == (ActionType::SetTos as u16) => {
                 let tos = bytes.read_u8().unwrap();
                 bytes.consume(3);
-                FlowAction::SetTos(tos)
+                Action::SetTos(tos)
             }
-            t if t == (FlowActionType::SetTpSrc as u16) => {
+            t if t == (ActionType::SetTpSrc as u16) => {
                 let pt = bytes.read_u16::<BigEndian>().unwrap();
                 bytes.consume(2);
-                FlowAction::SetTpSrc(pt)
+                Action::SetTpSrc(pt)
             }
-            t if t == (FlowActionType::SetTpDst as u16) => {
+            t if t == (ActionType::SetTpDst as u16) => {
                 let pt = bytes.read_u16::<BigEndian>().unwrap();
                 bytes.consume(2);
-                FlowAction::SetTpDest(pt)
+                Action::SetTpDest(pt)
             }
-            t if t == (FlowActionType::Enqueue as u16) => {
+            t if t == (ActionType::Enqueue as u16) => {
                 let pt = bytes.read_u16::<BigEndian>().unwrap();
                 bytes.consume(6);
                 let qid = bytes.read_u32::<BigEndian>().unwrap();
-                FlowAction::Enqueue(PseudoPort::new(pt, Some(0)), qid)
+                Action::Enqueue(PseudoPort::new(pt, Some(0)), qid)
             }
-            _ => FlowAction::Unparsable,
+            _ => Action::Unparsable,
         }
     }
 }
 
 pub trait SizeCheck {
     fn size_of_sequence(&self) -> usize;
-    fn move_controller_last(&self) -> Vec<FlowAction>;
+    fn move_controller_last(&self) -> Vec<Action>;
 }
 
-impl SizeCheck for Vec<FlowAction> {
+impl SizeCheck for Vec<Action> {
     fn size_of_sequence(&self) -> usize {
         self.iter().fold(0, |acc, x| x.length() + acc)
     }
 
-    fn move_controller_last(&self) -> Vec<FlowAction> {
-        let mut not_ctrl: Vec<FlowAction> = Vec::new();
-        let mut is_ctrl: Vec<FlowAction> = Vec::new();
+    fn move_controller_last(&self) -> Vec<Action> {
+        let mut not_ctrl: Vec<Action> = Vec::new();
+        let mut is_ctrl: Vec<Action> = Vec::new();
         for act in self {
             match act {
-                FlowAction::Oputput(PseudoPort::Controller(_)) => {
+                Action::Oputput(PseudoPort::Controller(_)) => {
                     is_ctrl.push(act.clone());
                 }
                 _ => not_ctrl.push(act.clone()),
@@ -228,7 +241,7 @@ impl SizeCheck for Vec<FlowAction> {
     }
 }
 
-impl Clone for FlowAction {
+impl Clone for Action {
     fn clone(&self) -> Self {
         match self {
             Self::Oputput(v) => Self::Oputput(v.clone()),

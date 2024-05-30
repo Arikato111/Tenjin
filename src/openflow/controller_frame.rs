@@ -2,15 +2,9 @@ use std::{
     io::{Read, Write},
     net::TcpStream,
 };
+use crate::openflow::ofp10::{Msg, PacketInEvent, traiter::{MessageMarshal, OfpMsgEvent}};
 
-use super::{
-    events::PacketInEvent,
-    ofp_manager::{
-        traiter::{MessageMarshal, OfpMsgEvent},
-        OfpMsg,
-    },
-    tcp_listener_handler,
-};
+use super::tcp_listener::tcp_listener_handler;
 
 pub trait ControllerFrame<OME: OfpMsgEvent> {
     fn get_ofp(&self) -> &impl OfpMsgEvent;
@@ -18,7 +12,7 @@ pub trait ControllerFrame<OME: OfpMsgEvent> {
     fn new(ofp: OME) -> Self;
 
     fn listener(address: &str, ofp: OME) {
-        tcp_listener_handler::<OME>(address, ofp.version() as u8);
+       tcp_listener_handler::<OME>(address, ofp.version() as u8);
     }
 
     fn handle_header(&mut self, buf: &mut Vec<u8>) -> (u8, usize, u32) {
@@ -36,14 +30,14 @@ pub trait ControllerFrame<OME: OfpMsgEvent> {
         let _ = stream.read(&mut payload);
         let message = self.get_ofp().msg_parse(message as u16);
         match message {
-            OfpMsg::Hello => self.send_msg(self.get_ofp().fetures_req(), xid, stream),
-            OfpMsg::FeaturesReq => (),
-            OfpMsg::PacketIn => {
+            Msg::Hello => self.send_msg(self.get_ofp().fetures_req(), xid, stream),
+            Msg::FeaturesReq => (),
+            Msg::PacketIn => {
                 self.packet_in_handler(xid, PacketInEvent::parse(&payload), stream);
             }
-            OfpMsg::PacketOut => (),
-            OfpMsg::FlowMod => (),
-            OfpMsg::NotFound => (),
+            Msg::PacketOut => (),
+            Msg::FlowMod => (),
+            Msg::NotFound => (),
         }
     }
 

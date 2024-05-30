@@ -2,7 +2,7 @@
 * it don't need to assign vlue.
 * but I think I should assign for reading.
 */
-pub enum FlowActionType {
+pub enum ActionType {
     Output = 0,
     SetVlanId = 1,
     SetVlanPCP = 2,

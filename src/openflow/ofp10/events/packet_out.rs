@@ -3,19 +3,19 @@ use std::{
     mem::size_of,
 };
 
+use crate::openflow::ofp10::{ofp_port::OfpPort, Msg};
+use crate::openflow::ofp10::{
+    traiter::{MessageMarshal, OfpMsgEvent},
+    PseudoPort,
+};
 use byteorder::{BigEndian, ReadBytesExt, WriteBytesExt};
 
-use crate::openflow::{
-    ofp_manager::{MessageMarshal, OfpMsg, OfpMsgEvent},
-    OfpPort, PseudoPort,
-};
-
-use super::{flow_mod::SizeCheck, FlowAction, Payload};
+use super::{actions::SizeCheck, Action, Payload};
 
 pub struct PacketOutEvent {
     pub payload: Payload,
     pub in_port: Option<u16>,
-    pub actions: Vec<FlowAction>,
+    pub actions: Vec<Action>,
 }
 
 impl MessageMarshal for PacketOutEvent {
@@ -39,12 +39,12 @@ impl MessageMarshal for PacketOutEvent {
         self.payload.marshal(bytes);
     }
 
-    fn msg_code(&self) -> OfpMsg {
-        OfpMsg::PacketOut
+    fn msg_code(&self) -> Msg {
+        Msg::PacketOut
     }
 
     fn msg_usize<OFP: OfpMsgEvent>(&self, ofp: &OFP) -> usize {
-        ofp.msg_usize(OfpMsg::PacketOut)
+        ofp.msg_usize(Msg::PacketOut)
     }
 
     fn size_of(&self) -> usize {
@@ -53,7 +53,7 @@ impl MessageMarshal for PacketOutEvent {
 }
 
 impl PacketOutEvent {
-    pub fn new(in_port: Option<u16>, payload: Payload, actions: Vec<FlowAction>) -> Self {
+    pub fn new(in_port: Option<u16>, payload: Payload, actions: Vec<Action>) -> Self {
         Self {
             in_port,
             payload,
@@ -74,7 +74,7 @@ impl PacketOutEvent {
         let mut actions_buf = vec![0; action_len as usize];
         let _ = bytes.read_exact(&mut actions_buf);
         let mut action_bytes = Cursor::new(actions_buf);
-        let actions = FlowAction::parse_sequence(&mut action_bytes);
+        let actions = Action::parse_sequence(&mut action_bytes);
         Self {
             payload: match buf_id {
                 None => Payload::NoBuffered(bytes.fill_buf().unwrap().to_vec()),

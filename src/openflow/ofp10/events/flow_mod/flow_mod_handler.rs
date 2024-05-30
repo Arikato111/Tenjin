@@ -2,12 +2,10 @@ use std::io::Cursor;
 
 use byteorder::{BigEndian, ReadBytesExt, WriteBytesExt};
 
-use crate::openflow::{
-    ofp_manager::{MessageMarshal, OfpMsg, OfpMsgEvent},
-    OfpPort, PseudoPort,
-};
+use crate::openflow::ofp10::{events::{actions::SizeCheck, Action}, ofp_port::OfpPort, traiter::{MessageMarshal, OfpMsgEvent}, Msg, PseudoPort};
 
-use super::{FlowAction, FlowModCommand, MatchFields, SizeCheck};
+use super::{FlowModCommand, MatchFields};
+
 
 pub enum Timeout {
     Permanent,
@@ -32,7 +30,7 @@ pub struct FlowModEvent {
     command: FlowModCommand,
     match_fields: MatchFields,
     priority: u16,
-    actions: Vec<FlowAction>,
+    actions: Vec<Action>,
     cookie: u64,
     idle_timeout: Timeout,
     hard_timeout: Timeout,
@@ -46,7 +44,7 @@ impl FlowModEvent {
     pub fn add_flow(
         priority: u16,
         match_fileds: MatchFields,
-        actions: Vec<FlowAction>,
+        actions: Vec<Action>,
         buffer_id: Option<u32>,
     ) -> Self {
         Self {
@@ -75,7 +73,7 @@ impl FlowModEvent {
         let buffer_id = bytes.read_i32::<BigEndian>().unwrap();
         let out_port = PseudoPort::parse(bytes.read_u16::<BigEndian>().unwrap());
         let flags = bytes.read_u16::<BigEndian>().unwrap();
-        let actions = FlowAction::parse_sequence(&mut bytes);
+        let actions = Action::parse_sequence(&mut bytes);
         FlowModEvent {
             command,
             match_fields,
@@ -99,13 +97,13 @@ impl FlowModEvent {
 
 impl MessageMarshal for FlowModEvent {
     fn msg_usize<OFP: OfpMsgEvent>(&self, ofp: &OFP) -> usize {
-        ofp.msg_usize(OfpMsg::FlowMod)
+        ofp.msg_usize(Msg::FlowMod)
     }
     fn size_of(&self) -> usize {
         24
     }
-    fn msg_code(&self) -> OfpMsg {
-        OfpMsg::FlowMod
+    fn msg_code(&self) -> Msg {
+        Msg::FlowMod
     }
     fn marshal(&self, bytes: &mut Vec<u8>) {
         self.match_fields.marshal(bytes);
@@ -128,7 +126,7 @@ impl MessageMarshal for FlowModEvent {
         );
         for act in self.actions.move_controller_last() {
             match act {
-                FlowAction::Oputput(PseudoPort::Table) => {
+                Action::Oputput(PseudoPort::Table) => {
                     panic!("Openflow table not allowed")
                 }
                 _ => (),
