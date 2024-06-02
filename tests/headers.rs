@@ -1,10 +1,7 @@
 #[cfg(test)]
 mod tests {
     use tenjin::{
-        openflow::{
-            controller_frame::ControllerFrame, ofp10::ofp_v1_0::Openflow10,
-            ofp10::traiter::OfpMsgEvent, ofp10::Msg,
-        },
+        openflow::{controller_frame::ControllerFrame, ofp10::traiter::OfpMsgEvent, ofp10::Msg},
         Controller,
     };
 
