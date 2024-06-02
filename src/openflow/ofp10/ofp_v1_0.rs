@@ -1,5 +1,9 @@
-use super::{events::{Action, FeaturesReqEvent, Payload}, ofp_header::{OfpHeader, OfpHeader10, OpenflowHeader}, traiter::OfpMsgEvent, HelloEvent, Msg, PacketOutEvent};
-
+use super::{
+    events::{Action, FeaturesReqEvent, Payload},
+    ofp_header::{OfpHeader, OfpHeader10, OpenflowHeader},
+    traiter::OfpMsgEvent,
+    HelloEvent, Msg, PacketOutEvent,
+};
 
 pub struct Openflow10 {}
 
@@ -45,6 +49,7 @@ impl OfpMsgEvent for Openflow10 {
     fn msg_parse(&self, msg: u16) -> Msg {
         match msg {
             0 => Msg::Hello,
+            1 => Msg::Error,
             5 => Msg::FeaturesReq,
             10 => Msg::PacketIn,
             13 => Msg::PacketOut,
@@ -56,6 +61,7 @@ impl OfpMsgEvent for Openflow10 {
     fn msg_usize(&self, msg: Msg) -> usize {
         match msg {
             Msg::Hello => 0,
+            Msg::Error => 1,
             Msg::FeaturesReq => 5,
             Msg::PacketIn => 10,
             Msg::PacketOut => 13,

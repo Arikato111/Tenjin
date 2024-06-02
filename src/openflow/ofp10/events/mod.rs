@@ -1,3 +1,6 @@
+pub mod  error;
+pub use error::ErrorEvent;
+
 pub mod packet_in;
 pub use packet_in::{PacketInEvent, PacketInReason};
 
