@@ -1,5 +1,6 @@
 use crate::openflow::ofp10::{
-    traiter::{MessageMarshal, OfpMsgEvent}, ErrorEvent, Msg, PacketInEvent
+    traiter::{MessageMarshal, OfpMsgEvent},
+    ErrorEvent, Msg, PacketInEvent,
 };
 use std::{
     io::{Read, Write},
@@ -11,10 +12,10 @@ use super::tcp_listener::tcp_listener_handler;
 pub trait ControllerFrame<OME: OfpMsgEvent> {
     fn get_ofp(&self) -> &impl OfpMsgEvent;
     fn packet_in_handler(&mut self, xid: u32, packetin: PacketInEvent, stream: &mut TcpStream);
-    fn new(ofp: OME) -> Self;
+    fn new() -> Self;
 
-    fn listener(address: &str, ofp: OME) {
-        tcp_listener_handler::<OME>(address, ofp.version() as u8);
+    fn listener(address: &str) {
+        tcp_listener_handler::<OME>(address);
     }
 
     fn handle_header(&mut self, buf: &mut Vec<u8>) -> (u8, usize, u32) {
@@ -34,10 +35,10 @@ pub trait ControllerFrame<OME: OfpMsgEvent> {
         match message {
             Msg::Hello => self.send_msg(self.get_ofp().fetures_req(), xid, stream),
             Msg::Error => {
-                let error =ErrorEvent::parse(&payload);
+                let error = ErrorEvent::parse(&payload);
                 println!("Error {:?}", error.error_type);
                 ()
-            },
+            }
             Msg::FeaturesReq => (),
             Msg::PacketIn => {
                 self.packet_in_handler(xid, PacketInEvent::parse(&payload), stream);

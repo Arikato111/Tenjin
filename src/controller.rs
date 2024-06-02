@@ -2,24 +2,36 @@
 #![allow(unused_variables)]
 use std::{collections::HashMap, net::TcpStream};
 
-use crate::{etherparser::ether_type::EtherType, openflow::{controller_frame::ControllerFrame, ofp10::{self, events::{flow_mod::MatchFields, Action}, traiter::OfpMsgEvent, FlowModEvent, PacketInEvent}}};
+use crate::{
+    etherparser::ether_type::EtherType,
+    openflow::{
+        controller_frame::ControllerFrame,
+        ofp10::{
+            self,
+            events::{flow_mod::MatchFields, Action},
+            ofp_v1_0::Openflow10,
+            traiter::OfpMsgEvent,
+            FlowModEvent, PacketInEvent,
+        },
+    },
+};
 /**
  * Here is Controller you can modify and write the process or more you need.
  * In production please remove allow unused.
  */
 
-pub struct Controller<OME: OfpMsgEvent> {
-    ofp: OME,
+pub struct Controller {
+    ofp: Openflow10,
     mac_to_port: HashMap<u64, u16>,
 }
 
-impl<OME: OfpMsgEvent> ControllerFrame<OME> for Controller<OME> {
+impl ControllerFrame<Openflow10> for Controller {
     fn get_ofp(&self) -> &impl OfpMsgEvent {
         &self.ofp
     }
-    fn new(ofp: OME) -> Self {
+    fn new() -> Self {
         Self {
-            ofp,
+            ofp: Openflow10::new(),
             mac_to_port: HashMap::new(),
         }
     }
@@ -63,7 +75,7 @@ impl<OME: OfpMsgEvent> ControllerFrame<OME> for Controller<OME> {
     }
 }
 
-impl<OME: OfpMsgEvent> Controller<OME> {
+impl Controller {
     fn add_flow(
         &self,
         xid: u32,
