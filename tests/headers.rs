@@ -12,7 +12,7 @@ mod tests {
     fn test_header_v1_0_parser() {
         let ofp_header_bytes: Vec<u8> = vec![1, 0, 0, 8, 0, 0, 0, 1];
 
-        let controller = Controller::new(Openflow10::new());
+        let controller = Controller::new();
         let ofp = controller.get_ofp();
         let header = ofp.header_parse(&ofp_header_bytes);
 
@@ -25,7 +25,7 @@ mod tests {
     fn test_header_v1_0_marshal() {
         let ofp_header_bytes: Vec<u8> = vec![1, 0, 0, 8, 0, 0, 0, 0];
 
-        let controller = Controller::new(Openflow10::new());
+        let controller = Controller::new();
         let ofp = controller.get_ofp();
         let ofp_header = ofp.header(ofp.msg_usize(Msg::Hello) as u8, 0, 0);
         let mut bytes: Vec<u8> = Vec::new();
