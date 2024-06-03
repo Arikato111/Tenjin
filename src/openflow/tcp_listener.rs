@@ -24,7 +24,10 @@ pub fn tcp_listener_handler<OME: OfpMsgEvent>(address: &str) {
                             Ok(v) if v > 0 => {
                                 ctrl.request_handler(&mut buffer, &mut stream);
                             }
-                            Ok(_) | Err(_) => {
+                            Ok(_) => {
+                                continue;
+                            }
+                            Err(_) => {
                                 println!("cannot read packet");
                                 break;
                             }
