@@ -4,10 +4,23 @@ use super::Payload;
 use byteorder::{BigEndian, ReadBytesExt};
 use std::io::{BufRead, Cursor};
 
+#[derive(Debug)]
 pub enum PacketInReason {
     NoMatch,
     Action,
-    Unknown,
+    InvalidTTL,
+    Unknown(u8),
+}
+
+impl PacketInReason {
+    fn new(code: u8) -> Self {
+        match code {
+            0 => PacketInReason::NoMatch,
+            1 => PacketInReason::Action,
+            2 => PacketInReason::InvalidTTL,
+            t => PacketInReason::Unknown(t),
+        }
+    }
 }
 
 pub struct PacketInEvent {
@@ -33,11 +46,7 @@ impl PacketInEvent {
         };
         let total_len = bytes.read_u16::<BigEndian>().unwrap();
         let in_port = bytes.read_u16::<BigEndian>().unwrap();
-        let reason = match bytes.read_u8().unwrap() {
-            1 => PacketInReason::NoMatch,
-            2 => PacketInReason::Action,
-            _ => PacketInReason::Unknown,
-        };
+        let reason = PacketInReason::new(bytes.read_u8().unwrap());
         let table_id = bytes.read_u8().unwrap();
         let packet = bytes.fill_buf().unwrap().to_vec();
         let payload = match buf_id {

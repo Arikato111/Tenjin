@@ -39,6 +39,7 @@ impl ControllerFrame<Openflow10> for Controller {
      * Start here for handle packetIn message.
      */
     fn packet_in_handler(&mut self, xid: u32, packetin: PacketInEvent, stream: &mut TcpStream) {
+        println!("reason {:?}", packetin.reason);
         let pkt = packetin.ether_parse();
         self.mac_to_port.insert(pkt.mac_src, packetin.in_port);
 
@@ -62,9 +63,11 @@ impl ControllerFrame<Openflow10> for Controller {
             match_fields.mac_dest = Some(mac_dst);
             match_fields.mac_src = Some(mac_src);
             if let Some(buf_id) = packetin.buf_id {
+                println!("found buf id");
                 self.add_flow(xid, 1, match_fields, &actions, Some(buf_id as u32), stream);
                 return;
             } else {
+                println!("not found buf id");
                 self.add_flow(xid, 1, match_fields, &actions, None, stream);
             }
         }
