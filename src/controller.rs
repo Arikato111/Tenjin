@@ -10,9 +10,9 @@ use crate::{
             self,
             events::{flow_mod::MatchFields, Action},
             ofp_v1_0::Openflow10,
-            traiter::OfpMsgEvent,
             FlowModEvent, PacketInEvent,
         },
+        traiter::OfpMsgEvent,
     },
 };
 /**

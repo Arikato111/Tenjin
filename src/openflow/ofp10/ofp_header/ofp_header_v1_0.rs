@@ -1,6 +1,7 @@
-use super::OpenflowHeader;
 use byteorder::{BigEndian, ReadBytesExt, WriteBytesExt};
 use std::{io::Cursor, mem::size_of};
+
+use crate::openflow::traiter::header_trait::OpenflowHeader;
 
 pub struct OfpHeader10 {
     pub version: u8,

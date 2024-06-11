@@ -1,8 +1,8 @@
 use crate::Controller;
 use std::{io::Read, net::TcpListener, thread};
 
-use super::controller_frame::ControllerFrame;
-use crate::openflow::ofp10::{traiter::OfpMsgEvent, HelloEvent};
+use super::{controller_frame::ControllerFrame, traiter::OfpMsgEvent};
+use crate::openflow::ofp10::HelloEvent;
 
 pub fn tcp_listener_handler<OME: OfpMsgEvent>(address: &str) {
     let listener = TcpListener::bind(address).unwrap();

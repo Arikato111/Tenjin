@@ -1,8 +1,10 @@
-use crate::openflow::{
-    ofp10::events::{FeaturesReqEvent, Action, HelloEvent, PacketOutEvent, Payload},
+use crate::openflow::ofp10::{
+    events::{Action, FeaturesReqEvent, HelloEvent, PacketOutEvent, Payload},
+    ofp_header::OfpHeader,
+    Msg,
 };
 
-use super::{ofp_header::{OfpHeader, OpenflowHeader}, Msg};
+use super::header_trait::OpenflowHeader;
 
 /**
  * the trait for parse value to bytes.

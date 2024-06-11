@@ -1,9 +1,14 @@
-use std::{io::{BufRead, Cursor}, mem::size_of};
-
-use crate::openflow::ofp10::{traiter::MessageMarshal, Msg};
-use byteorder::{BigEndian, ReadBytesExt};
+use std::{
+    io::{BufRead, Cursor},
+    mem::size_of,
+};
 
 use super::error_type::ErrorType;
+use crate::openflow::{
+    ofp10::Msg,
+    traiter::{MessageMarshal, OfpMsgEvent},
+};
+use byteorder::{BigEndian, ReadBytesExt};
 
 pub struct ErrorEvent {
     pub error_type: ErrorType,
@@ -34,11 +39,11 @@ impl MessageMarshal for ErrorEvent {
         Msg::Error
     }
 
-    fn msg_usize<OFP: crate::openflow::ofp10::traiter::OfpMsgEvent>(&self, ofp: &OFP) -> usize {
+    fn msg_usize<OFP: OfpMsgEvent>(&self, ofp: &OFP) -> usize {
         ofp.msg_usize(Msg::Error)
     }
 
     fn size_of(&self) -> usize {
-        size_of::<(u16,u16)>() + self.payload.len()
+        size_of::<(u16, u16)>() + self.payload.len()
     }
 }

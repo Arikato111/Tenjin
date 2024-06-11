@@ -4,9 +4,9 @@ use std::{
 };
 
 use crate::openflow::ofp10::{ofp_port::OfpPort, Msg};
-use crate::openflow::ofp10::{
+use crate::openflow::{
+    ofp10::PseudoPort,
     traiter::{MessageMarshal, OfpMsgEvent},
-    PseudoPort,
 };
 use byteorder::{BigEndian, ReadBytesExt, WriteBytesExt};
 

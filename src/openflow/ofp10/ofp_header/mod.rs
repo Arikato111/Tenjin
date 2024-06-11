@@ -1,6 +1,3 @@
-pub mod header_traiter;
-pub use header_traiter::OpenflowHeader;
-
 pub mod ofp_header;
 pub use ofp_header::OfpHeader;
 

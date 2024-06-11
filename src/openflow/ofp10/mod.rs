@@ -9,4 +9,3 @@ pub use events::{ErrorEvent, FlowModEvent, HelloEvent, PacketInEvent, PacketOutE
 
 pub mod ofp_header;
 pub mod ofp_v1_0;
-pub mod traiter;

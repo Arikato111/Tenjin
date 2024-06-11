@@ -1,5 +1,7 @@
-use crate::openflow::ofp10::{traiter::{MessageMarshal, OfpMsgEvent}, Msg};
-
+use crate::openflow::{
+    ofp10::Msg,
+    traiter::{MessageMarshal, OfpMsgEvent},
+};
 
 pub struct FeaturesReqEvent {}
 

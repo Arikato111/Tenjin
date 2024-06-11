@@ -2,10 +2,16 @@ use std::io::Cursor;
 
 use byteorder::{BigEndian, ReadBytesExt, WriteBytesExt};
 
-use crate::openflow::ofp10::{events::{actions::SizeCheck, Action}, ofp_port::OfpPort, traiter::{MessageMarshal, OfpMsgEvent}, Msg, PseudoPort};
+use crate::openflow::{
+    ofp10::{
+        events::{actions::SizeCheck, Action},
+        ofp_port::OfpPort,
+        Msg, PseudoPort,
+    },
+    traiter::{MessageMarshal, OfpMsgEvent},
+};
 
 use super::{FlowModCommand, MatchFields};
-
 
 pub enum Timeout {
     Permanent,
