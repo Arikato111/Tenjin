@@ -38,5 +38,6 @@ pub fn bytes_to_mac(bytes: u64) -> [u8; 6] {
     for i in 0..6 {
         address[i] = ((bytes >> (8 * i)) & 0xff) as u8;
     }
+    address.reverse();
     address
 }
