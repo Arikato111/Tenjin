@@ -1,21 +1,21 @@
-use crate::openflow::ofp10::{ErrorEvent, Msg, PacketInEvent};
+use crate::openflow::{
+    ofp10::{ErrorEvent, Msg, PacketInEvent},
+    traiter::{MessageMarshal, OfpMsgEvent},
+};
 use std::{
     io::{Read, Write},
     net::TcpStream,
 };
 
-use super::{
-    tcp_listener::tcp_listener_handler,
-    traiter::{MessageMarshal, OfpMsgEvent},
-};
+use super::tcp_listener_handler;
 
-pub trait ControllerFrame<OME: OfpMsgEvent> {
+pub trait ControllerFrame10 {
     fn get_ofp(&self) -> &impl OfpMsgEvent;
     fn packet_in_handler(&mut self, xid: u32, packetin: PacketInEvent, stream: &mut TcpStream);
     fn new() -> Self;
 
     fn listener(address: &str) {
-        tcp_listener_handler::<OME>(address);
+        tcp_listener_handler(address);
     }
 
     fn handle_header(&mut self, buf: &mut Vec<u8>) -> (u8, usize, u32) {

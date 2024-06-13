@@ -1,10 +1,11 @@
-use crate::Controller;
+use crate::{openflow::traiter::OfpMsgEvent, Controller};
 use std::{io::Read, net::TcpListener, thread};
 
-use super::{controller_frame::ControllerFrame, traiter::OfpMsgEvent};
 use crate::openflow::ofp10::HelloEvent;
 
-pub fn tcp_listener_handler<OME: OfpMsgEvent>(address: &str) {
+use super::ControllerFrame10;
+
+pub fn tcp_listener_handler(address: &str) {
     let listener = TcpListener::bind(address).unwrap();
     for stream in listener.incoming() {
         match stream {

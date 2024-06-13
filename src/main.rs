@@ -1,4 +1,4 @@
-use tenjin::{openflow::controller_frame::ControllerFrame, Controller};
+use tenjin::{openflow::ofp10::ControllerFrame10, Controller};
 
 extern crate byteorder;
 

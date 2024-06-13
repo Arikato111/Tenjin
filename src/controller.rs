@@ -5,12 +5,11 @@ use std::{collections::HashMap, net::TcpStream};
 use crate::{
     etherparser::ether_type::EtherType,
     openflow::{
-        controller_frame::ControllerFrame,
         ofp10::{
             self,
             events::{flow_mod::MatchFields, Action},
             ofp_v1_0::Openflow10,
-            FlowModEvent, PacketInEvent,
+            ControllerFrame10, FlowModEvent, PacketInEvent,
         },
         traiter::OfpMsgEvent,
     },
@@ -25,7 +24,7 @@ pub struct Controller {
     mac_to_port: HashMap<u64, u16>,
 }
 
-impl ControllerFrame<Openflow10> for Controller {
+impl ControllerFrame10 for Controller {
     fn get_ofp(&self) -> &impl OfpMsgEvent {
         &self.ofp
     }
