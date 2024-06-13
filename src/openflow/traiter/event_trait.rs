@@ -28,7 +28,7 @@ pub trait OfpMsgEvent {
     fn header_size(&self) -> usize;
 
     fn msg_usize(&self, msg: Msg) -> usize;
-    fn msg_parse(&self, msg: u16) -> Msg;
+    fn msg_parse(&self, msg: u8) -> Msg;
     fn hello_event(&self) -> HelloEvent;
     fn fetures_req(&self) -> FeaturesReqEvent;
     fn packet_out(

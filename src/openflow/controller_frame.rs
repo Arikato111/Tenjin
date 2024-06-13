@@ -1,12 +1,13 @@
-use crate::openflow::ofp10::{
-    ErrorEvent, Msg, PacketInEvent,
-};
+use crate::openflow::ofp10::{ErrorEvent, Msg, PacketInEvent};
 use std::{
     io::{Read, Write},
     net::TcpStream,
 };
 
-use super::{tcp_listener::tcp_listener_handler, traiter::{MessageMarshal, OfpMsgEvent}};
+use super::{
+    tcp_listener::tcp_listener_handler,
+    traiter::{MessageMarshal, OfpMsgEvent},
+};
 
 pub trait ControllerFrame<OME: OfpMsgEvent> {
     fn get_ofp(&self) -> &impl OfpMsgEvent;
@@ -30,7 +31,7 @@ pub trait ControllerFrame<OME: OfpMsgEvent> {
         let (message, pkt_size, xid) = self.handle_header(buf);
         let mut payload = vec![0u8; pkt_size];
         let _ = stream.read(&mut payload);
-        let message = self.get_ofp().msg_parse(message as u16);
+        let message = self.get_ofp().msg_parse(message as u8);
         match message {
             Msg::Hello => self.send_msg(self.get_ofp().fetures_req(), xid, stream),
             Msg::Error => {
