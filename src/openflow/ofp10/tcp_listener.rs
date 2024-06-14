@@ -17,7 +17,7 @@ pub fn tcp_listener_handler(address: &str) {
                 thread::spawn(move || {
                     let mut ctrl = Controller::new();
                     ctrl.send_msg(HelloEvent::new(), 0, &mut stream);
-                    let ofp_size = ctrl.get_ofp().header_size();
+                    let ofp_size = ctrl.ofp().header_size();
                     // let ofp = controller.lock().unwrap().get_ofp();
                     let mut buffer = vec![0u8; ofp_size];
                     loop {

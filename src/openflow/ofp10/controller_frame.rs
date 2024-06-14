@@ -1,13 +1,15 @@
-use crate::openflow::ofp10::{ErrorEvent, Msg, PacketInEvent};
+use crate::openflow::ofp10::{self, ErrorEvent, Msg, PacketInEvent};
 use std::{
     io::{Read, Write},
     net::TcpStream,
 };
 
-use super::{tcp_listener_handler, MessageMarshal, OfpMsgEvent, OpenflowHeader};
+use super::{tcp_listener_handler, MessageMarshal, OfpMsgEvent, Openflow10, OpenflowHeader};
 
 pub trait ControllerFrame10 {
-    fn get_ofp(&self) -> &impl OfpMsgEvent;
+    fn ofp(&self) -> ofp10::Openflow10 {
+        Openflow10::new()
+    }
     fn packet_in_handler(&mut self, xid: u32, packetin: PacketInEvent, stream: &mut TcpStream);
     fn new() -> Self;
 
@@ -16,7 +18,7 @@ pub trait ControllerFrame10 {
     }
 
     fn handle_header(&mut self, buf: &mut Vec<u8>) -> (u8, usize, u32) {
-        let ofp_header = self.get_ofp().header_parse(&buf);
+        let ofp_header = self.ofp().header_parse(&buf);
         (
             ofp_header.message(),
             ofp_header.pkt_size(),
@@ -25,12 +27,13 @@ pub trait ControllerFrame10 {
     }
 
     fn request_handler(&mut self, buf: &mut Vec<u8>, stream: &mut TcpStream) {
+        let ofp = self.ofp();
         let (message, pkt_size, xid) = self.handle_header(buf);
         let mut payload = vec![0u8; pkt_size];
         let _ = stream.read(&mut payload);
-        let message = self.get_ofp().msg_parse(message as u8);
+        let message = ofp.msg_parse(message as u8);
         match message {
-            Msg::Hello => self.send_msg(self.get_ofp().fetures_req(), xid, stream),
+            Msg::Hello => self.send_msg(ofp.fetures_req(), xid, stream),
             Msg::Error => {
                 let error = ErrorEvent::parse(&payload);
                 println!("Error {:?}", error.error_type);
@@ -47,12 +50,12 @@ pub trait ControllerFrame10 {
     }
 
     fn send_msg<MSM: MessageMarshal>(&self, msg: MSM, xid: u32, stream: &mut TcpStream) {
-        let ofp = self.get_ofp();
+        let ofp = self.ofp();
         let mut header_bytes: Vec<u8> = Vec::new();
         let mut body_bytes: Vec<u8> = Vec::new();
 
         msg.marshal(&mut body_bytes);
-        let ofp_header = ofp.header(msg.msg_usize(ofp) as u8, body_bytes.len() as u16, xid);
+        let ofp_header = ofp.header(msg.msg_usize(&ofp) as u8, body_bytes.len() as u16, xid);
         ofp_header.marshal(&mut header_bytes);
         header_bytes.append(&mut body_bytes);
         let _ = stream.write_all(&header_bytes);

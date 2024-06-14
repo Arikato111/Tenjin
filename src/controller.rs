@@ -17,17 +17,12 @@ use crate::{
  */
 
 pub struct Controller {
-    ofp: Openflow10,
     mac_to_port: HashMap<u64, u16>,
 }
 
 impl ControllerFrame10 for Controller {
-    fn get_ofp(&self) -> &impl OfpMsgEvent {
-        &self.ofp
-    }
     fn new() -> Self {
         Self {
-            ofp: Openflow10::new(),
             mac_to_port: HashMap::new(),
         }
     }
@@ -68,7 +63,7 @@ impl ControllerFrame10 for Controller {
             }
         }
         let packet_out = self
-            .ofp
+            .ofp()
             .packet_out(Some(packetin.in_port), packetin.payload, actions);
         self.send_msg(packet_out, xid, stream);
     }

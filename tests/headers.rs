@@ -10,7 +10,7 @@ mod tests {
         let ofp_header_bytes: Vec<u8> = vec![1, 0, 0, 8, 0, 0, 0, 1];
 
         let controller = Controller::new();
-        let ofp = controller.get_ofp();
+        let ofp = controller.ofp();
         let header = ofp.header_parse(&ofp_header_bytes);
 
         assert_eq!(header.version(), 1);
@@ -23,7 +23,7 @@ mod tests {
         let ofp_header_bytes: Vec<u8> = vec![1, 0, 0, 8, 0, 0, 0, 0];
 
         let controller = Controller::new();
-        let ofp = controller.get_ofp();
+        let ofp = controller.ofp();
         let ofp_header = ofp.header(ofp.msg_usize(Msg::Hello) as u8, 0, 0);
         let mut bytes: Vec<u8> = Vec::new();
         ofp_header.marshal(&mut bytes);
