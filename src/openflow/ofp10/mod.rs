@@ -8,7 +8,7 @@ pub mod events;
 pub use events::{ErrorEvent, FlowModEvent, HelloEvent, PacketInEvent, PacketOutEvent};
 
 pub mod ofp_header;
-pub mod ofp_v1_0;
+pub mod ofp_manager;
 
 pub mod controller_frame;
 pub use controller_frame::ControllerFrame10;

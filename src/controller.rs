@@ -8,7 +8,7 @@ use crate::{
         ofp10::{
             self,
             events::{flow_mod::MatchFields, Action},
-            ofp_v1_0::Openflow10,
+            ofp_manager::Openflow10,
             ControllerFrame10, FlowModEvent, PacketInEvent,
         },
         traiter::OfpMsgEvent,
