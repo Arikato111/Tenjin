@@ -8,7 +8,7 @@ use crate::openflow::ofp10::{
     MessageMarshal, Msg, OfpMsgEvent, PseudoPort,
 };
 
-use super::{FlowModCommand, MatchFields};
+use super::{FlowModCommand, FlowModFlags, MatchFields};
 
 pub enum Timeout {
     Permanent,
@@ -37,10 +37,9 @@ pub struct FlowModEvent {
     cookie: u64,
     idle_timeout: Timeout,
     hard_timeout: Timeout,
-    notify_when_removed: bool,
+    flags: FlowModFlags,
     buffer_id: Option<u32>,
     out_port: Option<PseudoPort>,
-    check_overlap: bool,
 }
 
 impl FlowModEvent {
@@ -58,10 +57,9 @@ impl FlowModEvent {
             cookie: 0,
             idle_timeout: Timeout::Permanent,
             hard_timeout: Timeout::Permanent,
-            notify_when_removed: false,
+            flags: FlowModFlags::all_false(),
             buffer_id,
             out_port: None,
-            check_overlap: false,
         }
     }
 
@@ -85,7 +83,7 @@ impl FlowModEvent {
             priority,
             idle_timeout,
             hard_timeout,
-            notify_when_removed: flags & 1 != 0,
+            flags: FlowModFlags::parse(flags),
             buffer_id: {
                 match buffer_id {
                     -1 => None,
@@ -93,7 +91,6 @@ impl FlowModEvent {
                 }
             },
             out_port,
-            check_overlap: flags & 2 != 0,
         }
     }
 }
@@ -123,10 +120,7 @@ impl MessageMarshal for FlowModEvent {
             None => bytes.write_u16::<BigEndian>(OfpPort::None as u16).unwrap(),
             Some(p) => p.marshal(bytes),
         }
-        let _ = bytes.write_u16::<BigEndian>(
-            (if self.check_overlap { 1 << 1 } else { 0 })
-                | (if self.notify_when_removed { 1 << 0 } else { 0 }),
-        );
+        self.flags.marshal(bytes);
         for act in self.actions.move_controller_last() {
             match act {
                 Action::Oputput(PseudoPort::Table) => {
