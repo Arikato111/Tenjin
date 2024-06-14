@@ -2,12 +2,14 @@ use std::io::Cursor;
 
 use byteorder::{BigEndian, ReadBytesExt};
 
+#[derive(Clone)]
 pub enum ArpOperation {
     Query = 0x0001,
     Reply = 0x0002,
     Unparse,
 }
 
+#[derive(Clone)]
 pub struct ARP {
     pub hardware_type: u16,
     pub protocol_type: u16,

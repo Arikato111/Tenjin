@@ -2,6 +2,7 @@ use std::io::{BufRead, Cursor};
 
 use byteorder::{BigEndian, ReadBytesExt};
 
+#[derive(Clone)]
 pub struct UDP {
     pub src_port: u16,
     pub des_port: u16,

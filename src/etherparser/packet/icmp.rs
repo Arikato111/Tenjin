@@ -2,6 +2,7 @@ use std::io::{BufRead, Cursor};
 
 use byteorder::{BigEndian, ReadBytesExt};
 
+#[derive(Clone)]
 pub struct ICMP {
     pub typ: u8,
     pub code: u8,

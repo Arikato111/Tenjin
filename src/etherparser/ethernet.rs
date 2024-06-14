@@ -77,3 +77,19 @@ pub enum Network {
     ARP(ARP),
     Unparsable(u16, Vec<u8>),
 }
+
+impl Network {
+    pub fn get_ip(&self) -> Option<IP> {
+        match self {
+            Network::IP(ip) => Some(ip.clone()),
+            _ => None,
+        }
+    }
+    pub fn get_arp(&self) -> Option<ARP> {
+        if let Network::ARP(arp) = self {
+            Some(arp.clone())
+        } else {
+            None
+        }
+    }
+}

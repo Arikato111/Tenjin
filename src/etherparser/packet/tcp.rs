@@ -2,6 +2,7 @@ use crate::etherparser::tools::bits::bit_bool;
 use byteorder::{BigEndian, ReadBytesExt};
 use std::io::{BufRead, Cursor};
 
+#[derive(Clone)]
 pub struct TCP {
     pub src_port: u16,
     pub des_port: u16,
@@ -49,6 +50,8 @@ impl TCP {
     }
 }
 
+
+#[derive(Clone)]
 pub struct TcpFlags {
     pub ns: bool,
     pub cwr: bool,
