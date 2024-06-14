@@ -3,19 +3,19 @@ use std::{io::Cursor, mem::size_of};
 
 use crate::openflow::ofp10::OpenflowHeader;
 
-pub struct OfpHeader10 {
+pub struct OfpHeader {
     pub version: u8,
     pub message: u8,
     pub length: u16,
     pub xid: u32,
 }
 
-impl OpenflowHeader for OfpHeader10 {
+impl OpenflowHeader for OfpHeader {
     fn new(message: u8, length: usize, xid: usize) -> Self {
         Self {
             version: 1,
             message,
-            length: (size_of::<OfpHeader10>() + length) as u16,
+            length: (size_of::<OfpHeader>() + length) as u16,
             xid: xid as u32,
         }
     }
@@ -32,10 +32,10 @@ impl OpenflowHeader for OfpHeader10 {
         self.xid
     }
     fn header_size(&self) -> usize {
-        size_of::<OfpHeader10>()
+        size_of::<Self>()
     }
     fn pkt_size(&self) -> usize {
-        return self.length as usize - size_of::<OfpHeader10>();
+        return self.length as usize - size_of::<Self>();
     }
 
     fn parse(buf: &Vec<u8>) -> Self {

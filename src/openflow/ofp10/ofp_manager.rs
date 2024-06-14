@@ -1,6 +1,6 @@
 use super::{
     events::{Action, FeaturesReqEvent, Payload},
-    ofp_header::{OfpHeader, OfpHeader10},
+    ofp_header::OfpHeader,
     HelloEvent, Msg, OfpMsgEvent, OpenflowHeader, PacketOutEvent,
 };
 
@@ -13,8 +13,8 @@ impl Openflow10 {
 }
 
 impl OfpMsgEvent for Openflow10 {
-    fn header_parse(&self, bytes: &Vec<u8>) -> OfpHeader<impl OpenflowHeader> {
-        OfpHeader::new(OfpHeader10::parse(bytes))
+    fn header_parse(&self, bytes: &Vec<u8>) -> OfpHeader {
+        OfpHeader::parse(bytes)
     }
     fn header_size(&self) -> usize {
         8
@@ -41,8 +41,8 @@ impl OfpMsgEvent for Openflow10 {
         1
     }
 
-    fn header(&self, message: u8, length: u16, xid: u32) -> OfpHeader<impl OpenflowHeader> {
-        OfpHeader::new(OfpHeader10::new(message, length as usize, xid as usize))
+    fn header(&self, message: u8, length: u16, xid: u32) -> OfpHeader {
+        OfpHeader::new(message, length as usize, xid as usize)
     }
 
     fn msg_parse(&self, msg: u8) -> Msg {

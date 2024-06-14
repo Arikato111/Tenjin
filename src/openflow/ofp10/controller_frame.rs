@@ -4,7 +4,7 @@ use std::{
     net::TcpStream,
 };
 
-use super::{tcp_listener_handler, MessageMarshal, OfpMsgEvent};
+use super::{tcp_listener_handler, MessageMarshal, OfpMsgEvent, OpenflowHeader};
 
 pub trait ControllerFrame10 {
     fn get_ofp(&self) -> &impl OfpMsgEvent;

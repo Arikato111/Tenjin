@@ -4,8 +4,6 @@ use crate::openflow::ofp10::{
     Msg,
 };
 
-use super::header_trait::OpenflowHeader;
-
 /**
  * the trait for parse value to bytes.
  * for use with Controller's send_msg.
@@ -21,8 +19,8 @@ pub trait MessageMarshal {
  * for works with controller to create OfpMsgEvent
  */
 pub trait OfpMsgEvent {
-    fn header(&self, message: u8, length: u16, xid: u32) -> OfpHeader<impl OpenflowHeader>;
-    fn header_parse(&self, bytes: &Vec<u8>) -> OfpHeader<impl OpenflowHeader>;
+    fn header(&self, message: u8, length: u16, xid: u32) -> OfpHeader;
+    fn header_parse(&self, bytes: &Vec<u8>) -> OfpHeader;
     fn version(&self) -> usize;
     fn ofp_version() -> usize;
     fn header_size(&self) -> usize;
