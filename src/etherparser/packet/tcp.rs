@@ -5,7 +5,7 @@ use std::io::{BufRead, Cursor};
 #[derive(Clone)]
 pub struct TCP {
     pub src_port: u16,
-    pub des_port: u16,
+    pub dst_port: u16,
     pub seq: u32,
     pub ack: u32,
     pub offset: u8,
@@ -25,7 +25,7 @@ impl TCP {
             return None;
         }
         let src_port = bytes.read_u16::<BigEndian>().unwrap();
-        let des_port = bytes.read_u16::<BigEndian>().unwrap();
+        let dst_port = bytes.read_u16::<BigEndian>().unwrap();
         let seq = bytes.read_u32::<BigEndian>().unwrap();
         let ack = bytes.read_u32::<BigEndian>().unwrap();
         let dataoff_reserv_flags = bytes.read_u16::<BigEndian>().unwrap();
@@ -37,7 +37,7 @@ impl TCP {
         let payload = bytes.fill_buf().unwrap().to_vec();
         Some(TCP {
             src_port,
-            des_port,
+            dst_port,
             seq,
             ack,
             offset,
@@ -49,7 +49,6 @@ impl TCP {
         })
     }
 }
-
 
 #[derive(Clone)]
 pub struct TcpFlags {

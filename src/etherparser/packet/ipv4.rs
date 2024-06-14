@@ -27,7 +27,7 @@ pub struct IP {
     pub protocol: u8,
     pub checksum: u16,
     pub src: u32,
-    pub des: u32,
+    pub dst: u32,
     pub options: Vec<u8>,
     pub ptcol: EtherData,
 }
@@ -55,7 +55,7 @@ impl IP {
         let protocol = bytes.read_u8().unwrap();
         let checksum = bytes.read_u16::<BigEndian>().unwrap();
         let src = bytes.read_u32::<BigEndian>().unwrap();
-        let des = bytes.read_u32::<BigEndian>().unwrap();
+        let dst = bytes.read_u32::<BigEndian>().unwrap();
         let option_len = (ihl * 4) as usize - 20;
         let mut options = vec![0u8; option_len];
         bytes.read_exact(&mut options).unwrap();
@@ -98,7 +98,7 @@ impl IP {
             ttl,
             checksum,
             src,
-            des,
+            dst,
             options,
             ptcol,
         })

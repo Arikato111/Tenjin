@@ -10,7 +10,7 @@ use super::{
 
 pub struct EthernetFrame {
     pub ether_type: EtherType,
-    pub mac_des: u64,
+    pub mac_dst: u64,
     pub mac_src: u64,
     pub vlan_pcp: u8,
     pub vlan_dei: bool,
@@ -21,10 +21,10 @@ pub struct EthernetFrame {
 impl EthernetFrame {
     pub fn parse(payload: &Vec<u8>) -> EthernetFrame {
         let mut bytes = Cursor::new(payload.to_vec());
-        let mut mac_des = [0u8; 6];
+        let mut mac_dst = [0u8; 6];
         let mut mac_src = [0u8; 6];
         for i in 0..6 {
-            mac_des[i] = bytes.read_u8().unwrap();
+            mac_dst[i] = bytes.read_u8().unwrap();
         }
         for i in 0..6 {
             mac_src[i] = bytes.read_u8().unwrap();
@@ -62,7 +62,7 @@ impl EthernetFrame {
         };
         EthernetFrame {
             ether_type: EtherType::parse(typ),
-            mac_des: mac_to_bytes(mac_des),
+            mac_dst: mac_to_bytes(mac_dst),
             mac_src: mac_to_bytes(mac_src),
             vlan_pcp,
             vlan_dei,

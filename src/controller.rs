@@ -39,7 +39,7 @@ impl ControllerFrame10 for Controller {
         let pkt = packetin.ether_parse();
         self.mac_to_port.insert(pkt.mac_src, packetin.in_port);
 
-        let mac_dst = pkt.mac_des;
+        let mac_dst = pkt.mac_dst;
         let mac_src = pkt.mac_src;
 
         if let EtherType::LLDP = pkt.ether_type {
