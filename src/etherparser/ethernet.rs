@@ -15,7 +15,7 @@ pub struct EthernetFrame {
     pub vlan_pcp: u8,
     pub vlan_dei: bool,
     pub vlan_vid: Option<u16>,
-    pub ip_header: Network,
+    pub network: Network,
 }
 
 impl EthernetFrame {
@@ -41,7 +41,7 @@ impl EthernetFrame {
             }
             _ => (0x0, false, None, typ),
         };
-        let ip_header = match typ {
+        let network = match typ {
             tp if tp == EtherType::IP as u16 => {
                 let ip = IP::parse(&mut bytes);
                 if ip.is_some() {
@@ -67,7 +67,7 @@ impl EthernetFrame {
             vlan_pcp,
             vlan_dei,
             vlan_vid,
-            ip_header,
+            network,
         }
     }
 }
