@@ -1,9 +1,8 @@
 use super::{
     events::{Action, FeaturesReqEvent, Payload},
     ofp_header::{OfpHeader, OfpHeader10},
-    HelloEvent, Msg, PacketOutEvent,
+    HelloEvent, Msg, OfpMsgEvent, OpenflowHeader, PacketOutEvent,
 };
-use crate::openflow::traiter::{event_trait::OfpMsgEvent, header_trait::OpenflowHeader};
 
 pub struct Openflow10 {}
 

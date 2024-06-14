@@ -1,13 +1,10 @@
-use crate::openflow::{
-    ofp10::{ErrorEvent, Msg, PacketInEvent},
-    traiter::{MessageMarshal, OfpMsgEvent},
-};
+use crate::openflow::ofp10::{ErrorEvent, Msg, PacketInEvent};
 use std::{
     io::{Read, Write},
     net::TcpStream,
 };
 
-use super::tcp_listener_handler;
+use super::{tcp_listener_handler, MessageMarshal, OfpMsgEvent};
 
 pub trait ControllerFrame10 {
     fn get_ofp(&self) -> &impl OfpMsgEvent;

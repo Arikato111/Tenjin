@@ -4,14 +4,11 @@ use std::{collections::HashMap, net::TcpStream};
 
 use crate::{
     etherparser::ether_type::EtherType,
-    openflow::{
-        ofp10::{
-            self,
-            events::{flow_mod::MatchFields, Action},
-            ofp_manager::Openflow10,
-            ControllerFrame10, FlowModEvent, PacketInEvent,
-        },
-        traiter::OfpMsgEvent,
+    openflow::ofp10::{
+        self,
+        events::{flow_mod::MatchFields, Action},
+        ofp_manager::Openflow10,
+        ControllerFrame10, FlowModEvent, OfpMsgEvent, PacketInEvent,
     },
 };
 /**

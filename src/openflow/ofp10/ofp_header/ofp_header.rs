@@ -1,4 +1,4 @@
-use crate::openflow::traiter::header_trait::OpenflowHeader;
+use crate::openflow::ofp10::OpenflowHeader;
 
 pub struct OfpHeader<OFH: OpenflowHeader> {
     ofp_header: OFH,

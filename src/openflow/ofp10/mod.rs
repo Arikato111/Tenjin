@@ -15,3 +15,6 @@ pub use controller_frame::ControllerFrame10;
 
 pub mod tcp_listener;
 pub use tcp_listener::tcp_listener_handler;
+
+pub mod traiter;
+pub use traiter::{MessageMarshal, OfpMsgEvent, OpenflowHeader};

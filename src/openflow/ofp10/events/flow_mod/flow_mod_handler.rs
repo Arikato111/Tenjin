@@ -2,13 +2,10 @@ use std::io::Cursor;
 
 use byteorder::{BigEndian, ReadBytesExt, WriteBytesExt};
 
-use crate::openflow::{
-    ofp10::{
-        events::{actions::SizeCheck, Action},
-        ofp_port::OfpPort,
-        Msg, PseudoPort,
-    },
-    traiter::{MessageMarshal, OfpMsgEvent},
+use crate::openflow::ofp10::{
+    events::{actions::SizeCheck, Action},
+    ofp_port::OfpPort,
+    MessageMarshal, Msg, OfpMsgEvent, PseudoPort,
 };
 
 use super::{FlowModCommand, MatchFields};

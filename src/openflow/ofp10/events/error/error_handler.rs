@@ -4,10 +4,7 @@ use std::{
 };
 
 use super::error_type::ErrorType;
-use crate::openflow::{
-    ofp10::Msg,
-    traiter::{MessageMarshal, OfpMsgEvent},
-};
+use crate::openflow::ofp10::{MessageMarshal, Msg, OfpMsgEvent};
 use byteorder::{BigEndian, ReadBytesExt};
 
 pub struct ErrorEvent {

@@ -1,7 +1,4 @@
-use crate::openflow::{
-    ofp10::Msg,
-    traiter::{MessageMarshal, OfpMsgEvent},
-};
+use crate::openflow::ofp10::{MessageMarshal, Msg, OfpMsgEvent};
 
 pub struct HelloEvent {}
 
