@@ -1,4 +1,4 @@
-#[repr(u8)]
+#[derive(Clone)]
 pub enum Msg {
     Hello = 0,
     Error = 1,
@@ -26,18 +26,3 @@ impl Msg {
         }
     }
 }
-
-impl Clone for Msg {
-    fn clone(&self) -> Self {
-        match self {
-            Self::Hello => Self::Hello,
-            Self::Error => Self::Error,
-            Self::FeaturesReq => Self::FeaturesReq,
-            Self::PacketIn => Self::PacketIn,
-            Self::PacketOut => Self::PacketOut,
-            Self::FlowMod => Self::FlowMod,
-            Self::NotFound => Self::NotFound,
-        }
-    }
-}
-
