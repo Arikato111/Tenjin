@@ -26,3 +26,4 @@ pub mod echo_request;
 pub use echo_request::EchoRequestEvent;
 
 pub mod echo_reply;
+pub use echo_reply::EchoReplyEvent;
