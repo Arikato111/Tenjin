@@ -21,3 +21,8 @@ pub use features_req::FeaturesReqEvent;
 
 pub mod payload;
 pub use payload::Payload;
+
+pub mod echo_request;
+pub use echo_request::EchoRequestEvent;
+
+pub mod echo_reply;

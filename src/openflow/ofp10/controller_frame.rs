@@ -4,7 +4,10 @@ use std::{
     net::TcpStream,
 };
 
-use super::{tcp_listener_handler, MessageMarshal, OfpMsgEvent, Openflow10, OpenflowHeader};
+use super::{
+    events::{echo_reply::EchoReplyEvent, EchoRequestEvent},
+    tcp_listener_handler, MessageMarshal, OfpMsgEvent, Openflow10, OpenflowHeader,
+};
 
 pub trait ControllerFrame10 {
     fn ofp(&self) -> ofp10::Openflow10 {
@@ -33,18 +36,15 @@ pub trait ControllerFrame10 {
         let _ = stream.read(&mut payload);
         let message = ofp.msg_parse(message as u8);
         match message {
-            Msg::Hello => self.send_msg(ofp.fetures_req(), xid, stream),
-            Msg::Error => {
-                let error = ErrorEvent::parse(&payload);
-                println!("Error {:?}", error.error_type);
-                ()
+            Msg::Hello => self.hello_handler(xid, stream),
+            Msg::Error => self.error_handler(ErrorEvent::parse(&payload)),
+            Msg::EchoRequest => {
+                self.echo_request_handler(xid, EchoRequestEvent::new(payload), stream)
             }
-            Msg::FeaturesRequest => (),
             Msg::PacketIn => {
                 self.packet_in_handler(xid, PacketInEvent::parse(&payload), stream);
             }
             Msg::PacketOut => (),
-            Msg::FlowMod => (),
             _ => (),
         }
     }
@@ -59,5 +59,18 @@ pub trait ControllerFrame10 {
         ofp_header.marshal(&mut header_bytes);
         header_bytes.append(&mut body_bytes);
         let _ = stream.write_all(&header_bytes);
+    }
+
+    /**
+     * for handle message
+     */
+    fn hello_handler(&self, xid: u32, stream: &mut TcpStream) {
+        self.send_msg(self.ofp().fetures_req(), xid, stream);
+    }
+    fn error_handler(&self, error: ErrorEvent) {
+        println!("Error {:?}", error.error_type);
+    }
+    fn echo_request_handler(&self, xid: u32, echo: EchoRequestEvent, stream: &mut TcpStream) {
+        self.send_msg(EchoReplyEvent::new(echo.payload), xid, stream);
     }
 }
