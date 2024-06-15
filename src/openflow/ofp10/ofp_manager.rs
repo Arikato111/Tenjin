@@ -46,7 +46,7 @@ impl OfpMsgEvent for Openflow10 {
     }
 
     fn msg_parse(&self, msg: u8) -> Msg {
-        Msg::parse(msg)
+        Msg::from(msg)
     }
 
     fn msg_usize(&self, msg: Msg) -> usize {

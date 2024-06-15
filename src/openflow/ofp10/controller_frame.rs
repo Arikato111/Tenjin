@@ -39,13 +39,13 @@ pub trait ControllerFrame10 {
                 println!("Error {:?}", error.error_type);
                 ()
             }
-            Msg::FeaturesReq => (),
+            Msg::FeaturesRequest => (),
             Msg::PacketIn => {
                 self.packet_in_handler(xid, PacketInEvent::parse(&payload), stream);
             }
             Msg::PacketOut => (),
             Msg::FlowMod => (),
-            Msg::NotFound => (),
+            _ => (),
         }
     }
 

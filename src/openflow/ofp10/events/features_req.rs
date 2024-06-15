@@ -12,7 +12,7 @@ impl MessageMarshal for FeaturesReqEvent {
     fn marshal(&self, _: &mut Vec<u8>) {}
 
     fn msg_code(&self) -> Msg {
-        Msg::FeaturesReq
+        Msg::FeaturesRequest
     }
 
     fn size_of(&self) -> usize {
@@ -20,6 +20,6 @@ impl MessageMarshal for FeaturesReqEvent {
     }
 
     fn msg_usize<OFP: OfpMsgEvent>(&self, ofp: &OFP) -> usize {
-        ofp.msg_usize(Msg::FeaturesReq)
+        ofp.msg_usize(Msg::FeaturesRequest)
     }
 }
