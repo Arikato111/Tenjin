@@ -4,7 +4,7 @@ use std::{
 };
 
 use crate::openflow::ofp10::PseudoPort;
-use crate::openflow::ofp10::{ofp_port::OfpPort, MessageMarshal, Msg, OfpMsgEvent};
+use crate::openflow::ofp10::{ofp_port::OfpPort, MessageMarshal, Msg};
 use byteorder::{BigEndian, ReadBytesExt, WriteBytesExt};
 
 use super::{actions::SizeCheck, Action, Payload};
@@ -40,8 +40,8 @@ impl MessageMarshal for PacketOutEvent {
         Msg::PacketOut
     }
 
-    fn msg_usize<OFP: OfpMsgEvent>(&self, ofp: &OFP) -> usize {
-        ofp.msg_usize(Msg::PacketOut)
+    fn msg_usize(&self) -> usize {
+        Msg::PacketOut as usize
     }
 
     fn size_of(&self) -> usize {

@@ -11,7 +11,7 @@ use crate::openflow::ofp10::{
 pub trait MessageMarshal {
     fn marshal(&self, bytes: &mut Vec<u8>);
     fn msg_code(&self) -> Msg;
-    fn msg_usize<OFP: OfpMsgEvent>(&self, ofp: &OFP) -> usize;
+    fn msg_usize(&self) -> usize;
     fn size_of(&self) -> usize;
 }
 

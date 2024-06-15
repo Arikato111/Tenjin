@@ -55,7 +55,7 @@ pub trait ControllerFrame10 {
         let mut body_bytes: Vec<u8> = Vec::new();
 
         msg.marshal(&mut body_bytes);
-        let ofp_header = ofp.header(msg.msg_usize(&ofp) as u8, body_bytes.len() as u16, xid);
+        let ofp_header = ofp.header(msg.msg_usize() as u8, body_bytes.len() as u16, xid);
         ofp_header.marshal(&mut header_bytes);
         header_bytes.append(&mut body_bytes);
         let _ = stream.write_all(&header_bytes);

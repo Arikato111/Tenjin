@@ -5,7 +5,7 @@ use byteorder::{BigEndian, ReadBytesExt, WriteBytesExt};
 use crate::openflow::ofp10::{
     events::{actions::SizeCheck, Action},
     ofp_port::OfpPort,
-    MessageMarshal, Msg, OfpMsgEvent, PseudoPort,
+    MessageMarshal, Msg, PseudoPort,
 };
 
 use super::{FlowModCommand, FlowModFlags, MatchFields};
@@ -96,8 +96,8 @@ impl FlowModEvent {
 }
 
 impl MessageMarshal for FlowModEvent {
-    fn msg_usize<OFP: OfpMsgEvent>(&self, ofp: &OFP) -> usize {
-        ofp.msg_usize(Msg::FlowMod)
+    fn msg_usize(&self) -> usize {
+        Msg::FlowMod as usize
     }
     fn size_of(&self) -> usize {
         24

@@ -21,7 +21,7 @@ impl MessageMarshal for EchoReplyEvent {
         ofp10::Msg::EchoReply
     }
 
-    fn msg_usize<OFP: ofp10::OfpMsgEvent>(&self, ofp: &OFP) -> usize {
+    fn msg_usize(&self) -> usize {
         ofp10::Msg::EchoReply as usize
     }
 

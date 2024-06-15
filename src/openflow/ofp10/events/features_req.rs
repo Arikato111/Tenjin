@@ -1,4 +1,4 @@
-use crate::openflow::ofp10::{MessageMarshal, Msg, OfpMsgEvent};
+use crate::openflow::ofp10::{MessageMarshal, Msg};
 
 pub struct FeaturesReqEvent {}
 
@@ -19,7 +19,7 @@ impl MessageMarshal for FeaturesReqEvent {
         0
     }
 
-    fn msg_usize<OFP: OfpMsgEvent>(&self, ofp: &OFP) -> usize {
-        ofp.msg_usize(Msg::FeaturesRequest)
+    fn msg_usize(&self) -> usize {
+        Msg::FeaturesRequest as usize
     }
 }

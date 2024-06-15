@@ -4,7 +4,7 @@ use std::{
 };
 
 use super::error_type::ErrorType;
-use crate::openflow::ofp10::{MessageMarshal, Msg, OfpMsgEvent};
+use crate::openflow::ofp10::{MessageMarshal, Msg};
 use byteorder::{BigEndian, ReadBytesExt};
 
 pub struct ErrorEvent {
@@ -36,8 +36,8 @@ impl MessageMarshal for ErrorEvent {
         Msg::Error
     }
 
-    fn msg_usize<OFP: OfpMsgEvent>(&self, ofp: &OFP) -> usize {
-        ofp.msg_usize(Msg::Error)
+    fn msg_usize(&self) -> usize {
+        Msg::Error as usize
     }
 
     fn size_of(&self) -> usize {

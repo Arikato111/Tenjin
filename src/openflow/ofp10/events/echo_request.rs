@@ -21,7 +21,7 @@ impl MessageMarshal for EchoRequestEvent {
         Msg::EchoRequest
     }
 
-    fn msg_usize<OFP: ofp10::OfpMsgEvent>(&self, _: &OFP) -> usize {
+    fn msg_usize(&self) -> usize {
         Msg::EchoRequest as usize
     }
 
