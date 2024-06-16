@@ -19,6 +19,22 @@ pub struct EthernetFrame {
 }
 
 impl EthernetFrame {
+    pub fn mac_dst_string(&self) -> String {
+        Self::mac_str(self.mac_dst)
+    }
+    pub fn mac_src_string(&self) -> String {
+        Self::mac_str(self.mac_src)
+    }
+    pub fn mac_str(mac: u64) -> String {
+        let mut mac_string = String::new();
+        let mut mac = mac;
+        for _ in 0..8 {
+            mac_string = format!("{}:{}", mac as u8, mac_string);
+            mac = mac >> 8;
+        }
+        mac_string.pop();
+        mac_string
+    }
     pub fn parse(payload: &Vec<u8>) -> Result<EthernetFrame, Error> {
         let mut bytes = Cursor::new(payload.to_vec());
         let mut mac_dst = [0u8; 6];
