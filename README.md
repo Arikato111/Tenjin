@@ -1,5 +1,7 @@
 # Tenjin SDN
 
+Software-defined networking with Rust.
+
 ## Goals
 
 To understand The software-defined networking well, I trying to create a simple SDN with Rust language to support Openflow 1.0 first and 1.3 later.
@@ -24,7 +26,7 @@ sudo mn --controller=remote,ip=127.0.0.1 --mac --switch=ovsk,protocols=OpenFlow1
 - [x] test case. ([Read docs](https://doc.rust-lang.org/book/ch11-01-writing-tests.html))
 - [ ] write more description in README.
 - [x] handle needed messages.
-- [ ] remove all unwarp.
+- [x] remove all unwarp.
 
 ## Learning resources
 
