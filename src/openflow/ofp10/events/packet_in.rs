@@ -2,7 +2,7 @@ use crate::etherparser::ethernet::EthernetFrame;
 
 use super::Payload;
 use byteorder::{BigEndian, ReadBytesExt};
-use std::io::{BufRead, Cursor};
+use std::io::{BufRead, Cursor, Error};
 
 #[derive(Debug)]
 pub enum PacketInReason {
@@ -33,7 +33,7 @@ pub struct PacketInEvent {
 }
 
 impl PacketInEvent {
-    pub fn ether_parse(&self) -> EthernetFrame {
+    pub fn ether_parse(&self) -> Result<EthernetFrame, Error> {
         match &self.payload {
             Payload::Buffered(_, p) | Payload::NoBuffered(p) => EthernetFrame::parse(&p),
         }

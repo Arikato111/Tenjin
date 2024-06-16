@@ -1,5 +1,5 @@
 use crate::etherparser::ether_type::EtherType;
-use std::io::{BufRead, Cursor};
+use std::io::{BufRead, Cursor, Error};
 
 use byteorder::{BigEndian, ReadBytesExt};
 
@@ -19,21 +19,21 @@ pub struct EthernetFrame {
 }
 
 impl EthernetFrame {
-    pub fn parse(payload: &Vec<u8>) -> EthernetFrame {
+    pub fn parse(payload: &Vec<u8>) -> Result<EthernetFrame, Error> {
         let mut bytes = Cursor::new(payload.to_vec());
         let mut mac_dst = [0u8; 6];
         let mut mac_src = [0u8; 6];
         for i in 0..6 {
-            mac_dst[i] = bytes.read_u8().unwrap();
+            mac_dst[i] = bytes.read_u8()?;
         }
         for i in 0..6 {
-            mac_src[i] = bytes.read_u8().unwrap();
+            mac_src[i] = bytes.read_u8()?;
         }
         // check 802.1q tag tpid
-        let typ = bytes.read_u16::<BigEndian>().unwrap();
+        let typ = bytes.read_u16::<BigEndian>()?;
         let (vlan_pcp, vlan_dei, vlan_vid, typ) = match typ {
             tp if tp == EtherType::VLAN as u16 => {
-                let tci = bytes.read_u16::<BigEndian>().unwrap();
+                let tci = bytes.read_u16::<BigEndian>()?;
                 let pcp = tci >> 13;
                 let dei = (tci & 0x1000) > 0;
                 let vid = tci & 0xfff;
@@ -44,23 +44,21 @@ impl EthernetFrame {
         let network = match typ {
             tp if tp == EtherType::IP as u16 => {
                 let ip = IP::parse(&mut bytes);
-                if ip.is_some() {
-                    Network::IP(ip.unwrap())
-                } else {
-                    Network::Unparsable(typ, bytes.fill_buf().unwrap().to_vec())
+                match ip {
+                    Some(ip) => Network::IP(ip),
+                    None => Network::Unparsable(typ, bytes.fill_buf()?.to_vec()),
                 }
             }
             tp if tp == (EtherType::ARP as u16) => {
                 let arp = ARP::parse(&mut bytes);
-                if arp.is_some() {
-                    Network::ARP(arp.unwrap())
-                } else {
-                    Network::Unparsable(typ, bytes.fill_buf().unwrap().to_vec())
+                match arp {
+                    Some(arp) => Network::ARP(arp),
+                    None => Network::Unparsable(typ, bytes.fill_buf()?.to_vec()),
                 }
             }
-            _ => Network::Unparsable(typ, bytes.fill_buf().unwrap().to_vec()),
+            _ => Network::Unparsable(typ, bytes.fill_buf()?.to_vec()),
         };
-        EthernetFrame {
+        Ok(EthernetFrame {
             ether_type: EtherType::parse(typ),
             mac_dst: mac_to_bytes(mac_dst),
             mac_src: mac_to_bytes(mac_src),
@@ -68,7 +66,7 @@ impl EthernetFrame {
             vlan_dei,
             vlan_vid,
             network,
-        }
+        })
     }
 }
 

@@ -31,7 +31,10 @@ impl ControllerFrame10 for Controller {
      */
     fn packet_in_handler(&mut self, xid: u32, packetin: PacketInEvent, stream: &mut TcpStream) {
         println!("reason {:?}", packetin.reason);
-        let pkt = packetin.ether_parse();
+        let pkt = match packetin.ether_parse() {
+            Ok(pkt) => pkt,
+            Err(_) => return,
+        };
         self.mac_to_port.insert(pkt.mac_src, packetin.in_port);
 
         let mac_dst = pkt.mac_dst;
