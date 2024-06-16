@@ -1,4 +1,4 @@
-use std::io::Cursor;
+use std::io::{Cursor, Error, ErrorKind};
 
 use byteorder::{BigEndian, ReadBytesExt};
 
@@ -26,35 +26,35 @@ impl ARP {
     pub fn size_of() -> usize {
         28
     }
-    pub fn parse(bytes: &mut Cursor<Vec<u8>>) -> Option<ARP> {
+    pub fn parse(bytes: &mut Cursor<Vec<u8>>) -> Result<ARP, Error> {
         if bytes.get_ref().len() < ARP::size_of() {
-            return None;
+            return Err(Error::new(ErrorKind::Other, "arp len wrong"));
         }
 
-        let hardware_type = bytes.read_u16::<BigEndian>().unwrap();
-        let protocol_type = bytes.read_u16::<BigEndian>().unwrap();
-        let hardware_length = bytes.read_u8().unwrap();
-        let protocol_length = bytes.read_u8().unwrap();
-        let operation = match bytes.read_u16::<BigEndian>().unwrap() {
+        let hardware_type = bytes.read_u16::<BigEndian>()?;
+        let protocol_type = bytes.read_u16::<BigEndian>()?;
+        let hardware_length = bytes.read_u8()?;
+        let protocol_length = bytes.read_u8()?;
+        let operation = match bytes.read_u16::<BigEndian>()? {
             0x0001 => ArpOperation::Query,
             0x0002 => ArpOperation::Reply,
             _ => ArpOperation::Unparse,
         };
         if let ArpOperation::Unparse = operation {
-            return None;
+            return Err(Error::new(ErrorKind::Other, "arp unparse"));
         }
 
         let mut sender_mac = [0u8; 6];
         for i in 0..6 {
-            sender_mac[i] = bytes.read_u8().unwrap();
+            sender_mac[i] = bytes.read_u8()?;
         }
-        let sender_address = bytes.read_u32::<BigEndian>().unwrap();
+        let sender_address = bytes.read_u32::<BigEndian>()?;
         let mut target_mac = [0u8; 6];
         for i in 0..6 {
-            target_mac[i] = bytes.read_u8().unwrap();
+            target_mac[i] = bytes.read_u8()?;
         }
-        let target_address = bytes.read_u32::<BigEndian>().unwrap();
-        Some(ARP {
+        let target_address = bytes.read_u32::<BigEndian>()?;
+        Ok(ARP {
             hardware_type,
             protocol_type,
             hardware_length,
