@@ -25,6 +25,7 @@ pub enum ActionType {
     Enqueue = 11,
 }
 
+#[derive(Clone)]
 pub enum Action {
     Oputput(PseudoPort),
     SetDlVlan(Option<u16>),
@@ -238,24 +239,5 @@ impl SizeCheck for Vec<Action> {
         }
         not_ctrl.append(&mut is_ctrl);
         not_ctrl
-    }
-}
-
-impl Clone for Action {
-    fn clone(&self) -> Self {
-        match self {
-            Self::Oputput(v) => Self::Oputput(v.clone()),
-            Self::SetDlVlan(v) => Self::SetDlVlan(v.clone()),
-            Self::SetDlVlanPcp(v) => Self::SetDlVlanPcp(v.clone()),
-            Self::SetDlSrc(v) => Self::SetDlSrc(v.clone()),
-            Self::SetDlDest(v) => Self::SetDlDest(v.clone()),
-            Self::SetIpSrc(v) => Self::SetIpSrc(v.clone()),
-            Self::SetIpDes(v) => Self::SetIpDes(v.clone()),
-            Self::SetTos(v) => Self::SetTos(v.clone()),
-            Self::SetTpSrc(v) => Self::SetTpSrc(v.clone()),
-            Self::SetTpDest(v) => Self::SetTpDest(v.clone()),
-            Self::Enqueue(v, arg1) => Self::Enqueue(v.clone(), arg1.clone()),
-            Self::Unparsable => Self::Unparsable,
-        }
     }
 }
