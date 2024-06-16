@@ -1,4 +1,4 @@
-use std::io::Cursor;
+use std::io::{Cursor, Error};
 
 use byteorder::{BigEndian, ReadBytesExt, WriteBytesExt};
 
@@ -63,19 +63,19 @@ impl FlowModEvent {
         }
     }
 
-    pub fn parse(buf: &[u8]) -> FlowModEvent {
+    pub fn parse(buf: &[u8]) -> Result<FlowModEvent, Error> {
         let mut bytes = Cursor::new(buf.to_vec());
-        let match_fields = MatchFields::parse(&mut bytes);
-        let cookie = bytes.read_u64::<BigEndian>().unwrap();
-        let command = FlowModCommand::parse(bytes.read_u16::<BigEndian>().unwrap());
-        let idle_timeout = Timeout::parse(bytes.read_u16::<BigEndian>().unwrap());
-        let hard_timeout = Timeout::parse(bytes.read_u16::<BigEndian>().unwrap());
-        let priority = bytes.read_u16::<BigEndian>().unwrap();
-        let buffer_id = bytes.read_i32::<BigEndian>().unwrap();
-        let out_port = PseudoPort::parse(bytes.read_u16::<BigEndian>().unwrap());
-        let flags = bytes.read_u16::<BigEndian>().unwrap();
+        let match_fields = MatchFields::parse(&mut bytes)?;
+        let cookie = bytes.read_u64::<BigEndian>()?;
+        let command = FlowModCommand::parse(bytes.read_u16::<BigEndian>()?);
+        let idle_timeout = Timeout::parse(bytes.read_u16::<BigEndian>()?);
+        let hard_timeout = Timeout::parse(bytes.read_u16::<BigEndian>()?);
+        let priority = bytes.read_u16::<BigEndian>()?;
+        let buffer_id = bytes.read_i32::<BigEndian>()?;
+        let out_port = PseudoPort::parse(bytes.read_u16::<BigEndian>()?);
+        let flags = bytes.read_u16::<BigEndian>()?;
         let actions = Action::parse_sequence(&mut bytes);
-        FlowModEvent {
+        Ok(FlowModEvent {
             command,
             match_fields,
             cookie,
@@ -91,7 +91,7 @@ impl FlowModEvent {
                 }
             },
             out_port,
-        }
+        })
     }
 }
 
@@ -117,8 +117,10 @@ impl MessageMarshal for FlowModEvent {
             Some(buf_id) => buf_id as i32,
         });
         match self.out_port.as_ref() {
-            None => bytes.write_u16::<BigEndian>(OfpPort::None as u16).unwrap(),
             Some(p) => p.marshal(bytes),
+            None => {
+                let _ = bytes.write_u16::<BigEndian>(OfpPort::None as u16);
+            }
         }
         self.flags.marshal(bytes);
         for act in self.actions.move_controller_last() {

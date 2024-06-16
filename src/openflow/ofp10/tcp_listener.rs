@@ -5,8 +5,8 @@ use crate::openflow::ofp10::HelloEvent;
 
 use super::{ControllerFrame10, OfpMsgEvent};
 
-pub fn tcp_listener_handler(address: &str) {
-    let listener = TcpListener::bind(address).unwrap();
+pub fn tcp_listener_handler(address: &str) -> Result<(), std::io::Error> {
+    let listener = TcpListener::bind(address)?;
     for stream in listener.incoming() {
         match stream {
             Ok(mut stream) => {
@@ -18,7 +18,6 @@ pub fn tcp_listener_handler(address: &str) {
                     let mut ctrl = Controller::new();
                     ctrl.send_msg(HelloEvent::new(), 0, &mut stream);
                     let ofp_size = ctrl.ofp().header_size();
-                    // let ofp = controller.lock().unwrap().get_ofp();
                     let mut buffer = vec![0u8; ofp_size];
                     loop {
                         match stream.read(&mut buffer) {
@@ -39,4 +38,5 @@ pub fn tcp_listener_handler(address: &str) {
             Err(_) => panic!("Connection failed!"),
         }
     }
+    Ok(())
 }

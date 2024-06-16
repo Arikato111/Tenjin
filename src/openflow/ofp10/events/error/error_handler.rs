@@ -1,5 +1,5 @@
 use std::{
-    io::{BufRead, Cursor},
+    io::{BufRead, Cursor, Error},
     mem::size_of,
 };
 
@@ -19,13 +19,13 @@ impl ErrorEvent {
             payload,
         }
     }
-    pub fn parse(buf: &Vec<u8>) -> ErrorEvent {
+    pub fn parse(buf: &Vec<u8>) -> Result<ErrorEvent, Error> {
         let mut bytes = Cursor::new(buf);
-        let error_type = bytes.read_u16::<BigEndian>().unwrap();
-        let error_code = bytes.read_u16::<BigEndian>().unwrap();
+        let error_type = bytes.read_u16::<BigEndian>()?;
+        let error_code = bytes.read_u16::<BigEndian>()?;
         let code = ErrorType::new(error_type, error_code);
-        let payload = bytes.fill_buf().unwrap().to_vec();
-        ErrorEvent::new(code, payload)
+        let payload = bytes.fill_buf()?.to_vec();
+        Ok(ErrorEvent::new(code, payload))
     }
 }
 

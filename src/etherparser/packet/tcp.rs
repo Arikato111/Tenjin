@@ -1,6 +1,6 @@
 use crate::etherparser::tools::bits::bit_bool;
 use byteorder::{BigEndian, ReadBytesExt};
-use std::io::{BufRead, Cursor};
+use std::io::{BufRead, Cursor, Error, ErrorKind};
 
 #[derive(Clone)]
 pub struct TCP {
@@ -20,22 +20,22 @@ impl TCP {
     pub fn size_of() -> usize {
         20
     }
-    pub fn parser(bytes: &mut Cursor<Vec<u8>>) -> Option<TCP> {
+    pub fn parser(bytes: &mut Cursor<Vec<u8>>) -> Result<TCP, Error> {
         if bytes.get_ref().len() < TCP::size_of() {
-            return None;
+            return Err(Error::new(ErrorKind::Other, "Tcp wrong size"));
         }
-        let src_port = bytes.read_u16::<BigEndian>().unwrap();
-        let dst_port = bytes.read_u16::<BigEndian>().unwrap();
-        let seq = bytes.read_u32::<BigEndian>().unwrap();
-        let ack = bytes.read_u32::<BigEndian>().unwrap();
-        let dataoff_reserv_flags = bytes.read_u16::<BigEndian>().unwrap();
+        let src_port = bytes.read_u16::<BigEndian>()?;
+        let dst_port = bytes.read_u16::<BigEndian>()?;
+        let seq = bytes.read_u32::<BigEndian>()?;
+        let ack = bytes.read_u32::<BigEndian>()?;
+        let dataoff_reserv_flags = bytes.read_u16::<BigEndian>()?;
         let flags = TcpFlags::parser(dataoff_reserv_flags);
         let offset = (dataoff_reserv_flags >> 12) as u8 & 0x0f;
-        let window = bytes.read_u16::<BigEndian>().unwrap();
-        let checksum = bytes.read_u16::<BigEndian>().unwrap();
-        let urgent = bytes.read_u16::<BigEndian>().unwrap();
-        let payload = bytes.fill_buf().unwrap().to_vec();
-        Some(TCP {
+        let window = bytes.read_u16::<BigEndian>()?;
+        let checksum = bytes.read_u16::<BigEndian>()?;
+        let urgent = bytes.read_u16::<BigEndian>()?;
+        let payload = bytes.fill_buf()?.to_vec();
+        Ok(TCP {
             src_port,
             dst_port,
             seq,

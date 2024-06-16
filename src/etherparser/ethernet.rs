@@ -45,8 +45,8 @@ impl EthernetFrame {
             tp if tp == EtherType::IP as u16 => {
                 let ip = IP::parse(&mut bytes);
                 match ip {
-                    Some(ip) => Network::IP(ip),
-                    None => Network::Unparsable(typ, bytes.fill_buf()?.to_vec()),
+                    Ok(ip) => Network::IP(ip),
+                    Err(_) => Network::Unparsable(typ, bytes.fill_buf()?.to_vec()),
                 }
             }
             tp if tp == (EtherType::ARP as u16) => {

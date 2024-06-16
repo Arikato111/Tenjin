@@ -13,7 +13,7 @@ impl Openflow10 {
 }
 
 impl OfpMsgEvent for Openflow10 {
-    fn header_parse(&self, bytes: &Vec<u8>) -> OfpHeader {
+    fn header_parse(&self, bytes: &Vec<u8>) -> Result<OfpHeader, std::io::Error>  {
         OfpHeader::parse(bytes)
     }
     fn header_size(&self) -> usize {

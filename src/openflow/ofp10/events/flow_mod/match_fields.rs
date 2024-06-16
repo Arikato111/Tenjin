@@ -1,4 +1,4 @@
-use std::io::{BufRead, Cursor};
+use std::io::{BufRead, Cursor, Error};
 
 use byteorder::{BigEndian, ReadBytesExt, WriteBytesExt};
 
@@ -162,11 +162,23 @@ impl MatchFields {
             None => 0xffff,
         };
         let _ = bytes.write_u16::<BigEndian>(vlan);
-        let _ = bytes.write_u8(self.vlan_pcp.unwrap_or(0));
+        let _ = bytes.write_u8(match self.vlan_pcp {
+            Some(v) => v,
+            None => 0,
+        });
         let _ = bytes.write_u8(0);
-        let _ = bytes.write_u16::<BigEndian>(self.ethernet_type.unwrap_or(0));
-        let _ = bytes.write_u8(self.tos.unwrap_or(0));
-        let _ = bytes.write_u8(self.protocol.unwrap_or(0));
+        let _ = bytes.write_u16::<BigEndian>(match self.ethernet_type {
+            Some(v) => v,
+            None => 0,
+        });
+        let _ = bytes.write_u8(match self.tos {
+            Some(v) => v,
+            None => 0,
+        });
+        let _ = bytes.write_u8(match self.protocol {
+            Some(v) => v,
+            None => 0,
+        });
         let _ = bytes.write_u16::<BigEndian>(0);
 
         let _ = bytes.write_u32::<BigEndian>(match &self.ip_src {
@@ -177,23 +189,29 @@ impl MatchFields {
             Some(ip) => ip.ip,
             None => 0,
         });
-        let _ = bytes.write_u16::<BigEndian>(self.transport_src.unwrap_or(0));
-        let _ = bytes.write_u16::<BigEndian>(self.transport_dest.unwrap_or(0));
+        let _ = bytes.write_u16::<BigEndian>(match self.transport_src {
+            Some(v) => v,
+            None => 0,
+        });
+        let _ = bytes.write_u16::<BigEndian>(match self.transport_dest {
+            Some(v) => v,
+            None => 0,
+        });
     }
 
-    pub fn parse(bytes: &mut Cursor<Vec<u8>>) -> MatchFields {
-        let wildcards = Wildcards::parse(bytes.read_u32::<BigEndian>().unwrap());
+    pub fn parse(bytes: &mut Cursor<Vec<u8>>) -> Result<MatchFields, Error> {
+        let wildcards = Wildcards::parse(bytes.read_u32::<BigEndian>()?);
         let in_port = if wildcards.in_port {
             None
         } else {
-            Some(bytes.read_u16::<BigEndian>().unwrap())
+            Some(bytes.read_u16::<BigEndian>()?)
         };
         let mac_src = if wildcards.mac_src {
             None
         } else {
             let mut arr: [u8; 6] = [0; 6];
             for i in 0..6 {
-                arr[i] = bytes.read_u8().unwrap();
+                arr[i] = bytes.read_u8()?;
             }
             Some(mac_to_bytes(arr))
         };
@@ -202,52 +220,52 @@ impl MatchFields {
         } else {
             let mut arr: [u8; 6] = [0; 6];
             for i in 0..6 {
-                arr[i] = bytes.read_u8().unwrap();
+                arr[i] = bytes.read_u8()?;
             }
             Some(mac_to_bytes(arr))
         };
         let vlan_vid = if wildcards.vlan_vid {
             None
         } else {
-            let vid = bytes.read_u16::<BigEndian>().unwrap();
+            let vid = bytes.read_u16::<BigEndian>()?;
             if vid == 0xfff {
                 None
             } else {
-                Some(bytes.read_u16::<BigEndian>().unwrap())
+                Some(bytes.read_u16::<BigEndian>()?)
             }
         };
         let vlan_pcp = if wildcards.vlan_pcp {
             None
         } else {
-            Some(bytes.read_u8().unwrap())
+            Some(bytes.read_u8()?)
         };
         bytes.consume(1);
         let ethernet_type = if wildcards.ethernet_type {
             None
         } else {
-            Some(bytes.read_u16::<BigEndian>().unwrap())
+            Some(bytes.read_u16::<BigEndian>()?)
         };
         let tos = if wildcards.tos {
             None
         } else {
-            Some(bytes.read_u8().unwrap())
+            Some(bytes.read_u8()?)
         };
         let protocol = if wildcards.protocol {
             None
         } else {
-            Some(bytes.read_u8().unwrap())
+            Some(bytes.read_u8()?)
         };
         bytes.consume(2);
         let ip_src = if wildcards.ip_src >= 32 {
             None
         } else if wildcards.ip_src == 0 {
             Some(Mask {
-                ip: bytes.read_u32::<BigEndian>().unwrap(),
+                ip: bytes.read_u32::<BigEndian>()?,
                 mask: None,
             })
         } else {
             Some(Mask {
-                ip: bytes.read_u32::<BigEndian>().unwrap(),
+                ip: bytes.read_u32::<BigEndian>()?,
                 mask: Some(wildcards.ip_src),
             })
         };
@@ -255,26 +273,26 @@ impl MatchFields {
             None
         } else if wildcards.ip_dest == 0 {
             Some(Mask {
-                ip: bytes.read_u32::<BigEndian>().unwrap(),
+                ip: bytes.read_u32::<BigEndian>()?,
                 mask: None,
             })
         } else {
             Some(Mask {
-                ip: bytes.read_u32::<BigEndian>().unwrap(),
+                ip: bytes.read_u32::<BigEndian>()?,
                 mask: Some(wildcards.ip_dest),
             })
         };
         let transport_src = if wildcards.transport_src {
             None
         } else {
-            Some(bytes.read_u16::<BigEndian>().unwrap())
+            Some(bytes.read_u16::<BigEndian>()?)
         };
         let transport_dest = if wildcards.transport_dest {
             None
         } else {
-            Some(bytes.read_u16::<BigEndian>().unwrap())
+            Some(bytes.read_u16::<BigEndian>()?)
         };
-        MatchFields {
+        Ok(MatchFields {
             in_port,
             mac_src,
             mac_dest,
@@ -287,6 +305,6 @@ impl MatchFields {
             tos,
             transport_src,
             transport_dest,
-        }
+        })
     }
 }

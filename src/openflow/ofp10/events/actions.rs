@@ -1,5 +1,5 @@
 use std::{
-    io::{BufRead, Cursor},
+    io::{BufRead, Cursor, Error},
     mem::size_of,
 };
 
@@ -134,84 +134,90 @@ impl Action {
         if bytes.get_ref().is_empty() {
             vec![]
         } else {
-            let action = Action::parse(bytes);
-            let mut v = vec![action];
-            v.append(&mut Action::parse_sequence(bytes));
-            v
+            if let Ok(action) = Action::parse(bytes) {
+                let mut v = vec![action];
+                v.append(&mut Action::parse_sequence(bytes));
+                v
+            } else {
+                vec![]
+            }
         }
     }
 
-    pub fn parse(bytes: &mut Cursor<Vec<u8>>) -> Action {
-        let action_code = bytes.read_u16::<BigEndian>().unwrap();
-        let _ = bytes.read_u16::<BigEndian>().unwrap();
+    pub fn parse(bytes: &mut Cursor<Vec<u8>>) -> Result<Action, Error> {
+        let action_code = bytes.read_u16::<BigEndian>()?;
+        let _ = bytes.read_u16::<BigEndian>()?;
         match action_code {
             t if t == (ActionType::Output as u16) => {
-                let port_code = bytes.read_u16::<BigEndian>().unwrap();
-                let len = bytes.read_u16::<BigEndian>().unwrap();
-                Action::Oputput(PseudoPort::new(port_code, Some(len as u64)))
+                let port_code = bytes.read_u16::<BigEndian>()?;
+                let len = bytes.read_u16::<BigEndian>()?;
+                Ok(Action::Oputput(PseudoPort::new(
+                    port_code,
+                    Some(len as u64),
+                )))
             }
             t if t == (ActionType::SetVlanId as u16) => {
-                let vid = bytes.read_u16::<BigEndian>().unwrap();
+                let vid = bytes.read_u16::<BigEndian>()?;
                 bytes.consume(2);
                 if vid == 0xffff {
-                    Action::SetDlVlan(None)
+                    Ok(Action::SetDlVlan(None))
                 } else {
-                    Action::SetDlVlan(Some(vid))
+                    Ok(Action::SetDlVlan(Some(vid)))
                 }
             }
             t if t == (ActionType::SetVlanPCP as u16) => {
-                let pcp = bytes.read_u8().unwrap();
+                let pcp = bytes.read_u8()?;
                 bytes.consume(3);
-                Action::SetDlVlanPcp(pcp)
+                Ok(Action::SetDlVlanPcp(pcp))
             }
             t if t == (ActionType::StripVlan as u16) => {
                 bytes.consume(4);
-                Action::SetDlVlan(None)
+                Ok(Action::SetDlVlan(None))
             }
             t if t == (ActionType::SetSrcMac as u16) => {
                 let mut addr = [0u8; 6];
                 for i in 0..6 {
-                    addr[i] = bytes.read_u8().unwrap();
+                    addr[i] = bytes.read_u8()?;
                 }
                 bytes.consume(6);
-                Action::SetDlSrc(mac_to_bytes(addr))
+                Ok(Action::SetDlSrc(mac_to_bytes(addr)))
             }
             t if t == (ActionType::SetDstMac as u16) => {
                 let mut addr = [0u8; 6];
                 for i in 0..6 {
-                    addr[i] = bytes.read_u8().unwrap();
+                    addr[i] = bytes.read_u8()?;
                 }
                 bytes.consume(6);
-                Action::SetDlDest(mac_to_bytes(addr))
+                Ok(Action::SetDlDest(mac_to_bytes(addr)))
             }
             t if t == (ActionType::SetIPv4Src as u16) => {
-                Action::SetIpSrc(bytes.read_u32::<BigEndian>().unwrap())
+                Ok(Action::SetIpSrc(bytes.read_u32::<BigEndian>()?))
             }
             t if t == (ActionType::SetIPv4Des as u16) => {
-                Action::SetIpDes(bytes.read_u32::<BigEndian>().unwrap())
+                Ok(Action::SetIpDes(bytes.read_u32::<BigEndian>()?))
             }
             t if t == (ActionType::SetTos as u16) => {
-                let tos = bytes.read_u8().unwrap();
+                let tos = bytes.read_u8()?;
                 bytes.consume(3);
-                Action::SetTos(tos)
+                Ok(Action::SetTos(tos))
             }
             t if t == (ActionType::SetTpSrc as u16) => {
-                let pt = bytes.read_u16::<BigEndian>().unwrap();
+                let pt = bytes.read_u16::<BigEndian>()?;
                 bytes.consume(2);
-                Action::SetTpSrc(pt)
+                Ok(Action::SetTpSrc(pt))
             }
             t if t == (ActionType::SetTpDst as u16) => {
-                let pt = bytes.read_u16::<BigEndian>().unwrap();
+                let pt = bytes.read_u16::<BigEndian>()?;
                 bytes.consume(2);
-                Action::SetTpDest(pt)
+                Ok(Action::SetTpDest(pt))
             }
             t if t == (ActionType::Enqueue as u16) => {
-                let pt = bytes.read_u16::<BigEndian>().unwrap();
+                let pt = bytes.read_u16::<BigEndian>()?;
                 bytes.consume(6);
-                let qid = bytes.read_u32::<BigEndian>().unwrap();
-                Action::Enqueue(PseudoPort::new(pt, Some(0)), qid)
+                let qid = bytes.read_u32::<BigEndian>()?;
+                Ok(Action::Enqueue(PseudoPort::new(pt, Some(0)), qid))
             }
-            _ => Action::Unparsable,
+            _ => Ok(Action::Unparsable),
         }
     }
 }

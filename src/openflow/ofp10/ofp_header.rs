@@ -1,5 +1,8 @@
 use byteorder::{BigEndian, ReadBytesExt, WriteBytesExt};
-use std::{io::Cursor, mem::size_of};
+use std::{
+    io::{Cursor, Error},
+    mem::size_of,
+};
 
 use crate::openflow::ofp10::OpenflowHeader;
 
@@ -38,23 +41,23 @@ impl OpenflowHeader for OfpHeader {
         return self.length as usize - size_of::<Self>();
     }
 
-    fn parse(buf: &Vec<u8>) -> Self {
+    fn parse(buf: &Vec<u8>) -> Result<Self, Error> {
         let mut buf_cursor = Cursor::new(buf);
-        let version = buf_cursor.read_u8().unwrap();
-        let message = buf_cursor.read_u8().unwrap();
-        let length = buf_cursor.read_u16::<BigEndian>().unwrap();
-        let xid = buf_cursor.read_u32::<BigEndian>().unwrap();
-        Self {
+        let version = buf_cursor.read_u8()?;
+        let message = buf_cursor.read_u8()?;
+        let length = buf_cursor.read_u16::<BigEndian>()?;
+        let xid = buf_cursor.read_u32::<BigEndian>()?;
+        Ok(Self {
             version,
             message,
             length,
             xid,
-        }
+        })
     }
     fn marshal(&self, bytes: &mut Vec<u8>) {
-        bytes.write_u8(self.version).unwrap();
-        bytes.write_u8(self.message).unwrap();
-        bytes.write_u16::<BigEndian>(self.length).unwrap();
-        bytes.write_u32::<BigEndian>(self.xid).unwrap();
+        let _ = bytes.write_u8(self.version);
+        let _ = bytes.write_u8(self.message);
+        let _ = bytes.write_u16::<BigEndian>(self.length);
+        let _ = bytes.write_u32::<BigEndian>(self.xid);
     }
 }

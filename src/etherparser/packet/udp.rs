@@ -1,4 +1,4 @@
-use std::io::{BufRead, Cursor};
+use std::io::{BufRead, Cursor, Error, ErrorKind};
 
 use byteorder::{BigEndian, ReadBytesExt};
 
@@ -14,15 +14,15 @@ impl UDP {
     pub fn sizeof() -> usize {
         8
     }
-    pub fn parser(bytes: &mut Cursor<Vec<u8>>) -> Option<UDP> {
+    pub fn parser(bytes: &mut Cursor<Vec<u8>>) -> Result<UDP, Error> {
         if bytes.get_ref().len() < UDP::sizeof() {
-            return None;
+            return Err(Error::new(ErrorKind::Other, "UDP error size"));
         }
-        let src_port = bytes.read_u16::<BigEndian>().unwrap();
-        let des_port = bytes.read_u16::<BigEndian>().unwrap();
-        let checksum = bytes.read_u16::<BigEndian>().unwrap();
-        let payload = bytes.fill_buf().unwrap().to_vec();
-        Some(UDP {
+        let src_port = bytes.read_u16::<BigEndian>()?;
+        let des_port = bytes.read_u16::<BigEndian>()?;
+        let checksum = bytes.read_u16::<BigEndian>()?;
+        let payload = bytes.fill_buf()?.to_vec();
+        Ok(UDP {
             src_port,
             des_port,
             checksum,

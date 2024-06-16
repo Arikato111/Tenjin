@@ -11,7 +11,10 @@ mod tests {
 
         let controller = Controller::new();
         let ofp = controller.ofp();
-        let header = ofp.header_parse(&ofp_header_bytes);
+        let header = match ofp.header_parse(&ofp_header_bytes) {
+            Ok(v) => v,
+            Err(_) => panic!("cannot parse ofp header"),
+        };
 
         assert_eq!(header.version(), 1);
         assert_eq!(header.message(), 0);

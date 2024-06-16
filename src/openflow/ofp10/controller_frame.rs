@@ -17,34 +17,39 @@ pub trait ControllerFrame10 {
     fn new() -> Self;
 
     fn listener(address: &str) {
-        tcp_listener_handler(address);
+        let _ = tcp_listener_handler(address);
     }
 
-    fn handle_header(&mut self, buf: &mut Vec<u8>) -> (u8, usize, u32) {
+    fn handle_header(&mut self, buf: &mut Vec<u8>) -> Option<(u8, usize, u32)> {
         let ofp_header = self.ofp().header_parse(&buf);
-        (
-            ofp_header.message(),
-            ofp_header.pkt_size(),
-            ofp_header.xid(),
-        )
+        match ofp_header {
+            Ok(header) => Some((header.message(), header.pkt_size(), header.xid())),
+            Err(_) => None,
+        }
     }
 
     fn request_handler(&mut self, buf: &mut Vec<u8>, stream: &mut TcpStream) {
         let ofp = self.ofp();
-        let (message, pkt_size, xid) = self.handle_header(buf);
+        let (message, pkt_size, xid) = match self.handle_header(buf) {
+            Some(header) => header,
+            None => return,
+        };
         let mut payload = vec![0u8; pkt_size];
         let _ = stream.read(&mut payload);
         let message = ofp.msg_parse(message as u8);
         match message {
             Msg::Hello => self.hello_handler(xid, stream),
-            Msg::Error => self.error_handler(ErrorEvent::parse(&payload)),
+            Msg::Error => match ErrorEvent::parse(&payload) {
+                Ok(error) => self.error_handler(error),
+                Err(_) => (),
+            },
             Msg::EchoRequest => {
                 self.echo_request_handler(xid, EchoRequestEvent::new(payload), stream)
             }
-            Msg::PacketIn => {
-                self.packet_in_handler(xid, PacketInEvent::parse(&payload), stream);
-            }
-            Msg::PacketOut => (),
+            Msg::PacketIn => match PacketInEvent::parse(&payload) {
+                Ok(pkt_in) => self.packet_in_handler(xid, pkt_in, stream),
+                Err(_) => (),
+            },
             _ => (),
         }
     }

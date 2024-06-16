@@ -1,3 +1,5 @@
+use std::io::Error;
+
 use crate::openflow::ofp10::{
     events::{Action, FeaturesReqEvent, HelloEvent, PacketOutEvent, Payload},
     ofp_header::OfpHeader,
@@ -20,7 +22,7 @@ pub trait MessageMarshal {
  */
 pub trait OfpMsgEvent {
     fn header(&self, message: u8, length: u16, xid: u32) -> OfpHeader;
-    fn header_parse(&self, bytes: &Vec<u8>) -> OfpHeader;
+    fn header_parse(&self, bytes: &Vec<u8>) -> Result<OfpHeader, Error>;
     fn version(&self) -> usize;
     fn ofp_version() -> usize;
     fn header_size(&self) -> usize;

@@ -1,5 +1,5 @@
 use std::{
-    io::{BufRead, Cursor, Read},
+    io::{BufRead, Cursor, Error, Read},
     mem::size_of,
 };
 
@@ -57,7 +57,7 @@ impl PacketOutEvent {
             actions,
         }
     }
-    pub fn parse(buf: &Vec<u8>) -> Self {
+    pub fn parse(buf: &Vec<u8>) -> Result<Self, Error> {
         let mut bytes = Cursor::new(buf);
         let buf_id = match bytes
             .read_i32::<BigEndian>()
@@ -66,18 +66,16 @@ impl PacketOutEvent {
             -1 => None,
             n => Some(n),
         };
-        let in_port = bytes.read_u16::<BigEndian>().unwrap();
-        let action_len = bytes.read_u16::<BigEndian>().unwrap();
+        let in_port = bytes.read_u16::<BigEndian>()?;
+        let action_len = bytes.read_u16::<BigEndian>()?;
         let mut actions_buf = vec![0; action_len as usize];
         let _ = bytes.read_exact(&mut actions_buf);
         let mut action_bytes = Cursor::new(actions_buf);
         let actions = Action::parse_sequence(&mut action_bytes);
-        Self {
+        Ok(Self {
             payload: match buf_id {
-                None => Payload::NoBuffered(bytes.fill_buf().unwrap().to_vec()),
-                Some(n) => {
-                    Payload::Buffered(n as u32, bytes.fill_buf().unwrap().to_ascii_lowercase())
-                }
+                None => Payload::NoBuffered(bytes.fill_buf()?.to_vec()),
+                Some(n) => Payload::Buffered(n as u32, bytes.fill_buf()?.to_ascii_lowercase()),
             },
             in_port: {
                 if in_port == OfpPort::None as u16 {
@@ -87,6 +85,6 @@ impl PacketOutEvent {
                 }
             },
             actions,
-        }
+        })
     }
 }

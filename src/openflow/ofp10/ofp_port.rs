@@ -40,9 +40,10 @@ impl PseudoPort {
             p if p == (OfpPort::Normal as u16) => PseudoPort::Normal,
             p if p == (OfpPort::Flood as u16) => PseudoPort::Flood,
             p if p == (OfpPort::All as u16) => PseudoPort::AllPorts,
-            p if len.is_some() && p == (OfpPort::Controller as u16) => {
-                PseudoPort::Controller(len.unwrap())
-            }
+            p if p == (OfpPort::Controller as u16) => match len {
+                Some(len) => PseudoPort::Controller(len),
+                None => PseudoPort::Unsupport,
+            },
             p if p == (OfpPort::Local as u16) => PseudoPort::InPort,
             _ => {
                 if port <= (OfpPort::Max as u16) {
