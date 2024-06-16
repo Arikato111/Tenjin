@@ -28,8 +28,8 @@ impl EthernetFrame {
     pub fn mac_str(mac: u64) -> String {
         let mut mac_string = String::new();
         let mut mac = mac;
-        for _ in 0..8 {
-            mac_string = format!("{}:{}", mac as u8, mac_string);
+        for _ in 0..6 {
+            mac_string = format!("{:02x}:{}", mac as u8, mac_string);
             mac = mac >> 8;
         }
         mac_string.pop();
