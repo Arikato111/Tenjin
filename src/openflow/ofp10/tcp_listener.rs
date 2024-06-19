@@ -10,7 +10,7 @@ pub fn tcp_listener_handler(address: &str) -> Result<(), std::io::Error> {
     for stream in listener.incoming() {
         match stream {
             Ok(mut stream) => {
-                if let Ok(addr) = stream.local_addr() {
+                if let Ok(addr) = stream.peer_addr() {
                     println!("server has connection from {}", addr);
                 }
 

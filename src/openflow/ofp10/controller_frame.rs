@@ -17,6 +17,7 @@ pub trait ControllerFrame10 {
     fn new() -> Self;
 
     fn listener(address: &str) {
+        println!("server run at {}", address);
         let _ = tcp_listener_handler(address);
     }
 
