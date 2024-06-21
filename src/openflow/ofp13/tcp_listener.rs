@@ -9,7 +9,6 @@ pub fn tcp_listener_handler(
     controller: impl ControllerFrame13 + Send + 'static + Clone,
 ) -> Result<(), std::io::Error> {
     let listener = TcpListener::bind(address)?;
-    // let controller = Arc::new(Mutex::new(controller));
     for stream in listener.incoming() {
         match stream {
             Ok(mut stream) => {

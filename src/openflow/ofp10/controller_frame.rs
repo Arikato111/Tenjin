@@ -9,16 +9,24 @@ use super::{
     tcp_listener_handler, MessageMarshal, OfpMsgEvent, Openflow10, OpenflowHeader,
 };
 
-pub trait ControllerFrame10 {
+pub trait ControllerFrame10
+where
+    Self: 'static,
+{
     fn ofp(&self) -> ofp10::Openflow10 {
         Openflow10::new()
     }
     fn packet_in_handler(&mut self, xid: u32, packetin: PacketInEvent, stream: &mut TcpStream);
     fn new() -> Self;
 
-    fn listener(address: &str) {
+    fn listener(&self, address: &str)
+    where
+        Self: Sized,
+        Self: Send,
+        Self: Clone,
+    {
         println!("server run at {}", address);
-        let _ = tcp_listener_handler(address);
+        let _ = tcp_listener_handler(address, self.clone());
     }
 
     fn handle_header(&mut self, buf: &mut Vec<u8>) -> Option<(u8, usize, u32)> {

@@ -16,6 +16,7 @@ use crate::{
  * In production please remove allow unused.
  */
 
+ #[derive(Clone)]
 pub struct Controller {
     mac_to_port: HashMap<u64, u16>,
 }
