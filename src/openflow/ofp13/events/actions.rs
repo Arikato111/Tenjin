@@ -149,7 +149,7 @@ impl Action {
         let _ = bytes.read_u16::<BigEndian>()?;
         match action_code {
             t if t == (ActionType::Output as u16) => {
-                let port_code = bytes.read_u16::<BigEndian>()?;
+                let port_code = bytes.read_u32::<BigEndian>()?;
                 let len = bytes.read_u16::<BigEndian>()?;
                 Ok(Action::Oputput(PseudoPort::new(
                     port_code,
@@ -212,7 +212,7 @@ impl Action {
                 Ok(Action::SetTpDest(pt))
             }
             t if t == (ActionType::Enqueue as u16) => {
-                let pt = bytes.read_u16::<BigEndian>()?;
+                let pt = bytes.read_u32::<BigEndian>()?;
                 bytes.consume(6);
                 let qid = bytes.read_u32::<BigEndian>()?;
                 Ok(Action::Enqueue(PseudoPort::new(pt, Some(0)), qid))

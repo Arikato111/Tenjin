@@ -72,7 +72,7 @@ impl FlowModEvent {
         let hard_timeout = Timeout::parse(bytes.read_u16::<BigEndian>()?);
         let priority = bytes.read_u16::<BigEndian>()?;
         let buffer_id = bytes.read_i32::<BigEndian>()?;
-        let out_port = PseudoPort::parse(bytes.read_u16::<BigEndian>()?);
+        let out_port = PseudoPort::parse(bytes.read_u32::<BigEndian>()?);
         let flags = bytes.read_u16::<BigEndian>()?;
         let actions = Action::parse_sequence(&mut bytes);
         Ok(FlowModEvent {
@@ -119,7 +119,7 @@ impl MessageMarshal for FlowModEvent {
         match self.out_port.as_ref() {
             Some(p) => p.marshal(bytes),
             None => {
-                let _ = bytes.write_u16::<BigEndian>(OfpPort::None as u16);
+                let _ = bytes.write_u32::<BigEndian>(OfpPort::Any as u32);
             }
         }
         self.flags.marshal(bytes);

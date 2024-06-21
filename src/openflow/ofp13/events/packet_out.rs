@@ -3,8 +3,8 @@ use std::{
     mem::size_of,
 };
 
-use crate::openflow::ofp13::PseudoPort;
-use crate::openflow::ofp13::{ofp_port::OfpPort, MessageMarshal, Msg};
+use crate::openflow::ofp10::PseudoPort;
+use crate::openflow::ofp10::{ofp_port::OfpPort, MessageMarshal, Msg};
 use byteorder::{BigEndian, ReadBytesExt, WriteBytesExt};
 
 use super::{actions::SizeCheck, Action, Payload};
