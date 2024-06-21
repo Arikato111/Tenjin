@@ -1,4 +1,4 @@
-use crate::openflow::ofp13::{self, ErrorEvent, Msg, PacketInEvent};
+use crate::openflow::ofp13::{ErrorEvent, Msg, PacketInEvent};
 use std::{
     io::{Read, Write},
     net::TcpStream,

@@ -1,4 +1,3 @@
-use crate::Controller;
 use std::{io::Read, net::TcpListener, thread};
 
 use crate::openflow::ofp10::HelloEvent;
