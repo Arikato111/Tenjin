@@ -4,11 +4,11 @@ use std::{collections::HashMap, net::TcpStream};
 
 use crate::{
     etherparser::ether_type::EtherType,
-    openflow::ofp10::{
+    openflow::ofp13::{
         self,
         events::{flow_mod::MatchFields, Action},
-        ofp_manager::Openflow10,
-        ControllerFrame10, FlowModEvent, OfpMsgEvent, PacketInEvent,
+        ofp_manager::Openflow13,
+        ControllerFrame13, FlowModEvent, OfpMsgEvent, PacketInEvent,
     },
 };
 /**
@@ -21,7 +21,7 @@ pub struct Controller {
     mac_to_port: HashMap<u64, u16>,
 }
 
-impl ControllerFrame10 for Controller {
+impl ControllerFrame13 for Controller {
     fn new() -> Self {
         Self {
             mac_to_port: HashMap::new(),
@@ -52,13 +52,13 @@ impl ControllerFrame10 for Controller {
         }
 
         let out_port = match self.mac_to_port.get(&mac_dst) {
-            Some(p) => ofp10::PseudoPort::PhysicalPort(*p),
-            None => ofp10::PseudoPort::Flood,
+            Some(p) => ofp13::PseudoPort::PhysicalPort(*p),
+            None => ofp13::PseudoPort::Flood,
         };
 
         let actions = vec![Action::Oputput(out_port.clone())];
 
-        if let ofp10::PseudoPort::PhysicalPort(_) = out_port {
+        if let ofp13::PseudoPort::PhysicalPort(_) = out_port {
             let mut match_fields = MatchFields::match_all();
             match_fields.in_port = Some(packetin.in_port);
             match_fields.mac_dest = Some(mac_dst);
