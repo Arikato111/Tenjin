@@ -132,18 +132,18 @@ pub struct MatchFields {
     pub icmpv4_type: Option<u8>,
     pub icmpv4_code: Option<u8>,
     pub arp_op: Option<u16>,
-    pub arp_spa: Option<IPv4>,         // ARP source IPv4 address
-    pub arp_tpa: Option<IPv4>,         // ARP target IPv4 address
-    pub arp_sha: Option<MacAddr>,         // ARP source Mac
-    pub arp_tha: Option<MacAddr>,         // ARP target Mac
+    pub arp_spa: Option<IPv4>,        // ARP source IPv4 address
+    pub arp_tpa: Option<IPv4>,        // ARP target IPv4 address
+    pub arp_sha: Option<MacAddr>,     // ARP source Mac
+    pub arp_tha: Option<MacAddr>,     // ARP target Mac
     pub ipv6_src: Option<IPv6>,       // IPv6 address
     pub ipv6_dst: Option<IPv6>,       // IPv6 address
     pub ipv6_flabel: Option<u32>,     // IPv6 Flow Lable
     pub icmpv6_type: Option<u8>,      // ICMPv6 type
     pub icmpv6_code: Option<u8>,      // ICMPv6 code
     pub ipv6_nd_target: Option<u128>, // Target address for ND
-    pub ipv6_nd_sll: Option<MacAddr>,     // MAC , source link-layer for ND
-    pub ipv6_nd_tll: Option<MacAddr>,     // Mac , Target link-layer for ND
+    pub ipv6_nd_sll: Option<MacAddr>, // MAC , source link-layer for ND
+    pub ipv6_nd_tll: Option<MacAddr>, // Mac , Target link-layer for ND
     pub mpls_label: Option<u32>,      // MPLS label
     pub mpls_tc: Option<u8>,          // MPLS TC
     pub mpls_bos: Option<u8>,         // MPLS Bos bit
