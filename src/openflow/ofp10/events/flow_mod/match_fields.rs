@@ -102,57 +102,21 @@ impl Wildcards {
     }
 }
 
-type Unknown = u8;
-type IPv4 = u32;
-type IPv6 = u128;
-type MacAddr = [u8; 6];
 pub struct MatchFields {
-    pub in_port: Option<u32>,
-    in_phy_port: Option<u32>,
-    metadata: Option<i64>,
-    pub mac_dest: Option<MacAddr>,
-    pub mac_src: Option<MacAddr>,
+    pub in_port: Option<u16>,
+    pub mac_dest: Option<u64>,
+    pub mac_src: Option<u64>,
     pub ethernet_type: Option<u16>,
+
     pub vlan_vid: Option<u16>, // vlan type
     pub vlan_pcp: Option<u8>,
-    // ToS from IPv4 packet
-    pub ip_dscp: Option<u8>, // IP DSCP (6 bits in ToS field).
-    pub ip_ecn: Option<u8>,  // IP ECN (2 bits in ToS field).
+
+    pub ip_src: Option<Mask<u32>>,
+    pub ip_dest: Option<Mask<u32>>,
     pub protocol: Option<u8>,
-    pub ip_src: Option<IPv4>,
-    pub ip_dst: Option<IPv4>,
-
-    pub tcp_src: Option<u16>,
-    pub tcp_dst: Option<u16>,
-    pub udp_src: Option<u16>,
-    pub udp_dst: Option<u16>,
-    pub sctp_src: Option<u16>,
-    pub sctp_dst: Option<u16>,
-
-    pub icmpv4_type: Option<u8>,
-    pub icmpv4_code: Option<u8>,
-    pub arp_op: Option<u16>,
-    pub arp_spa: Option<IPv4>,        // ARP source IPv4 address
-    pub arp_tpa: Option<IPv4>,        // ARP target IPv4 address
-    pub arp_sha: Option<MacAddr>,     // ARP source Mac
-    pub arp_tha: Option<MacAddr>,     // ARP target Mac
-    pub ipv6_src: Option<IPv6>,       // IPv6 address
-    pub ipv6_dst: Option<IPv6>,       // IPv6 address
-    pub ipv6_flabel: Option<u32>,     // IPv6 Flow Lable
-    pub icmpv6_type: Option<u8>,      // ICMPv6 type
-    pub icmpv6_code: Option<u8>,      // ICMPv6 code
-    pub ipv6_nd_target: Option<u128>, // Target address for ND
-    pub ipv6_nd_sll: Option<MacAddr>, // MAC , source link-layer for ND
-    pub ipv6_nd_tll: Option<MacAddr>, // Mac , Target link-layer for ND
-    pub mpls_label: Option<u32>,      // MPLS label
-    pub mpls_tc: Option<u8>,          // MPLS TC
-    pub mpls_bos: Option<u8>,         // MPLS Bos bit
-    pub pbb_isid: Option<u32>,        // 24bit PBB I-SID
-    pub tunnel_id: Option<u64>,       // Logical Port Metadata
-    pub ipv6_exthdr: Option<u64>,     // IPv6 Extension Header pseudo-field
-    pub pbb_uca: Option<u8>,          // PBB UCA Header
-    pub tcp_flags: Option<u16>,       // TCP Flags
-    pub actset_output: Option<u32>,   // Output port from action set metadata
+    pub tos: Option<u8>,
+    pub transport_src: Option<u16>,
+    pub transport_dest: Option<u16>,
 }
 
 impl MatchFields {
