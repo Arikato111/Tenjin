@@ -1,22 +1,14 @@
-use std::io::{BufRead, Cursor, Error};
+use std::{
+    io::{BufRead, Cursor, Error},
+    net::{Ipv4Addr, Ipv6Addr},
+};
 
 use byteorder::{BigEndian, ReadBytesExt, WriteBytesExt};
 
-use crate::etherparser::tools::bits::{bit_bool, bytes_to_mac, mac_to_bytes, set_bit};
-
-pub struct Mask<T> {
-    pub ip: T,
-    pub mask: Option<T>,
-}
-
-impl Mask<u32> {
-    pub fn to_int(&self) -> u32 {
-        match self.mask {
-            Some(v) => v,
-            None => 0,
-        }
-    }
-}
+use crate::etherparser::{
+    tools::bits::{bit_bool, bytes_to_mac, mac_to_bytes, set_bit},
+    MacAddr,
+};
 
 struct Wildcards {
     pub in_port: bool,
@@ -102,10 +94,6 @@ impl Wildcards {
     }
 }
 
-type Unknown = u8;
-type IPv4 = u32;
-type IPv6 = u128;
-type MacAddr = [u8; 6];
 pub struct MatchFields {
     pub in_port: Option<u32>,
     in_phy_port: Option<u32>,
@@ -119,8 +107,8 @@ pub struct MatchFields {
     pub ip_dscp: Option<u8>, // IP DSCP (6 bits in ToS field).
     pub ip_ecn: Option<u8>,  // IP ECN (2 bits in ToS field).
     pub protocol: Option<u8>,
-    pub ip_src: Option<IPv4>,
-    pub ip_dst: Option<IPv4>,
+    pub ip_src: Option<Ipv4Addr>,
+    pub ip_dst: Option<Ipv4Addr>,
 
     pub tcp_src: Option<u16>,
     pub tcp_dst: Option<u16>,
@@ -132,12 +120,12 @@ pub struct MatchFields {
     pub icmpv4_type: Option<u8>,
     pub icmpv4_code: Option<u8>,
     pub arp_op: Option<u16>,
-    pub arp_spa: Option<IPv4>,        // ARP source IPv4 address
-    pub arp_tpa: Option<IPv4>,        // ARP target IPv4 address
+    pub arp_spa: Option<Ipv4Addr>,    // ARP source IPv4 address
+    pub arp_tpa: Option<Ipv4Addr>,    // ARP target IPv4 address
     pub arp_sha: Option<MacAddr>,     // ARP source Mac
     pub arp_tha: Option<MacAddr>,     // ARP target Mac
-    pub ipv6_src: Option<IPv6>,       // IPv6 address
-    pub ipv6_dst: Option<IPv6>,       // IPv6 address
+    pub ipv6_src: Option<Ipv6Addr>,   // IPv6 address
+    pub ipv6_dst: Option<Ipv6Addr>,   // IPv6 address
     pub ipv6_flabel: Option<u32>,     // IPv6 Flow Lable
     pub icmpv6_type: Option<u8>,      // ICMPv6 type
     pub icmpv6_code: Option<u8>,      // ICMPv6 code
@@ -158,18 +146,49 @@ pub struct MatchFields {
 impl MatchFields {
     pub fn match_all() -> Self {
         Self {
-            ethernet_type: None,
             in_port: None,
-            ip_dest: None,
-            ip_src: None,
+            in_phy_port: None,
+            metadata: None,
             mac_dest: None,
             mac_src: None,
-            protocol: None,
-            tos: None,
-            transport_dest: None,
-            transport_src: None,
-            vlan_pcp: None,
+            ethernet_type: None,
             vlan_vid: None,
+            vlan_pcp: None,
+            ip_dscp: None,
+            ip_ecn: None,
+            protocol: None,
+            ip_src: None,
+            ip_dst: None,
+            tcp_src: None,
+            tcp_dst: None,
+            udp_src: None,
+            udp_dst: None,
+            sctp_src: None,
+            sctp_dst: None,
+            icmpv4_type: None,
+            icmpv4_code: None,
+            arp_op: None,
+            arp_spa: None,
+            arp_tpa: None,
+            arp_sha: None,
+            arp_tha: None,
+            ipv6_src: None,
+            ipv6_dst: None,
+            ipv6_flabel: None,
+            icmpv6_type: None,
+            icmpv6_code: None,
+            ipv6_nd_target: None,
+            ipv6_nd_sll: None,
+            ipv6_nd_tll: None,
+            mpls_label: None,
+            mpls_tc: None,
+            mpls_bos: None,
+            pbb_isid: None,
+            tunnel_id: None,
+            ipv6_exthdr: None,
+            pbb_uca: None,
+            tcp_flags: None,
+            actset_output: None,
         }
     }
     pub fn marshal(&self, bytes: &mut Vec<u8>) {
