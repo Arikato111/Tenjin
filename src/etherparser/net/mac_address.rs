@@ -1,3 +1,5 @@
+use byteorder::WriteBytesExt;
+
 pub struct MacAddr {
     mac: [u8; 6],
 }
@@ -5,6 +7,14 @@ pub struct MacAddr {
 impl MacAddr {
     pub fn new(mac: [u8; 6]) -> Self {
         Self { mac }
+    }
+}
+
+impl MacAddr {
+    pub fn marshal(&self, bytes: &mut Vec<u8>) {
+        for m in self.mac.iter() {
+            bytes.write_u8(*m);
+        }
     }
 }
 

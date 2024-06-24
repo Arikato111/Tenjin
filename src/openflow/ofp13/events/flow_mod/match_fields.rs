@@ -1,121 +1,100 @@
 use std::{
-    io::{BufRead, Cursor, Error},
+    io::Cursor,
     net::{Ipv4Addr, Ipv6Addr},
 };
 
-use byteorder::{BigEndian, ReadBytesExt, WriteBytesExt};
+use byteorder::{BigEndian, WriteBytesExt};
 
-use crate::etherparser::{
-    tools::bits::{bit_bool, bytes_to_mac, mac_to_bytes, set_bit},
-    MacAddr,
-};
+use crate::etherparser::MacAddr;
 
-struct Wildcards {
-    pub in_port: bool,
-    pub mac_dest: bool,
-    pub mac_src: bool,
-    pub ethernet_type: bool,
-
-    pub vlan_vid: bool,
-    pub vlan_pcp: bool,
-
-    pub ip_src: u32,
-    pub ip_dest: u32,
-    pub protocol: bool,
-    pub tos: bool,
-    pub transport_src: bool,
-    pub transport_dest: bool,
-}
-
-impl Wildcards {
-    pub fn from_match_fields(match_fields: &MatchFields) -> Wildcards {
-        Wildcards {
-            in_port: match_fields.in_port.is_none(),
-            vlan_vid: match_fields.vlan_vid.is_none(),
-            mac_src: match_fields.mac_src.is_none(),
-            mac_dest: match_fields.mac_dest.is_none(),
-            ethernet_type: match_fields.ethernet_type.is_none(),
-            protocol: match_fields.protocol.is_none(),
-            transport_src: match_fields.transport_src.is_none(),
-            transport_dest: match_fields.transport_dest.is_none(),
-            ip_src: Wildcards::mask_bits(&match_fields.ip_src),
-            ip_dest: Wildcards::mask_bits(&match_fields.ip_dest),
-            vlan_pcp: match_fields.vlan_pcp.is_none(),
-            tos: match_fields.tos.is_none(),
-        }
-    }
-    pub fn parse(byte: u32) -> Wildcards {
-        Wildcards {
-            in_port: bit_bool(0, byte),
-            vlan_vid: bit_bool(1, byte),
-            mac_src: bit_bool(2, byte),
-            mac_dest: bit_bool(3, byte),
-            ethernet_type: bit_bool(4, byte),
-            protocol: bit_bool(5, byte),
-            transport_src: bit_bool(6, byte),
-            transport_dest: bit_bool(7, byte),
-            ip_src: Wildcards::get_nw_mask(byte, 8),
-            ip_dest: Wildcards::get_nw_mask(byte, 14),
-            vlan_pcp: bit_bool(20, byte),
-            tos: bit_bool(21, byte),
-        }
-    }
-    pub fn marshal(&self, bytes: &mut Vec<u8>) {
-        let mut match_field = 0u32;
-        match_field = set_bit(match_field, 0, self.in_port);
-        match_field = set_bit(match_field, 1, self.vlan_vid);
-        match_field = set_bit(match_field, 2, self.mac_src);
-        match_field = set_bit(match_field, 3, self.mac_dest);
-        match_field = set_bit(match_field, 4, self.ethernet_type);
-        match_field = set_bit(match_field, 5, self.protocol);
-        match_field = set_bit(match_field, 6, self.transport_src);
-        match_field = set_bit(match_field, 7, self.transport_dest);
-        match_field = Wildcards::set_nw_mask(match_field, 8, self.ip_src);
-        match_field = Wildcards::set_nw_mask(match_field, 14, self.ip_dest);
-        match_field = set_bit(match_field, 20, self.vlan_pcp);
-        match_field = set_bit(match_field, 21, self.tos);
-        let _ = bytes.write_u32::<BigEndian>(match_field);
-    }
-    pub fn get_nw_mask(f: u32, offset: usize) -> u32 {
-        (f >> offset) & 0x3f
-    }
-    pub fn set_nw_mask(byte: u32, offset: usize, set: u32) -> u32 {
-        let value = (0x3f & set) << offset;
-        byte | value
-    }
-    pub fn mask_bits(mask: &Option<Mask<u32>>) -> u32 {
-        match mask {
-            None => 32,
-            Some(m) => match m.mask {
-                None => 0,
-                Some(m) => m,
-            },
-        }
-    }
-}
+/**
+ * +---------- ----+- -------------+---------------------------+
+ * |     Type      |     Length    |      OXM Fields           |
+ * +----- ---------+--- -----------+---------------------------+
+ * |  (Optional)   |  (16 bits)    | (Array of variable length)|
+ * |---------------+---------------+---------------------------+
+ */
 
 pub struct OfpMatch {
     typ: MatchType,
     length: u16,
-    oxm_fields: OxmClass,
+    oxm_fields: Vec<u8>,
 }
 
+impl OfpMatch {
+    pub fn new() -> Self {
+        Self {
+            typ: MatchType::OXM,
+            length: 4,
+            oxm_fields: Vec::new(),
+        }
+    }
+    pub fn marshal(&self, bytes: &mut Vec<u8>) {
+        bytes.write_u16::<BigEndian>(self.typ.clone().into());
+        bytes.write_u16::<BigEndian>(self.length + (self.oxm_fields.len() as u16));
+        bytes.append(&mut self.oxm_fields.clone());
+    }
+}
+
+#[derive(Clone)]
+#[repr(u16)]
 pub enum MatchType {
     Standard = 0,
     OXM = 1, //, the OpenFlow 1.1 match type OFPMT_STANDARD is deprecated
 }
 
+impl From<MatchType> for u16 {
+    fn from(value: MatchType) -> Self {
+        value as u16
+    }
+}
+
 /**
- * | class | field | length | - |     body     |
- * | :---: | :---: | :----: | - |     :--:     |
- * |  16   |   7   |   1    | - | length bytes |
- */
+*
+* +----------------------------+----------------------------+
+* |        OXM Header          |       OXM Body             |
+* +----------------------------+----------------------------+
+* | Version (1 byte)           |  Value (variable length)   |
+* | OXM Type (1 byte)          |  Mask   (variable length)  |
+* | Length (2 bytes)           |                            |
+* | OXM ID (4 bytes) (Optional)|                            |
+* +----------------------------+----------------------------+
+*
+*/
+
+pub struct OxmFields<T> {
+    header: OxmHeader,
+    body: OxmBody<T>,
+}
 
 pub struct OxmHeader {
     class: OxmClass,       // Match class: member class or reserved class
     field: OxmMatchFields, // 7bit Match field within the class
     hasmask: bool,         // 1bit Set if OXM include a bitmask in payload
     length: u8,            // Length of OXM payload
+    experimenter: Option<u32>,
+}
+
+impl OxmHeader {
+    fn new(field: OxmMatchFields, size: u8) -> Self {
+        Self {
+            class: OxmClass::OpenflowBasic,
+            field,
+            hasmask: false,
+            length: 4 + size,
+            experimenter: None,
+        }
+    }
+    fn marshal(&self, bytes: &mut Vec<u8>) {
+        bytes.write_u16::<BigEndian>(self.class.clone().into());
+        let field: u8 = self.field.clone().into();
+        bytes.write_u8(field << 1 | if self.hasmask { 1 } else { 0 });
+    }
+}
+
+pub struct OxmBody<T> {
+    value: T,
+    mask: T,
 }
 
 /**
@@ -124,6 +103,7 @@ pub struct OxmHeader {
  * and 0x0001 for fields implemented as an Open vSwitch extension
  */
 
+#[derive(Clone)]
 #[repr(u16)]
 pub enum OxmClass {
     Nxm0 = 0x0000,          // Backward compatibility with NXM
@@ -132,6 +112,14 @@ pub enum OxmClass {
     Experimenter = 0xffff,  // Experimenter class
 }
 
+impl From<OxmClass> for u16 {
+    fn from(value: OxmClass) -> Self {
+        value as u16
+    }
+}
+
+#[derive(Clone)]
+#[repr(u8)]
 /* OXM Flow match field types for OpenFlow basic class. */
 pub enum OxmMatchFields {
     InPort = 1,
@@ -182,6 +170,12 @@ pub enum OxmMatchFields {
     ActsetOutput = 43, // Output port from action set metadata
 }
 
+impl From<OxmMatchFields> for u8 {
+    fn from(value: OxmMatchFields) -> Self {
+        value as u8
+    }
+}
+
 // Required match fields.
 pub struct MatchFields {
     in_port: Option<u32>, // Ingress port. This may be a physical or switch-defined logical port.
@@ -218,174 +212,70 @@ impl MatchFields {
         }
     }
     pub fn marshal(&self, bytes: &mut Vec<u8>) {
-        let wildcard = Wildcards::from_match_fields(self);
-        wildcard.marshal(bytes);
-        let _ = bytes.write_u16::<BigEndian>(match self.in_port {
-            Some(p) => p,
-            None => 0,
-        });
-        let mac_src = match self.mac_src {
-            Some(mac) => bytes_to_mac(mac),
-            None => bytes_to_mac(0),
-        };
-        for m in mac_src {
-            let _ = bytes.write_u8(m);
-        }
-        let mac_dest = match self.mac_dest {
-            Some(mac) => bytes_to_mac(mac),
-            None => bytes_to_mac(0),
-        };
-        for m in mac_dest {
-            let _ = bytes.write_u8(m);
-        }
-        let vlan = match self.vlan_vid {
-            Some(v) => v,
-            None => 0xffff,
-        };
-        let _ = bytes.write_u16::<BigEndian>(vlan);
-        let _ = bytes.write_u8(match self.vlan_pcp {
-            Some(v) => v,
-            None => 0,
-        });
-        let _ = bytes.write_u8(0);
-        let _ = bytes.write_u16::<BigEndian>(match self.ethernet_type {
-            Some(v) => v,
-            None => 0,
-        });
-        let _ = bytes.write_u8(match self.tos {
-            Some(v) => v,
-            None => 0,
-        });
-        let _ = bytes.write_u8(match self.protocol {
-            Some(v) => v,
-            None => 0,
-        });
-        let _ = bytes.write_u16::<BigEndian>(0);
+        let mut ofp_match = OfpMatch::new();
+        let ofp_byte = ofp_match.oxm_fields.as_mut();
 
-        let _ = bytes.write_u32::<BigEndian>(match &self.ip_src {
-            Some(ip) => ip.ip,
-            None => 0,
-        });
-        let _ = bytes.write_u32::<BigEndian>(match &self.ip_dest {
-            Some(ip) => ip.ip,
-            None => 0,
-        });
-        let _ = bytes.write_u16::<BigEndian>(match self.transport_src {
-            Some(v) => v,
-            None => 0,
-        });
-        let _ = bytes.write_u16::<BigEndian>(match self.transport_dest {
-            Some(v) => v,
-            None => 0,
-        });
+        if let Some(in_port) = &self.in_port {
+            let header = OxmHeader::new(OxmMatchFields::InPort, 4);
+            header.marshal(ofp_byte);
+            ofp_byte.write_u32::<BigEndian>(*in_port);
+        }
+        if let Some(eth_dst) = &self.eth_dst {
+            let header = OxmHeader::new(OxmMatchFields::MacDest, 6);
+            header.marshal(ofp_byte);
+            eth_dst.marshal(ofp_byte);
+        }
+        if let Some(eth_src) = &self.eth_src {
+            let header = OxmHeader::new(OxmMatchFields::MacSrc, 6);
+            header.marshal(ofp_byte);
+            eth_src.marshal(ofp_byte);
+        }
+        if let Some(eth_typ) = &self.eth_typ {
+            OxmHeader::new(OxmMatchFields::EthernetType, 2).marshal(ofp_byte);
+            ofp_byte.write_u16::<BigEndian>(*eth_typ);
+        }
+        if let Some(ip_proto) = &self.ip_proto {
+            OxmHeader::new(OxmMatchFields::Protocol, 1);
+            ofp_byte.write_u8(*ip_proto);
+        }
+        if let Some(ipv4_src) = &self.ipv4_src {
+            OxmHeader::new(OxmMatchFields::IpSrc, 4).marshal(ofp_byte);
+            bytes.write_u32::<BigEndian>(ipv4_src.clone().into());
+        }
+        if let Some(ipv4_dst) = &self.ipv4_dst {
+            OxmHeader::new(OxmMatchFields::IpDst, 4).marshal(ofp_byte);
+            bytes.write_u32::<BigEndian>(ipv4_dst.clone().into());
+        }
+        if let Some(ipv6_src) = &self.ipv6_src {
+            OxmHeader::new(OxmMatchFields::Ipv6Src, 16);
+            ofp_byte.write_u128::<BigEndian>(ipv6_src.clone().into());
+        }
+        if let Some(ipv6_dst) = &self.ipv6_dst {
+            OxmHeader::new(OxmMatchFields::Ipv6Dst, 16);
+            ofp_byte.write_u128::<BigEndian>(ipv6_dst.clone().into());
+        }
+        if let Some(tcp_src) = &self.tcp_src {
+            OxmHeader::new(OxmMatchFields::TcpSrc, 2);
+            ofp_byte.write_u16::<BigEndian>(*tcp_src);
+        }
+        if let Some(tcp_dst) = &self.tcp_dst {
+            OxmHeader::new(OxmMatchFields::TcpDst, 2);
+            ofp_byte.write_u16::<BigEndian>(*tcp_dst);
+        }
+        if let Some(udp_src) = &self.udp_src {
+            OxmHeader::new(OxmMatchFields::UdpSrc, 2);
+            ofp_byte.write_u16::<BigEndian>(*udp_src);
+        }
+        if let Some(udp_dst) = &self.udp_dst {
+            OxmHeader::new(OxmMatchFields::UdpDst, 2);
+            ofp_byte.write_u16::<BigEndian>(*udp_dst);
+        }
+        ofp_match.marshal(bytes);
     }
 
-    pub fn parse(bytes: &mut Cursor<Vec<u8>>) -> Result<MatchFields, Error> {
-        let wildcards = Wildcards::parse(bytes.read_u32::<BigEndian>()?);
-        let in_port = if wildcards.in_port {
-            None
-        } else {
-            Some(bytes.read_u16::<BigEndian>()?)
-        };
-        let mac_src = if wildcards.mac_src {
-            None
-        } else {
-            let mut arr: [u8; 6] = [0; 6];
-            for i in 0..6 {
-                arr[i] = bytes.read_u8()?;
-            }
-            Some(mac_to_bytes(arr))
-        };
-        let mac_dest = if wildcards.mac_dest {
-            None
-        } else {
-            let mut arr: [u8; 6] = [0; 6];
-            for i in 0..6 {
-                arr[i] = bytes.read_u8()?;
-            }
-            Some(mac_to_bytes(arr))
-        };
-        let vlan_vid = if wildcards.vlan_vid {
-            None
-        } else {
-            let vid = bytes.read_u16::<BigEndian>()?;
-            if vid == 0xfff {
-                None
-            } else {
-                Some(bytes.read_u16::<BigEndian>()?)
-            }
-        };
-        let vlan_pcp = if wildcards.vlan_pcp {
-            None
-        } else {
-            Some(bytes.read_u8()?)
-        };
-        bytes.consume(1);
-        let ethernet_type = if wildcards.ethernet_type {
-            None
-        } else {
-            Some(bytes.read_u16::<BigEndian>()?)
-        };
-        let tos = if wildcards.tos {
-            None
-        } else {
-            Some(bytes.read_u8()?)
-        };
-        let protocol = if wildcards.protocol {
-            None
-        } else {
-            Some(bytes.read_u8()?)
-        };
-        bytes.consume(2);
-        let ip_src = if wildcards.ip_src >= 32 {
-            None
-        } else if wildcards.ip_src == 0 {
-            Some(Mask {
-                ip: bytes.read_u32::<BigEndian>()?,
-                mask: None,
-            })
-        } else {
-            Some(Mask {
-                ip: bytes.read_u32::<BigEndian>()?,
-                mask: Some(wildcards.ip_src),
-            })
-        };
-        let ip_dest = if wildcards.ip_dest >= 32 {
-            None
-        } else if wildcards.ip_dest == 0 {
-            Some(Mask {
-                ip: bytes.read_u32::<BigEndian>()?,
-                mask: None,
-            })
-        } else {
-            Some(Mask {
-                ip: bytes.read_u32::<BigEndian>()?,
-                mask: Some(wildcards.ip_dest),
-            })
-        };
-        let transport_src = if wildcards.transport_src {
-            None
-        } else {
-            Some(bytes.read_u16::<BigEndian>()?)
-        };
-        let transport_dest = if wildcards.transport_dest {
-            None
-        } else {
-            Some(bytes.read_u16::<BigEndian>()?)
-        };
-        Ok(MatchFields {
-            in_port,
-            mac_src,
-            mac_dest,
-            ethernet_type,
-            vlan_vid,
-            vlan_pcp,
-            ip_src,
-            ip_dest,
-            protocol,
-            tos,
-            transport_src,
-            transport_dest,
-        })
-    }
+    // pub fn parse(bytes: &mut Cursor<Vec<u8>>) {
+    /*
+     * TODO Soon
+     */
+    // }
 }
