@@ -94,6 +94,39 @@ impl Wildcards {
     }
 }
 
+pub enum MatchType {
+    Standard = 0,
+    OXM = 1, //, the OpenFlow 1.1 match type OFPMT_STANDARD is deprecated
+}
+
+/**
+ * | class | field | length | - |     body     |
+ * | :---: | :---: | :----: | - |     :--:     |
+ * |  16   |   7   |   1    | - | length bytes |
+ */
+
+pub struct OxmHeader {
+    class: OxmClass, // Match class: member class or reserved class
+    field: u8,       // 7bit Match field within the class
+    hasmask: u8,     // 1bit Set if OXM include a bitmask in payload
+    length: u8,      // Length of OXM payload
+}
+
+/**
+ * NXM allocates only two vendors,
+ * 0x0000 for fields supported by OpenFlow 1.0
+ * and 0x0001 for fields implemented as an Open vSwitch extension
+ */
+
+#[repr(u16)]
+pub enum OxmClass {
+    Nxm0 = 0x0000,
+    Nxm1 = 0x0001,
+    OpenflowBasic = 0x8000,
+    Experimenter = 0xffff,
+}
+
+/* OXM Flow match field types for OpenFlow basic class. */
 pub struct MatchFields {
     pub in_port: Option<u32>,
     in_phy_port: Option<u32>,
