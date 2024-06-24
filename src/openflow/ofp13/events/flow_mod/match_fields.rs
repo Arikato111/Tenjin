@@ -94,6 +94,12 @@ impl Wildcards {
     }
 }
 
+pub struct OfpMatch {
+    typ: MatchType,
+    length: u16,
+    oxm_fields: OxmClass,
+}
+
 pub enum MatchType {
     Standard = 0,
     OXM = 1, //, the OpenFlow 1.1 match type OFPMT_STANDARD is deprecated
@@ -106,10 +112,10 @@ pub enum MatchType {
  */
 
 pub struct OxmHeader {
-    class: OxmClass, // Match class: member class or reserved class
-    field: u8,       // 7bit Match field within the class
-    hasmask: u8,     // 1bit Set if OXM include a bitmask in payload
-    length: u8,      // Length of OXM payload
+    class: OxmClass,       // Match class: member class or reserved class
+    field: OxmMatchFields, // 7bit Match field within the class
+    hasmask: bool,         // 1bit Set if OXM include a bitmask in payload
+    length: u8,            // Length of OXM payload
 }
 
 /**
@@ -120,108 +126,95 @@ pub struct OxmHeader {
 
 #[repr(u16)]
 pub enum OxmClass {
-    Nxm0 = 0x0000,
-    Nxm1 = 0x0001,
-    OpenflowBasic = 0x8000,
-    Experimenter = 0xffff,
+    Nxm0 = 0x0000,          // Backward compatibility with NXM
+    Nxm1 = 0x0001,          // Backward compatibility with NXM
+    OpenflowBasic = 0x8000, // Basic class for OpenFlow
+    Experimenter = 0xffff,  // Experimenter class
 }
 
 /* OXM Flow match field types for OpenFlow basic class. */
-pub struct MatchFields {
-    pub in_port: Option<u32>,
-    in_phy_port: Option<u32>,
-    metadata: Option<i64>,
-    pub mac_dest: Option<MacAddr>,
-    pub mac_src: Option<MacAddr>,
-    pub ethernet_type: Option<u16>,
-    pub vlan_vid: Option<u16>, // vlan type
-    pub vlan_pcp: Option<u8>,
+pub enum OxmMatchFields {
+    InPort = 1,
+    InPhyPort = 2,
+    Metadata = 3,
+    MacDest = 4,
+    MacSrc = 5,
+    EthernetType = 6,
+    VlanVid = 7, // vlan type
+    VlanPcp = 8,
     // ToS from IPv4 packet
-    pub ip_dscp: Option<u8>, // IP DSCP (6 bits in ToS field).
-    pub ip_ecn: Option<u8>,  // IP ECN (2 bits in ToS field).
-    pub protocol: Option<u8>,
-    pub ip_src: Option<Ipv4Addr>,
-    pub ip_dst: Option<Ipv4Addr>,
+    IpDscp = 9, // IP DSCP (6 bits in ToS field).
+    IpEcn = 10, // IP ECN (2 bits in ToS field).
+    Protocol = 11,
+    IpSrc = 12,
+    IpDst = 13,
 
-    pub tcp_src: Option<u16>,
-    pub tcp_dst: Option<u16>,
-    pub udp_src: Option<u16>,
-    pub udp_dst: Option<u16>,
-    pub sctp_src: Option<u16>,
-    pub sctp_dst: Option<u16>,
+    TcpSrc = 14,
+    TcpDst = 15,
+    UdpSrc = 16,
+    UdpDst = 17,
+    SctpSrc = 18,
+    SctpDst = 19,
 
-    pub icmpv4_type: Option<u8>,
-    pub icmpv4_code: Option<u8>,
-    pub arp_op: Option<u16>,
-    pub arp_spa: Option<Ipv4Addr>,    // ARP source IPv4 address
-    pub arp_tpa: Option<Ipv4Addr>,    // ARP target IPv4 address
-    pub arp_sha: Option<MacAddr>,     // ARP source Mac
-    pub arp_tha: Option<MacAddr>,     // ARP target Mac
-    pub ipv6_src: Option<Ipv6Addr>,   // IPv6 address
-    pub ipv6_dst: Option<Ipv6Addr>,   // IPv6 address
-    pub ipv6_flabel: Option<u32>,     // IPv6 Flow Lable
-    pub icmpv6_type: Option<u8>,      // ICMPv6 type
-    pub icmpv6_code: Option<u8>,      // ICMPv6 code
-    pub ipv6_nd_target: Option<u128>, // Target address for ND
-    pub ipv6_nd_sll: Option<MacAddr>, // MAC , source link-layer for ND
-    pub ipv6_nd_tll: Option<MacAddr>, // Mac , Target link-layer for ND
-    pub mpls_label: Option<u32>,      // MPLS label
-    pub mpls_tc: Option<u8>,          // MPLS TC
-    pub mpls_bos: Option<u8>,         // MPLS Bos bit
-    pub pbb_isid: Option<u32>,        // 24bit PBB I-SID
-    pub tunnel_id: Option<u64>,       // Logical Port Metadata
-    pub ipv6_exthdr: Option<u64>,     // IPv6 Extension Header pseudo-field
-    pub pbb_uca: Option<u8>,          // PBB UCA Header
-    pub tcp_flags: Option<u16>,       // TCP Flags
-    pub actset_output: Option<u32>,   // Output port from action set metadata
+    Icmpv4Type = 20,
+    Icmpv4Code = 21,
+    ArpOp = 22,
+    ArpSpa = 23,       // ARP source IPv4 address
+    ArpTpa = 24,       // ARP target IPv4 address
+    ArpSha = 25,       // ARP source Mac
+    ArpPha = 26,       // ARP target Mac
+    Ipv6Src = 27,      // IPv6 address
+    Ipv6Dst = 28,      // IPv6 address
+    Ipv6Flabel = 29,   // IPv6 Flow Lable
+    Icmpv6Type = 30,   // ICMPv6 type
+    Icmpv6Code = 31,   // ICMPv6 code
+    Ipv6NdTarget = 32, // Target address for ND
+    Ipv6NdSll = 33,    // MAC , source link-layer for ND
+    Ipv6NdTll = 34,    // Mac , Target link-layer for ND
+    MplsLabel = 35,    // MPLS label
+    MplsTc = 36,       // MPLS TC
+    MplsBos = 37,      // MPLS Bos bit
+    PbbIsid = 38,      // 24bit PBB I-SID
+    TunnelId = 39,     // Logical Port Metadata
+    Ipv6Exthdr = 40,   // IPv6 Extension Header pseudo-field
+    PbbUca = 41,       // PBB UCA Header
+    TcpFlags = 42,     // TCP Flags
+    ActsetOutput = 43, // Output port from action set metadata
+}
+
+// Required match fields.
+pub struct MatchFields {
+    in_port: Option<u32>, // Ingress port. This may be a physical or switch-defined logical port.
+    eth_dst: Option<MacAddr>, // Ethernet source address. Can use arbitrary bitmask
+    eth_src: Option<MacAddr>, // Ethernet destination address. Can use arbitrary bitmask
+    eth_typ: Option<u16>, // Ethernet type of the OpenFlow packet payload, after VLAN tags.
+    ip_proto: Option<u8>, // IPv4 or IPv6 protocol number
+    ipv4_src: Option<Ipv4Addr>, // IPv4 source address. Can use subnet mask or arbitrary bitmask
+    ipv4_dst: Option<Ipv4Addr>, // IPv4 destination address. Can use subnet mask or arbitrary bitmask
+    ipv6_src: Option<Ipv6Addr>, // IPv6 source address. Can use subnet mask or arbitrary bitmask
+    ipv6_dst: Option<Ipv6Addr>, // IPv6 destination address. Can use subnet mask or arbitrary bitmask
+    tcp_src: Option<u16>,       // TCP source port
+    tcp_dst: Option<u16>,       // TCP destination port
+    udp_src: Option<u16>,       // UDP source port
+    udp_dst: Option<u16>,       // UDP destination port
 }
 
 impl MatchFields {
     pub fn match_all() -> Self {
         Self {
             in_port: None,
-            in_phy_port: None,
-            metadata: None,
-            mac_dest: None,
-            mac_src: None,
-            ethernet_type: None,
-            vlan_vid: None,
-            vlan_pcp: None,
-            ip_dscp: None,
-            ip_ecn: None,
-            protocol: None,
-            ip_src: None,
-            ip_dst: None,
+            eth_dst: None,
+            eth_src: None,
+            eth_typ: None,
+            ip_proto: None,
+            ipv4_src: None,
+            ipv4_dst: None,
+            ipv6_src: None,
+            ipv6_dst: None,
             tcp_src: None,
             tcp_dst: None,
             udp_src: None,
             udp_dst: None,
-            sctp_src: None,
-            sctp_dst: None,
-            icmpv4_type: None,
-            icmpv4_code: None,
-            arp_op: None,
-            arp_spa: None,
-            arp_tpa: None,
-            arp_sha: None,
-            arp_tha: None,
-            ipv6_src: None,
-            ipv6_dst: None,
-            ipv6_flabel: None,
-            icmpv6_type: None,
-            icmpv6_code: None,
-            ipv6_nd_target: None,
-            ipv6_nd_sll: None,
-            ipv6_nd_tll: None,
-            mpls_label: None,
-            mpls_tc: None,
-            mpls_bos: None,
-            pbb_isid: None,
-            tunnel_id: None,
-            ipv6_exthdr: None,
-            pbb_uca: None,
-            tcp_flags: None,
-            actset_output: None,
         }
     }
     pub fn marshal(&self, bytes: &mut Vec<u8>) {
