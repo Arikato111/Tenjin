@@ -1,5 +1,6 @@
 use byteorder::WriteBytesExt;
 
+#[derive(Clone)]
 pub struct MacAddr {
     mac: [u8; 6],
 }

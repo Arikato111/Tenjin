@@ -9,3 +9,5 @@ pub use match_fields::{Mask, MatchFields};
 
 pub mod flow_mod_flags;
 pub use flow_mod_flags::FlowModFlags;
+
+pub mod instructions;

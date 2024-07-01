@@ -76,7 +76,7 @@ pub struct OxmHeader {
 }
 
 impl OxmHeader {
-    fn new(field: OxmMatchFields, size: u8) -> Self {
+    pub fn new(field: OxmMatchFields, size: u8) -> Self {
         Self {
             class: OxmClass::OpenflowBasic,
             field,
@@ -85,7 +85,7 @@ impl OxmHeader {
             experimenter: None,
         }
     }
-    fn marshal(&self, bytes: &mut Vec<u8>) {
+    pub fn marshal(&self, bytes: &mut Vec<u8>) {
         bytes.write_u16::<BigEndian>(self.class.clone().into());
         let field: u8 = self.field.clone().into();
         bytes.write_u8(field << 1 | if self.hasmask { 1 } else { 0 });
