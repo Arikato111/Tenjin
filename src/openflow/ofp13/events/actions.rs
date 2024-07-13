@@ -7,23 +7,6 @@ use super::flow_mod::{
     match_fields::{OxmHeader, OxmMatchFields},
 };
 
-struct ActionHeader {
-    typ: ActionType,
-    // len: u16,
-    // pad: [u8; 4],
-}
-
-impl ActionHeader {
-    pub fn new(typ: ActionType) -> Self {
-        Self { typ }
-    }
-    pub fn marshal(&self, bytes: &mut Vec<u8>) {
-        bytes.write_u16::<BigEndian>(self.typ.clone().into());
-        bytes.write_u16::<BigEndian>(8);
-        bytes.write_u32::<BigEndian>(0);
-    }
-}
-
 #[derive(Clone)]
 #[repr(u16)]
 enum ActionType {
@@ -102,94 +85,6 @@ impl ActionOutput {
     }
 }
 
-struct ActionGroup {
-    typ: ActionType,
-    len: u16,
-    group_id: u32,
-}
-
-impl ActionGroup {
-    pub const LEN: usize = 8;
-    pub fn marshal(&self, bytes: &mut Vec<u8>) {
-        self.typ.marshal(bytes);
-        bytes.write_u16::<BigEndian>(self.len);
-        bytes.write_u32::<BigEndian>(self.group_id);
-    }
-    pub fn new(group_id: u32) -> Self {
-        Self {
-            typ: ActionType::Group,
-            len: Self::LEN as u16,
-            group_id,
-        }
-    }
-}
-
-struct ActionSetQueue {
-    typ: ActionType,
-    len: u16,
-    queue_id: u32,
-}
-
-impl ActionSetQueue {
-    pub const LEN: usize = 8;
-    pub fn marshal(&self, bytes: &mut Vec<u8>) {
-        self.typ.marshal(bytes);
-        bytes.write_u16::<BigEndian>(self.len);
-        bytes.write_u32::<BigEndian>(self.queue_id);
-    }
-    pub fn new(queue_id: u32) -> Self {
-        Self {
-            typ: ActionType::SetQueue,
-            len: Self::LEN as u16,
-            queue_id,
-        }
-    }
-}
-
-struct ActionMplsTtl {
-    typ: ActionType,
-    len: u16,
-    mpls_ttl: u8,
-    pad: [u8; 3],
-}
-
-impl ActionMplsTtl {
-    pub const LEN: usize = 8;
-}
-
-struct ActionNwTtl {
-    typ: ActionType, // OFPAT_SET_NW_TTL
-    len: u16,        // Length is 8.
-    nw_ttl: u8,      // IP TTL
-    pad: [u8; 3],
-}
-
-impl ActionNwTtl {
-    pub const LEN: usize = 8;
-}
-
-struct ActionPush {
-    typ: ActionType,
-    len: u16,
-    ethertype: u16,
-    pad: [u8; 2],
-}
-
-impl ActionPush {
-    pub const LEN: usize = 8;
-}
-
-struct ActionPopMpls {
-    typ: ActionType,
-    len: u16,
-    ethertype: u16,
-    pad: [u8; 2],
-}
-
-impl ActionPopMpls {
-    pub const LEN: usize = 8;
-}
-
 #[derive(Clone)]
 pub enum SetField {
     InPort(PseudoPort), // Ingress port. This may be a physical or switch-defined logical port.
@@ -266,11 +161,6 @@ impl SetField {
     }
 }
 
-struct ActionExperimenterHeader {
-    typ: ActionType,
-    len: u16,
-    experimenter: u32,
-}
 
 pub type Buffer = u16;
 #[derive(Clone)]

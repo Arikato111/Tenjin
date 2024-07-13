@@ -5,7 +5,7 @@ pub mod command;
 pub use command::FlowModCommand;
 
 pub mod match_fields;
-pub use match_fields::{Mask, MatchFields};
+pub use match_fields::{MatchFields, MatchType, OfpMatch};
 
 pub mod flow_mod_flags;
 pub use flow_mod_flags::FlowModFlags;
