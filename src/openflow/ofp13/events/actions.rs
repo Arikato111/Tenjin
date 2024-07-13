@@ -1,16 +1,6 @@
-use crate::{
-    etherparser::{
-        tools::bits::{bytes_to_mac, mac_to_bytes},
-        MacAddr,
-    },
-    openflow::ofp13::{ofp_port::OfpPort, PseudoPort},
-};
-use byteorder::{BigEndian, ReadBytesExt, WriteBytesExt};
-use std::{
-    io::{BufRead, Cursor, Error},
-    mem::size_of,
-    net::{Ipv4Addr, Ipv6Addr},
-};
+use crate::{etherparser::MacAddr, openflow::ofp13::PseudoPort};
+use byteorder::{BigEndian, WriteBytesExt};
+use std::net::{Ipv4Addr, Ipv6Addr};
 
 use super::flow_mod::match_fields::{OxmHeader, OxmMatchFields};
 
@@ -404,120 +394,23 @@ impl Action {
             }
         }
     }
-    pub fn parse_sequence(bytes: &mut Cursor<Vec<u8>>) -> Vec<Action> {
-        if bytes.get_ref().is_empty() {
-            vec![]
-        } else {
-            if let Ok(action) = Action::parse(bytes) {
-                let mut v = vec![action];
-                v.append(&mut Action::parse_sequence(bytes));
-                v
-            } else {
-                vec![]
-            }
-        }
-    }
 
-    pub fn parse(bytes: &mut Cursor<Vec<u8>>) -> Result<Action, Error> {
-        let action_code = bytes.read_u16::<BigEndian>()?;
-        let _ = bytes.read_u16::<BigEndian>()?;
-        match action_code {
-            t if t == (ActionType::Output as u16) => {
-                let port_code = bytes.read_u32::<BigEndian>()?;
-                let len = bytes.read_u16::<BigEndian>()?;
-                Ok(Action::Oputput(PseudoPort::new(
-                    port_code,
-                    Some(len as u64),
-                )))
-            }
-            t if t == (ActionType::SetVlanId as u16) => {
-                let vid = bytes.read_u16::<BigEndian>()?;
-                bytes.consume(2);
-                if vid == 0xffff {
-                    Ok(Action::SetDlVlan(None))
-                } else {
-                    Ok(Action::SetDlVlan(Some(vid)))
-                }
-            }
-            t if t == (ActionType::SetVlanPCP as u16) => {
-                let pcp = bytes.read_u8()?;
-                bytes.consume(3);
-                Ok(Action::SetDlVlanPcp(pcp))
-            }
-            t if t == (ActionType::StripVlan as u16) => {
-                bytes.consume(4);
-                Ok(Action::SetDlVlan(None))
-            }
-            t if t == (ActionType::SetSrcMac as u16) => {
-                let mut addr = [0u8; 6];
-                for i in 0..6 {
-                    addr[i] = bytes.read_u8()?;
-                }
-                bytes.consume(6);
-                Ok(Action::SetDlSrc(mac_to_bytes(addr)))
-            }
-            t if t == (ActionType::SetDstMac as u16) => {
-                let mut addr = [0u8; 6];
-                for i in 0..6 {
-                    addr[i] = bytes.read_u8()?;
-                }
-                bytes.consume(6);
-                Ok(Action::SetDlDest(mac_to_bytes(addr)))
-            }
-            t if t == (ActionType::SetIPv4Src as u16) => {
-                Ok(Action::SetIpSrc(bytes.read_u32::<BigEndian>()?))
-            }
-            t if t == (ActionType::SetIPv4Des as u16) => {
-                Ok(Action::SetIpDes(bytes.read_u32::<BigEndian>()?))
-            }
-            t if t == (ActionType::SetTos as u16) => {
-                let tos = bytes.read_u8()?;
-                bytes.consume(3);
-                Ok(Action::SetTos(tos))
-            }
-            t if t == (ActionType::SetTpSrc as u16) => {
-                let pt = bytes.read_u16::<BigEndian>()?;
-                bytes.consume(2);
-                Ok(Action::SetTpSrc(pt))
-            }
-            t if t == (ActionType::SetTpDst as u16) => {
-                let pt = bytes.read_u16::<BigEndian>()?;
-                bytes.consume(2);
-                Ok(Action::SetTpDest(pt))
-            }
-            t if t == (ActionType::Enqueue as u16) => {
-                let pt = bytes.read_u32::<BigEndian>()?;
-                bytes.consume(6);
-                let qid = bytes.read_u32::<BigEndian>()?;
-                Ok(Action::Enqueue(PseudoPort::new(pt, Some(0)), qid))
-            }
-            _ => Ok(Action::Unparsable),
-        }
-    }
-}
+    // TODO
+    // pub fn parse_sequence(bytes: &mut Cursor<Vec<u8>>) -> Vec<Action> {
+    //     if bytes.get_ref().is_empty() {
+    //         vec![]
+    //     } else {
+    //         if let Ok(action) = Action::parse(bytes) {
+    //             let mut v = vec![action];
+    //             v.append(&mut Action::parse_sequence(bytes));
+    //             v
+    //         } else {
+    //             vec![]
+    //         }
+    //     }
+    // }
 
-pub trait SizeCheck {
-    fn size_of_sequence(&self) -> usize;
-    fn move_controller_last(&self) -> Vec<Action>;
-}
-
-impl SizeCheck for Vec<Action> {
-    fn size_of_sequence(&self) -> usize {
-        self.iter().fold(0, |acc, x| x.length() + acc)
-    }
-
-    fn move_controller_last(&self) -> Vec<Action> {
-        let mut not_ctrl: Vec<Action> = Vec::new();
-        let mut is_ctrl: Vec<Action> = Vec::new();
-        for act in self {
-            match act {
-                Action::Oputput(PseudoPort::Controller(_)) => {
-                    is_ctrl.push(act.clone());
-                }
-                _ => not_ctrl.push(act.clone()),
-            }
-        }
-        not_ctrl.append(&mut is_ctrl);
-        not_ctrl
-    }
+    // TODO
+    // pub fn parse(bytes: &mut Cursor<Vec<u8>>) -> Result<Action, Error> {
+    // }
 }
