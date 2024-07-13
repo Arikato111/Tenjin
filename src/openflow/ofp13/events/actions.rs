@@ -2,7 +2,10 @@ use crate::{etherparser::MacAddr, openflow::ofp13::PseudoPort};
 use byteorder::{BigEndian, WriteBytesExt};
 use std::net::{Ipv4Addr, Ipv6Addr};
 
-use super::flow_mod::match_fields::{OxmHeader, OxmMatchFields};
+use super::flow_mod::{
+    instructions::{InstructActions, InstructTrait},
+    match_fields::{OxmHeader, OxmMatchFields},
+};
 
 struct ActionHeader {
     typ: ActionType,
@@ -272,7 +275,7 @@ struct ActionExperimenterHeader {
 pub type Buffer = u16;
 #[derive(Clone)]
 #[repr(u8)]
-enum Action {
+pub enum Action {
     Oputput(PseudoPort, Option<Buffer>),
     CopyTtlOut,     // Copy TTL "outwards" -- from next-to-outermost to outermost
     CopyTtlIn,      // Copy TTL "inwards" -- from outermost to next-to-outermost
@@ -413,4 +416,16 @@ impl Action {
     // TODO
     // pub fn parse(bytes: &mut Cursor<Vec<u8>>) -> Result<Action, Error> {
     // }
+}
+
+pub trait ToInstruction {
+    fn to_instruct(&self) -> InstructActions;
+}
+
+impl ToInstruction for Vec<Action> {
+    fn to_instruct(&self) -> InstructActions {
+        let mut instruct = InstructActions::new(InstructActions::APPLY);
+        instruct.actions.append(&mut self.clone());
+        instruct
+    }
 }

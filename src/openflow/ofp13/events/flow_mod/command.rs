@@ -1,10 +1,11 @@
+#[repr(u8)]
 pub enum FlowModCommand {
     Add = 0,
     Modify = 1,
     ModifyStrict = 2,
     Delete = 3,
     DeleteStrict = 4,
-    Unparsable = -1,
+    Unparsable = 0xffff,
 }
 
 impl FlowModCommand {
