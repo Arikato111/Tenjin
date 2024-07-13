@@ -3,7 +3,7 @@ use byteorder::{BigEndian, WriteBytesExt};
 use std::net::{Ipv4Addr, Ipv6Addr};
 
 use super::flow_mod::{
-    instructions::{InstructActions, InstructTrait},
+    instructions::InstructActions,
     match_fields::{OxmHeader, OxmMatchFields},
 };
 

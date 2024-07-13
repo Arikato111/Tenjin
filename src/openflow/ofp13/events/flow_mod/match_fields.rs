@@ -1,7 +1,4 @@
-use std::{
-    io::Cursor,
-    net::{Ipv4Addr, Ipv6Addr},
-};
+use std::net::{Ipv4Addr, Ipv6Addr};
 
 use byteorder::{BigEndian, WriteBytesExt};
 
@@ -62,11 +59,6 @@ impl From<MatchType> for u16 {
 *
 */
 
-pub struct OxmFields<T> {
-    header: OxmHeader,
-    body: OxmBody<T>,
-}
-
 pub struct OxmHeader {
     class: OxmClass,       // Match class: member class or reserved class
     field: OxmMatchFields, // 7bit Match field within the class
@@ -90,11 +82,6 @@ impl OxmHeader {
         let field: u8 = self.field.clone().into();
         bytes.write_u8(field << 1 | if self.hasmask { 1 } else { 0 });
     }
-}
-
-pub struct OxmBody<T> {
-    value: T,
-    mask: T,
 }
 
 /**
