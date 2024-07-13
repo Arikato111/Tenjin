@@ -1,5 +1,6 @@
 use std::mem::transmute;
 
+#[repr(u8)]
 #[derive(Clone)]
 pub enum Msg {
     Hello = 0,
@@ -37,12 +38,18 @@ pub enum Msg {
 
 impl Msg {
     pub fn to_int(&self) -> u8 {
-        self.clone() as u8
+        self.clone().into()
     }
     pub fn from(msg_code: u8) -> Self {
         if msg_code > 21 {
             return Self::NotFound;
         }
         unsafe { transmute::<u8, Msg>(msg_code) }
+    }
+}
+
+impl From<Msg> for u8 {
+    fn from(value: Msg) -> Self {
+        value as u8
     }
 }
