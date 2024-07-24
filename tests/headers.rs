@@ -1,15 +1,14 @@
 #[cfg(test)]
 mod tests {
-    use tenjin::{
-        openflow::ofp13::{ControllerFrame13, Msg, OfpMsgEvent, OpenflowHeader},
-        Controller,
-    };
+    use tenjin::example::Controller10;
+    use tenjin::openflow::ofp10::ControllerFrame10;
+    use tenjin::openflow::ofp10::{Msg, OfpMsgEvent, OpenflowHeader};
 
     #[test]
     fn test_header_v1_0_parser() {
         let ofp_header_bytes: Vec<u8> = vec![1, 0, 0, 8, 0, 0, 0, 1];
 
-        let controller = Controller::new();
+        let controller = Controller10::new();
         let ofp = controller.ofp();
         let header = match ofp.header_parse(&ofp_header_bytes) {
             Ok(v) => v,
@@ -25,7 +24,7 @@ mod tests {
     fn test_header_v1_0_marshal() {
         let ofp_header_bytes: Vec<u8> = vec![1, 0, 0, 8, 0, 0, 0, 0];
 
-        let controller = Controller::new();
+        let controller = Controller10::new();
         let ofp = controller.ofp();
         let ofp_header = ofp.header(ofp.msg_usize(Msg::Hello) as u8, 0, 0);
         let mut bytes: Vec<u8> = Vec::new();
