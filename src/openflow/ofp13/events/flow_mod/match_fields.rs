@@ -1,6 +1,11 @@
-use std::net::{Ipv4Addr, Ipv6Addr};
+use std::{
+    error::Error,
+    io::{BufRead, Cursor},
+    mem::transmute,
+    net::{Ipv4Addr, Ipv6Addr},
+};
 
-use byteorder::{BigEndian, WriteBytesExt};
+use byteorder::{BigEndian, ReadBytesExt, WriteBytesExt};
 
 use crate::etherparser::MacAddr;
 
@@ -157,6 +162,16 @@ pub enum OxmMatchFields {
     ActsetOutput = 43, // Output port from action set metadata
 }
 
+impl From<u8> for OxmMatchFields {
+    fn from(value: u8) -> Self {
+        if value < 44 {
+            unsafe { transmute(value) }
+        } else {
+            Self::ActsetOutput
+        }
+    }
+}
+
 impl From<OxmMatchFields> for u8 {
     fn from(value: OxmMatchFields) -> Self {
         value as u8
@@ -260,9 +275,126 @@ impl MatchFields {
         ofp_match.marshal(bytes);
     }
 
-    // pub fn parse(bytes: &mut Cursor<Vec<u8>>) {
-    /*
-     * TODO Soon
-     */
-    // }
+    pub fn parse(bytes: &mut Cursor<Vec<u8>>) -> Result<MatchFields, Box<dyn Error>> {
+        let mut matcher = MatchFields::match_all();
+
+        let typ = bytes.read_u16::<BigEndian>()?;
+        let length = bytes.read_u16::<BigEndian>()?;
+        let mut pkt_len = length - 4;
+        while pkt_len > 0 {
+            let oxm_class = bytes.read_u16::<BigEndian>()?;
+            let oxm_field = bytes.read_u8()?;
+            let hash_mask = oxm_field & 1 == 1;
+            let oxm_field: OxmMatchFields = (oxm_field >> 1).into();
+            let oxm_length = bytes.read_u8()?;
+            match oxm_field {
+                OxmMatchFields::InPort => {
+                    let port = bytes.read_u32::<BigEndian>()?;
+                    let mask = if hash_mask {
+                        Some(bytes.read_u32::<BigEndian>())
+                    } else {
+                        None
+                    };
+                    matcher.in_port = Some(port);
+                }
+                OxmMatchFields::MacDest => {
+                    let mut mac = [0u8; 6];
+                    for i in 0..6 {
+                        mac[i] = bytes.read_u8()?;
+                    }
+                    if hash_mask {
+                        bytes.consume(6);
+                    }
+                    matcher.eth_dst = Some(MacAddr::new(mac));
+                }
+                OxmMatchFields::MacSrc => {
+                    let mut mac = [0u8; 6];
+                    for i in 0..6 {
+                        mac[i] = bytes.read_u8()?;
+                    }
+                    if hash_mask {
+                        bytes.consume(6);
+                    }
+                    matcher.eth_src = Some(MacAddr::new(mac));
+                }
+                OxmMatchFields::EthernetType => {
+                    let eth_typ = bytes.read_u16::<BigEndian>()?;
+                    if hash_mask {
+                        bytes.consume(2);
+                    }
+                    matcher.eth_typ = Some(eth_typ);
+                }
+                OxmMatchFields::Protocol => {
+                    let proto = bytes.read_u8()?;
+                    if hash_mask {
+                        bytes.consume(1);
+                    }
+                    matcher.ip_proto = Some(proto);
+                }
+                OxmMatchFields::IpSrc => {
+                    let ip = bytes.read_u32::<BigEndian>()?;
+                    if hash_mask {
+                        bytes.consume(4);
+                    }
+                    matcher.ipv4_src = Some(Ipv4Addr::from(ip));
+                }
+                OxmMatchFields::IpDst => {
+                    let ip = bytes.read_u32::<BigEndian>()?;
+                    if hash_mask {
+                        bytes.consume(4);
+                    }
+                    matcher.ipv4_dst = Some(Ipv4Addr::from(ip));
+                }
+                OxmMatchFields::Ipv6Src => {
+                    let ipv6 = bytes.read_u128::<BigEndian>()?;
+                    if hash_mask {
+                        bytes.consume(16);
+                    }
+                    matcher.ipv6_src = Some(Ipv6Addr::from(ipv6));
+                }
+                OxmMatchFields::Ipv6Dst => {
+                    let ipv6 = bytes.read_u128::<BigEndian>()?;
+                    if hash_mask {
+                        bytes.consume(16);
+                    }
+                    matcher.ipv6_dst = Some(Ipv6Addr::from(ipv6));
+                }
+                OxmMatchFields::TcpSrc => {
+                    let tcp = bytes.read_u16::<BigEndian>()?;
+                    if hash_mask {
+                        bytes.consume(2);
+                    }
+                    matcher.tcp_src = Some(tcp);
+                }
+                OxmMatchFields::TcpDst => {
+                    let tcp = bytes.read_u16::<BigEndian>()?;
+                    if hash_mask {
+                        bytes.consume(2);
+                    }
+                    matcher.tcp_dst = Some(tcp);
+                }
+                OxmMatchFields::UdpSrc => {
+                    let udp = bytes.read_u16::<BigEndian>()?;
+                    if hash_mask {
+                        bytes.consume(2);
+                    }
+                    matcher.udp_src = Some(udp);
+                }
+                OxmMatchFields::UdpDst => {
+                    let udp = bytes.read_u16::<BigEndian>()?;
+                    if hash_mask {
+                        bytes.consume(2);
+                    }
+                    matcher.udp_dst = Some(udp);
+                }
+
+                _ => {
+                    bytes.consume((oxm_length - 4).into());
+                }
+            }
+            pkt_len = pkt_len - (oxm_length as u16);
+        }
+
+        Ok(matcher)
+    }
 }

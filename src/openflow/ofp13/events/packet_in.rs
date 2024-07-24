@@ -4,6 +4,7 @@ use super::Payload;
 use byteorder::{BigEndian, ReadBytesExt};
 use std::io::{BufRead, Cursor, Error};
 
+#[repr(u8)]
 #[derive(Debug)]
 pub enum PacketInReason {
     NoMatch,
@@ -26,9 +27,14 @@ impl PacketInReason {
 pub struct PacketInEvent {
     pub buf_id: Option<u32>,
     pub total_len: u16,
-    pub in_port: u16,
     pub reason: PacketInReason,
     pub table_id: u8,
+    pub cookie: u64,
+    /**
+     * TODO
+     * Ofp Match
+     */
+    pub in_port: u16,
     pub payload: Payload,
 }
 
