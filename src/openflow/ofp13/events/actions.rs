@@ -161,12 +161,11 @@ impl SetField {
     }
 }
 
-
 pub type Buffer = u16;
 #[derive(Clone)]
 #[repr(u8)]
 pub enum Action {
-    Oputput(PseudoPort, Option<Buffer>),
+    Oputput(PseudoPort),
     CopyTtlOut,     // Copy TTL "outwards" -- from next-to-outermost to outermost
     CopyTtlIn,      // Copy TTL "inwards" -- from outermost to next-to-outermost
     SetMplsTtl(u8), // MPLS TTL
@@ -191,7 +190,7 @@ pub enum Action {
 impl Action {
     pub fn action_type(&self) -> ActionType {
         match &self {
-            Action::Oputput(_, _) => ActionType::Output,
+            Action::Oputput(_) => ActionType::Output,
             Action::CopyTtlOut => ActionType::CopyTtlOut,
             Action::CopyTtlIn => ActionType::CopyTtlIn,
             Action::SetMplsTtl(_) => ActionType::SetMplsTtl,
@@ -212,15 +211,11 @@ impl Action {
     }
     pub fn marshal(&self, bytes: &mut Vec<u8>) {
         match &self {
-            Action::Oputput(port, buffer) => {
+            Action::Oputput(port) => {
                 self.action_type().marshal(bytes);
                 bytes.write_u16::<BigEndian>(16); // len
                 port.marshal(bytes);
-                if let Some(buf_id) = buffer {
-                    bytes.write_u16::<BigEndian>(*buf_id);
-                } else {
-                    bytes.write_u16::<BigEndian>(ControllerMaxLen::NoBuffer.into());
-                }
+                bytes.write_u16::<BigEndian>(ControllerMaxLen::NoBuffer.into());
                 // padding 48bit
                 bytes.write_u32::<BigEndian>(0);
                 bytes.write_u16::<BigEndian>(0);
