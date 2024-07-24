@@ -16,7 +16,7 @@ pub struct OfpHeader {
 impl OpenflowHeader for OfpHeader {
     fn new(message: u8, length: usize, xid: usize) -> Self {
         Self {
-            version: 1,
+            version: 4,
             message,
             length: (size_of::<OfpHeader>() + length) as u16,
             xid: xid as u32,
