@@ -33,7 +33,7 @@ pub trait OfpMsgEvent {
     fn fetures_req(&self) -> FeaturesReqEvent;
     fn packet_out(
         &self,
-        port_id: Option<u16>,
+        port_id: Option<u32>,
         payload: Payload,
         actions: Vec<Action>,
     ) -> PacketOutEvent;

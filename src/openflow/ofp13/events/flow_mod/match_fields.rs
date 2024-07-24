@@ -179,19 +179,19 @@ impl From<OxmMatchFields> for u8 {
 
 // Required match fields.
 pub struct MatchFields {
-    in_port: Option<u32>, // Ingress port. This may be a physical or switch-defined logical port.
-    eth_dst: Option<MacAddr>, // Ethernet source address. Can use arbitrary bitmask
-    eth_src: Option<MacAddr>, // Ethernet destination address. Can use arbitrary bitmask
-    eth_typ: Option<u16>, // Ethernet type of the OpenFlow packet payload, after VLAN tags.
-    ip_proto: Option<u8>, // IPv4 or IPv6 protocol number
-    ipv4_src: Option<Ipv4Addr>, // IPv4 source address. Can use subnet mask or arbitrary bitmask
-    ipv4_dst: Option<Ipv4Addr>, // IPv4 destination address. Can use subnet mask or arbitrary bitmask
-    ipv6_src: Option<Ipv6Addr>, // IPv6 source address. Can use subnet mask or arbitrary bitmask
-    ipv6_dst: Option<Ipv6Addr>, // IPv6 destination address. Can use subnet mask or arbitrary bitmask
-    tcp_src: Option<u16>,       // TCP source port
-    tcp_dst: Option<u16>,       // TCP destination port
-    udp_src: Option<u16>,       // UDP source port
-    udp_dst: Option<u16>,       // UDP destination port
+    pub in_port: Option<u32>, // Ingress port. This may be a physical or switch-defined logical port.
+    pub eth_dst: Option<MacAddr>, // Ethernet source address. Can use arbitrary bitmask
+    pub eth_src: Option<MacAddr>, // Ethernet destination address. Can use arbitrary bitmask
+    pub eth_typ: Option<u16>, // Ethernet type of the OpenFlow packet payload, after VLAN tags.
+    pub ip_proto: Option<u8>, // IPv4 or IPv6 protocol number
+    pub ipv4_src: Option<Ipv4Addr>, // IPv4 source address. Can use subnet mask or arbitrary bitmask
+    pub ipv4_dst: Option<Ipv4Addr>, // IPv4 destination address. Can use subnet mask or arbitrary bitmask
+    pub ipv6_src: Option<Ipv6Addr>, // IPv6 source address. Can use subnet mask or arbitrary bitmask
+    pub ipv6_dst: Option<Ipv6Addr>, // IPv6 destination address. Can use subnet mask or arbitrary bitmask
+    pub tcp_src: Option<u16>,       // TCP source port
+    pub tcp_dst: Option<u16>,       // TCP destination port
+    pub udp_src: Option<u16>,       // UDP source port
+    pub udp_dst: Option<u16>,       // UDP destination port
 }
 
 impl MatchFields {

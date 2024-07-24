@@ -5,7 +5,7 @@ pub enum FlowModCommand {
     ModifyStrict = 2,
     Delete = 3,
     DeleteStrict = 4,
-    Unparsable = 0xffff,
+    Unparsable = 0xff,
 }
 
 impl FlowModCommand {

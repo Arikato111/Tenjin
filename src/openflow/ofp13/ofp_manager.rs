@@ -13,7 +13,7 @@ impl Openflow13 {
 }
 
 impl OfpMsgEvent for Openflow13 {
-    fn header_parse(&self, bytes: &Vec<u8>) -> Result<OfpHeader, std::io::Error>  {
+    fn header_parse(&self, bytes: &Vec<u8>) -> Result<OfpHeader, std::io::Error> {
         OfpHeader::parse(bytes)
     }
     fn header_size(&self) -> usize {
@@ -28,7 +28,7 @@ impl OfpMsgEvent for Openflow13 {
     }
     fn packet_out(
         &self,
-        port_id: Option<u16>,
+        port_id: Option<u32>,
         payload: Payload,
         actions: Vec<Action>,
     ) -> PacketOutEvent {
