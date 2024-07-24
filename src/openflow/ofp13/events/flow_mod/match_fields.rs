@@ -1,6 +1,5 @@
 use std::{
-    error::Error,
-    io::{BufRead, Cursor},
+    io::{BufRead, Cursor, Error},
     mem::transmute,
     net::{Ipv4Addr, Ipv6Addr},
 };
@@ -275,7 +274,7 @@ impl MatchFields {
         ofp_match.marshal(bytes);
     }
 
-    pub fn parse(bytes: &mut Cursor<Vec<u8>>) -> Result<MatchFields, Box<dyn Error>> {
+    pub fn parse(bytes: &mut Cursor<Vec<u8>>) -> Result<MatchFields, Error> {
         let mut matcher = MatchFields::match_all();
 
         let typ = bytes.read_u16::<BigEndian>()?;
