@@ -35,10 +35,10 @@ impl OfpMsgEvent for Openflow13 {
         PacketOutEvent::new(port_id, payload, actions)
     }
     fn ofp_version() -> usize {
-        1
+        4
     }
     fn version(&self) -> usize {
-        1
+        4
     }
 
     fn header(&self, message: u8, length: u16, xid: u32) -> OfpHeader {

@@ -23,7 +23,7 @@ impl OpenflowHeader for OfpHeader {
         }
     }
     fn version(&self) -> usize {
-        1
+        4
     }
     fn message(&self) -> u8 {
         self.message
