@@ -6,6 +6,8 @@ use std::{
 
 use crate::openflow::ofp13::OpenflowHeader;
 
+use super::{OfpMsgEvent, Openflow13};
+
 pub struct OfpHeader {
     pub version: u8,
     pub message: u8,
@@ -16,14 +18,14 @@ pub struct OfpHeader {
 impl OpenflowHeader for OfpHeader {
     fn new(message: u8, length: usize, xid: usize) -> Self {
         Self {
-            version: 4,
+            version: Openflow13::ofp_version() as u8,
             message,
             length: (size_of::<OfpHeader>() + length) as u16,
             xid: xid as u32,
         }
     }
     fn version(&self) -> usize {
-        4
+        Openflow13::ofp_version()
     }
     fn message(&self) -> u8 {
         self.message
