@@ -1,4 +1,4 @@
-use std::io::{Cursor, Error};
+use std::io::{BufRead, Cursor, Error};
 
 use byteorder::{BigEndian, ReadBytesExt};
 
@@ -19,6 +19,7 @@ impl FeaturesReplyEvent {
         let n_buffers = bytes.read_u32::<BigEndian>()?;
         let n_tables = bytes.read_u8()?;
         let auxiliary = bytes.read_u8()?;
+        bytes.consume(2);
         let capabilities: Capabilities = bytes.read_u32::<BigEndian>()?.into();
         let reserved = bytes.read_u32::<BigEndian>()?;
         Ok(Self {

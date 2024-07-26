@@ -30,6 +30,24 @@ impl ControllerFrame13 for Controller13 {
     /**
      * Start here for handle packetIn message.
      */
+    fn switch_features_handler(
+        &self,
+        xid: u32,
+        features_reply: ofp13::FeaturesReplyEvent,
+        stream: &mut TcpStream,
+    ) {
+        let matchs = MatchFields::match_all();
+        let actions = vec![Action::Oputput(ofp13::PseudoPort::Controller(!0))];
+        self.add_flow(
+            xid,
+            0,
+            matchs,
+            &actions,
+            features_reply.n_tables,
+            Some(features_reply.n_buffers),
+            stream,
+        )
+    }
     fn packet_in_handler(&mut self, xid: u32, packetin: PacketInEvent, stream: &mut TcpStream) {
         let pkt = match packetin.ether_parse() {
             Ok(pkt) => pkt,
