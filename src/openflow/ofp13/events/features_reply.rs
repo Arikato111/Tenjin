@@ -13,7 +13,7 @@ pub struct FeaturesReplyEvent {
 }
 
 impl FeaturesReplyEvent {
-    pub fn parse(bytes: &mut Vec<u8>) -> Result<Self, Error> {
+    pub fn parse(bytes: &Vec<u8>) -> Result<Self, Error> {
         let mut bytes = Cursor::new(bytes);
         let datapath_id = bytes.read_u64::<BigEndian>()?;
         let n_buffers = bytes.read_u32::<BigEndian>()?;

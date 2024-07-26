@@ -6,7 +6,8 @@ use std::{
 
 use super::{
     events::{echo_reply::EchoReplyEvent, EchoRequestEvent},
-    tcp_listener_handler, MessageMarshal, OfpMsgEvent, Openflow13, OpenflowHeader,
+    tcp_listener_handler, FeaturesReplyEvent, MessageMarshal, OfpMsgEvent, Openflow13,
+    OpenflowHeader,
 };
 
 pub trait ControllerFrame13
@@ -55,7 +56,10 @@ where
             Msg::EchoRequest => {
                 self.echo_request_handler(xid, EchoRequestEvent::new(payload), stream)
             }
-            Msg::FeaturesReply => {}
+            Msg::FeaturesReply => match FeaturesReplyEvent::parse(&payload) {
+                Ok(features) => self.switch_features_handler(xid, features, stream),
+                Err(_) => (),
+            },
             Msg::PacketIn => match PacketInEvent::parse(&payload) {
                 Ok(pkt_in) => self.packet_in_handler(xid, pkt_in, stream),
                 Err(_) => (),
@@ -88,5 +92,11 @@ where
     fn echo_request_handler(&self, xid: u32, echo: EchoRequestEvent, stream: &mut TcpStream) {
         self.send_msg(EchoReplyEvent::new(echo.payload), xid, stream);
     }
-    fn switch_features_handler(&self) {}
+    fn switch_features_handler(
+        &self,
+        xid: u32,
+        features_reply: FeaturesReplyEvent,
+        stream: &mut TcpStream,
+    ) {
+    }
 }
