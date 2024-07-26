@@ -19,6 +19,9 @@ pub use hello::HelloEvent;
 pub mod features_req;
 pub use features_req::FeaturesReqEvent;
 
+pub mod features_reply;
+pub use features_reply::FeaturesReplyEvent;
+
 pub mod payload;
 pub use payload::Payload;
 
