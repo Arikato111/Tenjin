@@ -45,18 +45,13 @@ impl From<ActionType> for u16 {
 #[derive(Clone)]
 #[repr(u16)]
 enum ControllerMaxLen {
-    Custom(u16),
     Max = 0xffe5,
     NoBuffer = 0xffff,
 }
 
 impl From<ControllerMaxLen> for u16 {
     fn from(value: ControllerMaxLen) -> Self {
-        match value {
-            ControllerMaxLen::Custom(v) => v,
-            ControllerMaxLen::Max => u16::from(ControllerMaxLen::Max),
-            ControllerMaxLen::NoBuffer => u16::from(ControllerMaxLen::NoBuffer),
-        }
+        value as u16
     }
 }
 
