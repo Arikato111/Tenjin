@@ -127,7 +127,7 @@ impl Controller13 {
         stream: &mut TcpStream,
     ) {
         self.send_msg(
-            FlowModEvent::add_flow(10, flow, actions.clone(), table_id, buffer_id),
+            FlowModEvent::add_flow(priority, flow, actions.clone(), table_id, buffer_id),
             xid,
             stream,
         )

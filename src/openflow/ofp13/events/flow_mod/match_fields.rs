@@ -9,9 +9,9 @@ use byteorder::{BigEndian, ReadBytesExt, WriteBytesExt};
 use crate::etherparser::MacAddr;
 
 /**
- * +---------- ----+- -------------+---------------------------+
+ * +---------------+---------------+---------------------------+
  * |     Type      |     Length    |      OXM Fields           |
- * +----- ---------+--- -----------+---------------------------+
+ * +---------------+---------------+---------------------------+
  * |  (Optional)   |  (16 bits)    | (Array of variable length)|
  * |---------------+---------------+---------------------------+
  */
@@ -25,7 +25,7 @@ pub struct OfpMatch {
 impl OfpMatch {
     pub fn new() -> Self {
         Self {
-            typ: MatchType::OXM,
+            typ: MatchType::Standard,
             length: 4,
             oxm_fields: Vec::new(),
         }
@@ -33,6 +33,7 @@ impl OfpMatch {
     pub fn marshal(&self, bytes: &mut Vec<u8>) {
         bytes.write_u16::<BigEndian>(self.typ.clone().into());
         bytes.write_u16::<BigEndian>(self.length + (self.oxm_fields.len() as u16));
+        bytes.write_u32::<BigEndian>(0);
         bytes.append(&mut self.oxm_fields.clone());
     }
 }
