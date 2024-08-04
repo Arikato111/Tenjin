@@ -18,7 +18,7 @@ impl MacAddr {
         for m in self.mac.iter() {
             mac_string = format!("{}:{:02x}", mac_string, *m);
         }
-        mac_string.pop();
+        mac_string.remove(0);
         mac_string
     }
     pub fn marshal(&self, bytes: &mut Vec<u8>) {
