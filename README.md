@@ -8,6 +8,48 @@ To understand The software-defined networking well, I trying to create a simple 
 
 ## Get started
 
+### Openflow 1.3
+
+1. import Controller13 into main func.
+
+```rust
+use tenjin::{example, openflow::ofp13::ControllerFrame13};
+extern crate byteorder;
+
+fn main() -> Result<(), std::io::Error> {
+    let controller = example::Controller13::new();
+    controller.listener("127.0.0.1:6633");
+    Ok(())
+}
+```
+
+2. run Tenjin
+
+```bash
+cargo run --release
+```
+
+3. run mininet
+
+```bash
+sudo mn --controller=remote,ip=127.0.0.1 --mac --switch=ovsk,protocols=OpenFlow13 --topo=tree,2
+```
+
+### Openflow 1.0
+
+import Controller10 into main func.
+
+```rust
+use tenjin::{example, openflow::ofp10::ControllerFrame10};
+extern crate byteorder;
+
+fn main() -> Result<(), std::io::Error> {
+    let controller = example::Controller10::new();
+    controller.listener("127.0.0.1:6633");
+    Ok(())
+}
+```
+
 run Tenjin
 
 ```bash
