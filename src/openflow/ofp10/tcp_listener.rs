@@ -27,7 +27,7 @@ pub fn tcp_listener_handler(
                                 ctrl.request_handler(&mut buffer, &mut stream);
                             }
                             Ok(_) => {
-                                continue;
+                                break;
                             }
                             Err(_) => {
                                 println!("cannot read packet");

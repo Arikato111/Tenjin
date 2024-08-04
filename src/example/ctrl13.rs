@@ -84,7 +84,7 @@ impl ControllerFrame13 for Controller13 {
                     match_fields,
                     &actions,
                     packetin.table_id,
-                    Some(buf_id as u32),
+                    Some(buf_id),
                     stream,
                 );
                 return;
