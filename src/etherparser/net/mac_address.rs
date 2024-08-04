@@ -1,6 +1,6 @@
 use byteorder::WriteBytesExt;
 
-#[derive(Clone)]
+#[derive(Clone, Copy)]
 pub struct MacAddr {
     mac: [u8; 6],
 }
@@ -12,12 +12,18 @@ impl MacAddr {
 }
 
 impl MacAddr {
+    pub fn to_string(&self) -> String {
+        let mut mac_string = String::new();
+
+        for m in self.mac.iter() {
+            mac_string = format!("{}:{:02x}", mac_string, *m);
+        }
+        mac_string.pop();
+        mac_string
+    }
     pub fn marshal(&self, bytes: &mut Vec<u8>) {
-        for i in 0..6 {
-            let _ = bytes.write_u8(match self.mac.get(5 - i) {
-                Some(v) => *v,
-                None => 0,
-            });
+        for m in self.mac.iter() {
+            let _ = bytes.write_u8(*m);
         }
     }
 }
@@ -25,9 +31,9 @@ impl MacAddr {
 impl From<MacAddr> for u64 {
     fn from(value: MacAddr) -> Self {
         let mut byte: u64 = 0;
-        for i in 0..6 {
-            // byte = byte << 8;
-            byte += (value.mac[i] as u64) << i * 8;
+        for m in value.mac.iter() {
+            byte = byte << 8;
+            byte += *m as u64;
         }
         byte
     }
@@ -39,6 +45,7 @@ impl From<u64> for MacAddr {
         for i in 0..6 {
             mac[i] = (value >> (i * 8)) as u8;
         }
+        mac.reverse();
         Self { mac }
     }
 }

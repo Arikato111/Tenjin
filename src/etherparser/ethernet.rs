@@ -5,13 +5,13 @@ use byteorder::{BigEndian, ReadBytesExt};
 
 use super::{
     packet::{ARP, IP},
-    tools::bits::mac_to_bytes,
+    MacAddr,
 };
 
 pub struct EthernetFrame {
     pub ether_type: EtherType,
-    pub mac_dst: u64,
-    pub mac_src: u64,
+    pub mac_dst: MacAddr,
+    pub mac_src: MacAddr,
     pub vlan_pcp: u8,
     pub vlan_dei: bool,
     pub vlan_vid: Option<u16>,
@@ -20,10 +20,10 @@ pub struct EthernetFrame {
 
 impl EthernetFrame {
     pub fn mac_dst_string(&self) -> String {
-        Self::mac_str(self.mac_dst)
+        self.mac_dst.to_string()
     }
     pub fn mac_src_string(&self) -> String {
-        Self::mac_str(self.mac_src)
+        self.mac_src.to_string()
     }
     pub fn mac_str(mac: u64) -> String {
         let mut mac_string = String::new();
@@ -76,8 +76,8 @@ impl EthernetFrame {
         };
         Ok(EthernetFrame {
             ether_type: EtherType::parse(typ),
-            mac_dst: mac_to_bytes(mac_dst),
-            mac_src: mac_to_bytes(mac_src),
+            mac_dst: MacAddr::new(mac_dst),
+            mac_src: MacAddr::new(mac_src),
             vlan_pcp,
             vlan_dei,
             vlan_vid,

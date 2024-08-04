@@ -2,7 +2,10 @@ use std::io::{BufRead, Cursor, Error};
 
 use byteorder::{BigEndian, ReadBytesExt, WriteBytesExt};
 
-use crate::etherparser::tools::bits::{bit_bool, bytes_to_mac, mac_to_bytes, set_bit};
+use crate::etherparser::{
+    tools::bits::{bit_bool, set_bit},
+    MacAddr,
+};
 
 pub struct Mask<T> {
     pub ip: T,
@@ -104,8 +107,8 @@ impl Wildcards {
 
 pub struct MatchFields {
     pub in_port: Option<u16>,
-    pub mac_dest: Option<u64>,
-    pub mac_src: Option<u64>,
+    pub mac_dest: Option<MacAddr>,
+    pub mac_src: Option<MacAddr>,
     pub ethernet_type: Option<u16>,
 
     pub vlan_vid: Option<u16>, // vlan type
@@ -143,19 +146,13 @@ impl MatchFields {
             Some(p) => p,
             None => 0,
         });
-        let mac_src = match self.mac_src {
-            Some(mac) => bytes_to_mac(mac),
-            None => bytes_to_mac(0),
-        };
-        for m in mac_src {
-            let _ = bytes.write_u8(m);
+        match &self.mac_src {
+            Some(mac) => mac.marshal(bytes),
+            None => MacAddr::from(0).marshal(bytes),
         }
-        let mac_dest = match self.mac_dest {
-            Some(mac) => bytes_to_mac(mac),
-            None => bytes_to_mac(0),
-        };
-        for m in mac_dest {
-            let _ = bytes.write_u8(m);
+        match &self.mac_dest {
+            Some(mac) => mac.marshal(bytes),
+            None => MacAddr::from(0).marshal(bytes),
         }
         let vlan = match self.vlan_vid {
             Some(v) => v,
@@ -213,7 +210,7 @@ impl MatchFields {
             for i in 0..6 {
                 arr[i] = bytes.read_u8()?;
             }
-            Some(mac_to_bytes(arr))
+            Some(MacAddr::new(arr))
         };
         let mac_dest = if wildcards.mac_dest {
             None
@@ -222,7 +219,7 @@ impl MatchFields {
             for i in 0..6 {
                 arr[i] = bytes.read_u8()?;
             }
-            Some(mac_to_bytes(arr))
+            Some(MacAddr::new(arr))
         };
         let vlan_vid = if wildcards.vlan_vid {
             None

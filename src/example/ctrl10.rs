@@ -16,7 +16,7 @@ use crate::{
  * In production please remove allow unused.
  */
 
- #[derive(Clone)]
+#[derive(Clone)]
 pub struct Controller10 {
     mac_to_port: HashMap<u64, u16>,
 }
@@ -42,7 +42,8 @@ impl ControllerFrame10 for Controller10 {
             packetin.in_port
         );
 
-        self.mac_to_port.insert(pkt.mac_src, packetin.in_port);
+        self.mac_to_port
+            .insert(pkt.mac_src.into(), packetin.in_port);
 
         let mac_dst = pkt.mac_dst;
         let mac_src = pkt.mac_src;
@@ -51,7 +52,7 @@ impl ControllerFrame10 for Controller10 {
             return;
         }
 
-        let out_port = match self.mac_to_port.get(&mac_dst) {
+        let out_port = match self.mac_to_port.get(&mac_dst.into()) {
             Some(p) => ofp10::PseudoPort::PhysicalPort(*p),
             None => ofp10::PseudoPort::Flood,
         };

@@ -56,7 +56,7 @@ impl ControllerFrame13 for Controller13 {
             in_port
         );
 
-        self.mac_to_port.insert(pkt.mac_src, in_port);
+        self.mac_to_port.insert(pkt.mac_src.into(), in_port);
 
         let mac_dst = pkt.mac_dst;
         let mac_src = pkt.mac_src;
@@ -65,7 +65,7 @@ impl ControllerFrame13 for Controller13 {
             return;
         }
 
-        let out_port = match self.mac_to_port.get(&mac_dst) {
+        let out_port = match self.mac_to_port.get(&mac_dst.into()) {
             Some(p) => ofp13::PseudoPort::PhysicalPort(*p),
             None => ofp13::PseudoPort::Flood,
         };

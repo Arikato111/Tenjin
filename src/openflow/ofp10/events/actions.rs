@@ -5,10 +5,7 @@ use std::{
 
 use byteorder::{BigEndian, ReadBytesExt, WriteBytesExt};
 
-use crate::{
-    etherparser::tools::bits::{bytes_to_mac, mac_to_bytes},
-    openflow::ofp10::PseudoPort,
-};
+use crate::{etherparser::MacAddr, openflow::ofp10::PseudoPort};
 
 pub enum ActionType {
     Output = 0,
@@ -30,8 +27,8 @@ pub enum Action {
     Oputput(PseudoPort),
     SetDlVlan(Option<u16>),
     SetDlVlanPcp(u8),
-    SetDlSrc(u64),
-    SetDlDest(u64),
+    SetDlSrc(MacAddr),
+    SetDlDest(MacAddr),
     SetIpSrc(u32),
     SetIpDes(u32),
     SetTos(u8),
@@ -102,13 +99,8 @@ impl Action {
                 }
             }
             Action::SetDlSrc(mac) | Action::SetDlDest(mac) => {
-                let mac = bytes_to_mac(*mac);
-                for m in mac {
-                    let _ = bytes.write_u8(m);
-                }
-                for _ in 0..6 {
-                    let _ = bytes.write_u8(0);
-                }
+                mac.marshal(bytes);
+                MacAddr::from(0).marshal(bytes);
             }
             Action::SetIpSrc(address) | Action::SetIpDes(address) => {
                 let _ = bytes.write_u32::<BigEndian>(*address);
@@ -180,7 +172,7 @@ impl Action {
                     addr[i] = bytes.read_u8()?;
                 }
                 bytes.consume(6);
-                Ok(Action::SetDlSrc(mac_to_bytes(addr)))
+                Ok(Action::SetDlSrc(MacAddr::new(addr)))
             }
             t if t == (ActionType::SetDstMac as u16) => {
                 let mut addr = [0u8; 6];
@@ -188,7 +180,7 @@ impl Action {
                     addr[i] = bytes.read_u8()?;
                 }
                 bytes.consume(6);
-                Ok(Action::SetDlDest(mac_to_bytes(addr)))
+                Ok(Action::SetDlDest(MacAddr::new(addr)))
             }
             t if t == (ActionType::SetIPv4Src as u16) => {
                 Ok(Action::SetIpSrc(bytes.read_u32::<BigEndian>()?))
