@@ -1,4 +1,4 @@
-use crate::openflow::ofp10::{self, ErrorEvent, Msg, PacketInEvent};
+use crate::openflow::ofp13::{ErrorEvent, Msg, PacketInEvent};
 use std::{
     io::{Read, Write},
     net::TcpStream,
@@ -6,15 +6,16 @@ use std::{
 
 use super::{
     events::{echo_reply::EchoReplyEvent, EchoRequestEvent},
-    tcp_listener_handler, MessageMarshal, OfpMsgEvent, Openflow10, OpenflowHeader,
+    tcp_listener_handler, FeaturesReplyEvent, MessageMarshal, OfpMsgEvent, Openflow13,
+    OpenflowHeader,
 };
 
-pub trait ControllerFrame10
+pub trait ControllerFrame13
 where
     Self: 'static,
 {
-    fn ofp(&self) -> ofp10::Openflow10 {
-        Openflow10::new()
+    fn ofp(&self) -> Openflow13 {
+        Openflow13::new()
     }
     fn packet_in_handler(&mut self, xid: u32, packetin: PacketInEvent, stream: &mut TcpStream);
     fn new() -> Self;
@@ -55,6 +56,10 @@ where
             Msg::EchoRequest => {
                 self.echo_request_handler(xid, EchoRequestEvent::new(payload), stream)
             }
+            Msg::FeaturesReply => match FeaturesReplyEvent::parse(&payload) {
+                Ok(features) => self.switch_features_handler(xid, features, stream),
+                Err(_) => (),
+            },
             Msg::PacketIn => match PacketInEvent::parse(&payload) {
                 Ok(pkt_in) => self.packet_in_handler(xid, pkt_in, stream),
                 Err(_) => (),
@@ -82,9 +87,17 @@ where
         self.send_msg(self.ofp().fetures_req(), xid, stream);
     }
     fn error_handler(&self, error: ErrorEvent) {
-        println!("Error {:?}", error.error_type);
+        println!("Error {:?} payload: {:x?}", error.error_type, error.payload);
     }
     fn echo_request_handler(&self, xid: u32, echo: EchoRequestEvent, stream: &mut TcpStream) {
         self.send_msg(EchoReplyEvent::new(echo.payload), xid, stream);
+    }
+    #[allow(unused)]
+    fn switch_features_handler(
+        &self,
+        xid: u32,
+        features_reply: FeaturesReplyEvent,
+        stream: &mut TcpStream,
+    ) {
     }
 }

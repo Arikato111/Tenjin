@@ -16,11 +16,12 @@ use crate::{
  * In production please remove allow unused.
  */
 
-pub struct Controller {
+ #[derive(Clone)]
+pub struct Controller10 {
     mac_to_port: HashMap<u64, u16>,
 }
 
-impl ControllerFrame10 for Controller {
+impl ControllerFrame10 for Controller10 {
     fn new() -> Self {
         Self {
             mac_to_port: HashMap::new(),
@@ -76,7 +77,7 @@ impl ControllerFrame10 for Controller {
     }
 }
 
-impl Controller {
+impl Controller10 {
     fn add_flow(
         &self,
         xid: u32,
