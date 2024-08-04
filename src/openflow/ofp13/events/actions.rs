@@ -101,31 +101,31 @@ impl SetField {
     pub fn marshal(&self, bytes: &mut Vec<u8>) {
         match &self {
             SetField::InPort(port) => {
-                OxmHeader::new(OxmMatchFields::ActsetOutput, 4).marshal(bytes);
+                OxmHeader::new(OxmMatchFields::InPort, 4).marshal(bytes);
                 port.marshal(bytes);
             }
             SetField::EthDst(mac) => {
-                OxmHeader::new(OxmMatchFields::MacDest, 6).marshal(bytes);
+                OxmHeader::new(OxmMatchFields::EthDst, 6).marshal(bytes);
                 mac.marshal(bytes);
             }
             SetField::EthSrc(mac) => {
-                OxmHeader::new(OxmMatchFields::MacSrc, 6);
+                OxmHeader::new(OxmMatchFields::EthSrc, 6);
                 mac.marshal(bytes);
             }
             SetField::EthTyp(eth) => {
-                OxmHeader::new(OxmMatchFields::EthernetType, 2).marshal(bytes);
+                OxmHeader::new(OxmMatchFields::EthType, 2).marshal(bytes);
                 bytes.write_u16::<BigEndian>(*eth);
             }
             SetField::IpProto(proto) => {
-                OxmHeader::new(OxmMatchFields::Protocol, 1).marshal(bytes);
+                OxmHeader::new(OxmMatchFields::IpProto, 1).marshal(bytes);
                 bytes.write_u8(*proto);
             }
             SetField::Ipv4Src(ipv4) => {
-                OxmHeader::new(OxmMatchFields::IpSrc, 4).marshal(bytes);
+                OxmHeader::new(OxmMatchFields::Ipv4Src, 4).marshal(bytes);
                 bytes.write_u32::<BigEndian>(ipv4.clone().into());
             }
             SetField::Ipv4Dst(ipv4) => {
-                OxmHeader::new(OxmMatchFields::IpDst, 4).marshal(bytes);
+                OxmHeader::new(OxmMatchFields::Ipv4Dst, 4).marshal(bytes);
                 bytes.write_u32::<BigEndian>(ipv4.clone().into());
             }
             SetField::Ipv6Src(ipv6) => {

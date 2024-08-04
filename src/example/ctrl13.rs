@@ -38,15 +38,7 @@ impl ControllerFrame13 for Controller13 {
     ) {
         let matchs = MatchFields::match_all();
         let actions = vec![Action::Oputput(ofp13::PseudoPort::Controller(!0))];
-        self.add_flow(
-            xid,
-            0,
-            matchs,
-            &actions,
-            features_reply.n_tables,
-            Some(features_reply.n_buffers),
-            stream,
-        )
+        self.add_flow(xid, 0, matchs, &actions, 0, None, stream)
     }
     fn packet_in_handler(&mut self, xid: u32, packetin: PacketInEvent, stream: &mut TcpStream) {
         let pkt = match packetin.ether_parse() {

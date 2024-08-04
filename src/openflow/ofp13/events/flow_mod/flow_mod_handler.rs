@@ -87,7 +87,6 @@ impl MessageMarshal for FlowModEvent {
         Msg::FlowMod
     }
     fn marshal(&self, bytes: &mut Vec<u8>) {
-        self.match_fields.marshal(bytes);
         let _ = bytes.write_u64::<BigEndian>(self.cookie);
         let _ = bytes.write_u64::<BigEndian>(self.cookie_mask);
         let _ = bytes.write_u8(self.table_id);

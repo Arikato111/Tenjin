@@ -25,7 +25,7 @@ pub struct OfpMatch {
 impl OfpMatch {
     pub fn new() -> Self {
         Self {
-            typ: MatchType::Standard,
+            typ: MatchType::OXM,
             length: 4,
             oxm_fields: Vec::new(),
         }
@@ -43,6 +43,15 @@ impl OfpMatch {
 pub enum MatchType {
     Standard = 0,
     OXM = 1, //, the OpenFlow 1.1 match type OFPMT_STANDARD is deprecated
+}
+
+impl From<u16> for MatchType {
+    fn from(value: u16) -> Self {
+        match value {
+            0 => Self::Standard,
+            _ => Self::OXM,
+        }
+    }
 }
 
 impl From<MatchType> for u16 {
@@ -114,52 +123,47 @@ impl From<OxmClass> for u16 {
 #[repr(u8)]
 /* OXM Flow match field types for OpenFlow basic class. */
 pub enum OxmMatchFields {
-    InPort = 1,
-    InPhyPort = 2,
-    Metadata = 3,
-    MacDest = 4,
-    MacSrc = 5,
-    EthernetType = 6,
-    VlanVid = 7, // vlan type
-    VlanPcp = 8,
-    // ToS from IPv4 packet
-    IpDscp = 9, // IP DSCP (6 bits in ToS field).
-    IpEcn = 10, // IP ECN (2 bits in ToS field).
-    Protocol = 11,
-    IpSrc = 12,
-    IpDst = 13,
-
-    TcpSrc = 14,
-    TcpDst = 15,
-    UdpSrc = 16,
-    UdpDst = 17,
-    SctpSrc = 18,
-    SctpDst = 19,
-
-    Icmpv4Type = 20,
-    Icmpv4Code = 21,
-    ArpOp = 22,
-    ArpSpa = 23,       // ARP source IPv4 address
-    ArpTpa = 24,       // ARP target IPv4 address
-    ArpSha = 25,       // ARP source Mac
-    ArpPha = 26,       // ARP target Mac
-    Ipv6Src = 27,      // IPv6 address
-    Ipv6Dst = 28,      // IPv6 address
-    Ipv6Flabel = 29,   // IPv6 Flow Lable
-    Icmpv6Type = 30,   // ICMPv6 type
-    Icmpv6Code = 31,   // ICMPv6 code
-    Ipv6NdTarget = 32, // Target address for ND
-    Ipv6NdSll = 33,    // MAC , source link-layer for ND
-    Ipv6NdTll = 34,    // Mac , Target link-layer for ND
-    MplsLabel = 35,    // MPLS label
-    MplsTc = 36,       // MPLS TC
-    MplsBos = 37,      // MPLS Bos bit
-    PbbIsid = 38,      // 24bit PBB I-SID
-    TunnelId = 39,     // Logical Port Metadata
-    Ipv6Exthdr = 40,   // IPv6 Extension Header pseudo-field
-    PbbUca = 41,       // PBB UCA Header
-    TcpFlags = 42,     // TCP Flags
-    ActsetOutput = 43, // Output port from action set metadata
+    InPort = 0,        /* Switch input port. */
+    InPhyPort = 1,     /* Switch physical input port. */
+    METADATA = 2,      /* Metadata passed between tables. */
+    EthDst = 3,        /* Ethernet destination address. */
+    EthSrc = 4,        /* Ethernet source address. */
+    EthType = 5,       /* Ethernet frame type. */
+    VlanVid = 6,       /* VLAN id. */
+    VlanPcp = 7,       /* VLAN priority. */
+    IpDscp = 8,        /* IP DSCP (6 bits in ToS field). */
+    IpEcn = 9,         /* IP ECN (2 bits in ToS field). */
+    IpProto = 10,      /* IP protocol. */
+    Ipv4Src = 11,      /* IPv4 source address. */
+    Ipv4Dst = 12,      /* IPv4 destination address. */
+    TcpSrc = 13,       /* TCP source port. */
+    TcpDst = 14,       /* TCP destination port. */
+    UdpSrc = 15,       /* UDP source port. */
+    UdpDst = 16,       /* UDP destination port. */
+    SctpSrc = 17,      /* SCTP source port. */
+    SctpDst = 18,      /* SCTP destination port. */
+    Icmpv4Type = 19,   /* ICMP type. */
+    Icmpv4Code = 20,   /* ICMP code. */
+    ArpOp = 21,        /* ARP opcode. */
+    ArpSpa = 22,       /* ARP source IPv4 address. */
+    ArpTpa = 23,       /* ARP target IPv4 address. */
+    ArpSha = 24,       /* ARP source hardware address. */
+    ArpTha = 25,       /* ARP target hardware address. */
+    Ipv6Src = 26,      /* IPv6 source address. */
+    Ipv6Dst = 27,      /* IPv6 destination address. */
+    Ipv6Flabel = 28,   /* IPv6 Flow Label */
+    Icmpv6Type = 29,   /* ICMPv6 type. */
+    Icmpv6Code = 30,   /* ICMPv6 code. */
+    Ipv6NdTarget = 31, /* Target address for ND. */
+    Ipv6NdSll = 32,    /* Source link-layer for ND. */
+    Ipv6NdTll = 33,    /* Target link-layer for ND. */
+    MplsLabel = 34,    /* MPLS label. */
+    MplsTc = 35,       /* MPLS TC. */
+    MplsBos = 36,      /* MPLS BoS bit. */
+    PbbIsid = 37,      /* PBB I-SID. */
+    TunnelId = 38,     /* Logical Port Metadata. */
+    Ipv6Exthdr = 39,   /* IPv6 Extension Header pseudo-field */
+    Unparse,
 }
 
 impl From<u8> for OxmMatchFields {
@@ -167,7 +171,7 @@ impl From<u8> for OxmMatchFields {
         if value < 44 {
             unsafe { transmute(value) }
         } else {
-            Self::ActsetOutput
+            Self::Unparse
         }
     }
 }
@@ -223,29 +227,29 @@ impl MatchFields {
             ofp_byte.write_u32::<BigEndian>(*in_port);
         }
         if let Some(eth_dst) = &self.eth_dst {
-            let header = OxmHeader::new(OxmMatchFields::MacDest, 6);
+            let header = OxmHeader::new(OxmMatchFields::EthDst, 6);
             header.marshal(ofp_byte);
             eth_dst.marshal(ofp_byte);
         }
         if let Some(eth_src) = &self.eth_src {
-            let header = OxmHeader::new(OxmMatchFields::MacSrc, 6);
+            let header = OxmHeader::new(OxmMatchFields::EthSrc, 6);
             header.marshal(ofp_byte);
             eth_src.marshal(ofp_byte);
         }
         if let Some(eth_typ) = &self.eth_typ {
-            OxmHeader::new(OxmMatchFields::EthernetType, 2).marshal(ofp_byte);
+            OxmHeader::new(OxmMatchFields::EthType, 2).marshal(ofp_byte);
             ofp_byte.write_u16::<BigEndian>(*eth_typ);
         }
         if let Some(ip_proto) = &self.ip_proto {
-            OxmHeader::new(OxmMatchFields::Protocol, 1);
+            OxmHeader::new(OxmMatchFields::IpProto, 1);
             ofp_byte.write_u8(*ip_proto);
         }
         if let Some(ipv4_src) = &self.ipv4_src {
-            OxmHeader::new(OxmMatchFields::IpSrc, 4).marshal(ofp_byte);
+            OxmHeader::new(OxmMatchFields::Ipv4Src, 4).marshal(ofp_byte);
             bytes.write_u32::<BigEndian>(ipv4_src.clone().into());
         }
         if let Some(ipv4_dst) = &self.ipv4_dst {
-            OxmHeader::new(OxmMatchFields::IpDst, 4).marshal(ofp_byte);
+            OxmHeader::new(OxmMatchFields::Ipv4Dst, 4).marshal(ofp_byte);
             bytes.write_u32::<BigEndian>(ipv4_dst.clone().into());
         }
         if let Some(ipv6_src) = &self.ipv6_src {
@@ -278,7 +282,7 @@ impl MatchFields {
     pub fn parse(bytes: &mut Cursor<Vec<u8>>) -> Result<MatchFields, Error> {
         let mut matcher = MatchFields::match_all();
 
-        let typ = bytes.read_u16::<BigEndian>()?;
+        let typ: MatchType = bytes.read_u16::<BigEndian>()?.into();
         let length = bytes.read_u16::<BigEndian>()?;
         let mut pkt_len = length - 4;
         while pkt_len > 0 {
@@ -297,7 +301,7 @@ impl MatchFields {
                     };
                     matcher.in_port = Some(port);
                 }
-                OxmMatchFields::MacDest => {
+                OxmMatchFields::EthDst => {
                     let mut mac = [0u8; 6];
                     for i in 0..6 {
                         mac[i] = bytes.read_u8()?;
@@ -307,7 +311,7 @@ impl MatchFields {
                     }
                     matcher.eth_dst = Some(MacAddr::new(mac));
                 }
-                OxmMatchFields::MacSrc => {
+                OxmMatchFields::EthSrc => {
                     let mut mac = [0u8; 6];
                     for i in 0..6 {
                         mac[i] = bytes.read_u8()?;
@@ -317,28 +321,28 @@ impl MatchFields {
                     }
                     matcher.eth_src = Some(MacAddr::new(mac));
                 }
-                OxmMatchFields::EthernetType => {
+                OxmMatchFields::EthType => {
                     let eth_typ = bytes.read_u16::<BigEndian>()?;
                     if hash_mask {
                         bytes.consume(2);
                     }
                     matcher.eth_typ = Some(eth_typ);
                 }
-                OxmMatchFields::Protocol => {
+                OxmMatchFields::IpProto => {
                     let proto = bytes.read_u8()?;
                     if hash_mask {
                         bytes.consume(1);
                     }
                     matcher.ip_proto = Some(proto);
                 }
-                OxmMatchFields::IpSrc => {
+                OxmMatchFields::Ipv4Src => {
                     let ip = bytes.read_u32::<BigEndian>()?;
                     if hash_mask {
                         bytes.consume(4);
                     }
                     matcher.ipv4_src = Some(Ipv4Addr::from(ip));
                 }
-                OxmMatchFields::IpDst => {
+                OxmMatchFields::Ipv4Dst => {
                     let ip = bytes.read_u32::<BigEndian>()?;
                     if hash_mask {
                         bytes.consume(4);
@@ -389,12 +393,15 @@ impl MatchFields {
                 }
 
                 _ => {
-                    bytes.consume((oxm_length - 4).into());
+                    bytes.consume((oxm_length - 4) as usize);
                 }
             }
-            pkt_len = pkt_len - (oxm_length as u16);
+            // 4 is size of oxm_tlv_header
+            pkt_len = pkt_len - (oxm_length as u16 + 4);
         }
-
+        if length % 8 != 0 {
+            bytes.consume(4);
+        }
         Ok(matcher)
     }
 }
