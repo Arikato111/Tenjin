@@ -101,55 +101,61 @@ impl SetField {
     pub fn marshal(&self, bytes: &mut Vec<u8>) {
         match &self {
             SetField::InPort(port) => {
-                OxmHeader::new(OxmMatchFields::InPort, 4).marshal(bytes);
+                OxmHeader::new(OxmMatchFields::InPort, 4, false).marshal(bytes);
                 port.marshal(bytes);
             }
             SetField::EthDst(mac) => {
-                OxmHeader::new(OxmMatchFields::EthDst, 6).marshal(bytes);
+                OxmHeader::new(OxmMatchFields::EthDst, 12, true).marshal(bytes);
                 mac.marshal(bytes);
+                MacAddr::from(!0).marshal(bytes);
             }
             SetField::EthSrc(mac) => {
-                OxmHeader::new(OxmMatchFields::EthSrc, 6);
+                OxmHeader::new(OxmMatchFields::EthSrc, 12, true).marshal(bytes);
                 mac.marshal(bytes);
+                MacAddr::from(!0).marshal(bytes);
             }
             SetField::EthTyp(eth) => {
-                OxmHeader::new(OxmMatchFields::EthType, 2).marshal(bytes);
+                OxmHeader::new(OxmMatchFields::EthType, 2, false).marshal(bytes);
                 bytes.write_u16::<BigEndian>(*eth);
             }
             SetField::IpProto(proto) => {
-                OxmHeader::new(OxmMatchFields::IpProto, 1).marshal(bytes);
+                OxmHeader::new(OxmMatchFields::IpProto, 1, false).marshal(bytes);
                 bytes.write_u8(*proto);
             }
             SetField::Ipv4Src(ipv4) => {
-                OxmHeader::new(OxmMatchFields::Ipv4Src, 4).marshal(bytes);
+                OxmHeader::new(OxmMatchFields::Ipv4Src, 8, true).marshal(bytes);
                 bytes.write_u32::<BigEndian>(ipv4.clone().into());
+                bytes.write_u32::<BigEndian>(!0);
             }
             SetField::Ipv4Dst(ipv4) => {
-                OxmHeader::new(OxmMatchFields::Ipv4Dst, 4).marshal(bytes);
+                OxmHeader::new(OxmMatchFields::Ipv4Dst, 8, true).marshal(bytes);
                 bytes.write_u32::<BigEndian>(ipv4.clone().into());
+                bytes.write_u32::<BigEndian>(!0);
             }
             SetField::Ipv6Src(ipv6) => {
-                OxmHeader::new(OxmMatchFields::Ipv6Src, 16).marshal(bytes);
+                OxmHeader::new(OxmMatchFields::Ipv6Src, 32, true).marshal(bytes);
                 bytes.write_u128::<BigEndian>(ipv6.clone().into());
+                bytes.write_u128::<BigEndian>(!0);
             }
             SetField::Ipv6Dst(ipv6) => {
-                OxmHeader::new(OxmMatchFields::Ipv6Dst, 16).marshal(bytes);
+                OxmHeader::new(OxmMatchFields::Ipv6Dst, 32, true).marshal(bytes);
                 bytes.write_u128::<BigEndian>(ipv6.clone().into());
+                bytes.write_u128::<BigEndian>(!0);
             }
             SetField::TcpSrc(tcp) => {
-                OxmHeader::new(OxmMatchFields::TcpSrc, 2).marshal(bytes);
+                OxmHeader::new(OxmMatchFields::TcpSrc, 2, false).marshal(bytes);
                 bytes.write_u16::<BigEndian>(*tcp);
             }
             SetField::TcpDst(tcp) => {
-                OxmHeader::new(OxmMatchFields::TcpDst, 2).marshal(bytes);
+                OxmHeader::new(OxmMatchFields::TcpDst, 2, false).marshal(bytes);
                 bytes.write_u16::<BigEndian>(*tcp);
             }
             SetField::UdpSrc(udp) => {
-                OxmHeader::new(OxmMatchFields::UdpSrc, 2).marshal(bytes);
+                OxmHeader::new(OxmMatchFields::UdpSrc, 2, false).marshal(bytes);
                 bytes.write_u16::<BigEndian>(*udp);
             }
             SetField::UdpDst(udp) => {
-                OxmHeader::new(OxmMatchFields::UdpDst, 2).marshal(bytes);
+                OxmHeader::new(OxmMatchFields::UdpDst, 2, false).marshal(bytes);
                 bytes.write_u16::<BigEndian>(*udp);
             }
         }

@@ -13,8 +13,11 @@ impl MacAddr {
 
 impl MacAddr {
     pub fn marshal(&self, bytes: &mut Vec<u8>) {
-        for m in self.mac.iter() {
-            bytes.write_u8(*m);
+        for i in 0..6 {
+            let _ = bytes.write_u8(match self.mac.get(5 - i) {
+                Some(v) => *v,
+                None => 0,
+            });
         }
     }
 }
@@ -23,8 +26,8 @@ impl From<MacAddr> for u64 {
     fn from(value: MacAddr) -> Self {
         let mut byte: u64 = 0;
         for i in 0..6 {
-            byte = byte << 8;
-            byte += value.mac[i] as u64;
+            // byte = byte << 8;
+            byte += (value.mac[i] as u64) << i * 8;
         }
         byte
     }

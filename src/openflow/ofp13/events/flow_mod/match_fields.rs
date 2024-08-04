@@ -33,8 +33,8 @@ impl OfpMatch {
     pub fn marshal(&self, bytes: &mut Vec<u8>) {
         bytes.write_u16::<BigEndian>(self.typ.clone().into());
         bytes.write_u16::<BigEndian>(self.length + (self.oxm_fields.len() as u16));
-        bytes.write_u32::<BigEndian>(0);
         bytes.append(&mut self.oxm_fields.clone());
+        bytes.write_u32::<BigEndian>(0);
     }
 }
 
@@ -82,12 +82,12 @@ pub struct OxmHeader {
 }
 
 impl OxmHeader {
-    pub fn new(field: OxmMatchFields, size: u8) -> Self {
+    pub fn new(field: OxmMatchFields, size: u8, hasmask: bool) -> Self {
         Self {
             class: OxmClass::OpenflowBasic,
             field,
-            hasmask: false,
-            length: 4 + size,
+            hasmask: hasmask,
+            length: size,
             experimenter: None,
         }
     }
@@ -95,6 +95,10 @@ impl OxmHeader {
         bytes.write_u16::<BigEndian>(self.class.clone().into());
         let field: u8 = self.field.clone().into();
         bytes.write_u8(field << 1 | if self.hasmask { 1 } else { 0 });
+        bytes.write_u8(self.length);
+        // if let Some(exp) = self.experimenter {
+        // bytes.write_u32::<BigEndian>(exp);
+        // }
     }
 }
 
@@ -222,58 +226,66 @@ impl MatchFields {
         let ofp_byte = ofp_match.oxm_fields.as_mut();
 
         if let Some(in_port) = &self.in_port {
-            let header = OxmHeader::new(OxmMatchFields::InPort, 4);
+            let header = OxmHeader::new(OxmMatchFields::InPort, 4, false);
             header.marshal(ofp_byte);
             ofp_byte.write_u32::<BigEndian>(*in_port);
         }
         if let Some(eth_dst) = &self.eth_dst {
-            let header = OxmHeader::new(OxmMatchFields::EthDst, 6);
+            let header = OxmHeader::new(OxmMatchFields::EthDst, 12, true);
             header.marshal(ofp_byte);
             eth_dst.marshal(ofp_byte);
+            // mac mask
+            MacAddr::from(!0).marshal(ofp_byte);
         }
         if let Some(eth_src) = &self.eth_src {
-            let header = OxmHeader::new(OxmMatchFields::EthSrc, 6);
+            let header = OxmHeader::new(OxmMatchFields::EthSrc, 12, true);
             header.marshal(ofp_byte);
             eth_src.marshal(ofp_byte);
+            // mac mask
+            MacAddr::from(!0).marshal(ofp_byte);
         }
         if let Some(eth_typ) = &self.eth_typ {
-            OxmHeader::new(OxmMatchFields::EthType, 2).marshal(ofp_byte);
+            OxmHeader::new(OxmMatchFields::EthType, 2, false).marshal(ofp_byte);
             ofp_byte.write_u16::<BigEndian>(*eth_typ);
         }
         if let Some(ip_proto) = &self.ip_proto {
-            OxmHeader::new(OxmMatchFields::IpProto, 1);
+            OxmHeader::new(OxmMatchFields::IpProto, 1, false).marshal(ofp_byte);
             ofp_byte.write_u8(*ip_proto);
         }
         if let Some(ipv4_src) = &self.ipv4_src {
-            OxmHeader::new(OxmMatchFields::Ipv4Src, 4).marshal(ofp_byte);
+            OxmHeader::new(OxmMatchFields::Ipv4Src, 8, true).marshal(ofp_byte);
             bytes.write_u32::<BigEndian>(ipv4_src.clone().into());
+            bytes.write_u32::<BigEndian>(!0);
         }
         if let Some(ipv4_dst) = &self.ipv4_dst {
-            OxmHeader::new(OxmMatchFields::Ipv4Dst, 4).marshal(ofp_byte);
+            OxmHeader::new(OxmMatchFields::Ipv4Dst, 8, true).marshal(ofp_byte);
             bytes.write_u32::<BigEndian>(ipv4_dst.clone().into());
+            bytes.write_u32::<BigEndian>(!0);
         }
         if let Some(ipv6_src) = &self.ipv6_src {
-            OxmHeader::new(OxmMatchFields::Ipv6Src, 16);
+            OxmHeader::new(OxmMatchFields::Ipv6Src, 32, true).marshal(ofp_byte);
             ofp_byte.write_u128::<BigEndian>(ipv6_src.clone().into());
+            ofp_byte.write_u128::<BigEndian>(!0);
         }
         if let Some(ipv6_dst) = &self.ipv6_dst {
-            OxmHeader::new(OxmMatchFields::Ipv6Dst, 16);
+            OxmHeader::new(OxmMatchFields::Ipv6Dst, 32, true).marshal(ofp_byte);
             ofp_byte.write_u128::<BigEndian>(ipv6_dst.clone().into());
+            ofp_byte.write_u128::<BigEndian>(!0);
         }
         if let Some(tcp_src) = &self.tcp_src {
-            OxmHeader::new(OxmMatchFields::TcpSrc, 2);
+            OxmHeader::new(OxmMatchFields::TcpSrc, 2, false);
             ofp_byte.write_u16::<BigEndian>(*tcp_src);
         }
         if let Some(tcp_dst) = &self.tcp_dst {
-            OxmHeader::new(OxmMatchFields::TcpDst, 2);
+            OxmHeader::new(OxmMatchFields::TcpDst, 2, false);
             ofp_byte.write_u16::<BigEndian>(*tcp_dst);
         }
         if let Some(udp_src) = &self.udp_src {
-            OxmHeader::new(OxmMatchFields::UdpSrc, 2);
+            OxmHeader::new(OxmMatchFields::UdpSrc, 2, false);
             ofp_byte.write_u16::<BigEndian>(*udp_src);
         }
         if let Some(udp_dst) = &self.udp_dst {
-            OxmHeader::new(OxmMatchFields::UdpDst, 2);
+            OxmHeader::new(OxmMatchFields::UdpDst, 2, false);
             ofp_byte.write_u16::<BigEndian>(*udp_dst);
         }
         ofp_match.marshal(bytes);

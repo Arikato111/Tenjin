@@ -87,7 +87,7 @@ where
         self.send_msg(self.ofp().fetures_req(), xid, stream);
     }
     fn error_handler(&self, error: ErrorEvent) {
-        println!("Error {:?}", error.error_type);
+        println!("Error {:?} payload: {:x?}", error.error_type, error.payload);
     }
     fn echo_request_handler(&self, xid: u32, echo: EchoRequestEvent, stream: &mut TcpStream) {
         self.send_msg(EchoReplyEvent::new(echo.payload), xid, stream);
