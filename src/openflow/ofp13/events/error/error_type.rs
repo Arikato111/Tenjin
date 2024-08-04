@@ -366,10 +366,3 @@ impl TableFeaturesFailed {
         }
     }
 }
-
-#[derive(Debug)]
-pub struct ErrorExperimenter {
-    typ: u16,
-    exp_typ: u16,
-    experimenter: u32,
-}

@@ -1,6 +1,9 @@
 use crate::{etherparser::MacAddr, openflow::ofp13::PseudoPort};
 use byteorder::{BigEndian, WriteBytesExt};
-use std::net::{Ipv4Addr, Ipv6Addr};
+use std::{
+    io::Error,
+    net::{Ipv4Addr, Ipv6Addr},
+};
 
 use super::flow_mod::{
     instructions::InstructActions,
@@ -31,8 +34,9 @@ enum ActionType {
 }
 
 impl ActionType {
-    pub fn marshal(&self, bytes: &mut Vec<u8>) {
-        bytes.write_u16::<BigEndian>(self.clone().into());
+    pub fn marshal(&self, bytes: &mut Vec<u8>) -> Result<(), Error> {
+        bytes.write_u16::<BigEndian>(self.clone().into())?;
+        Ok(())
     }
 }
 
@@ -42,6 +46,7 @@ impl From<ActionType> for u16 {
     }
 }
 
+#[allow(unused)]
 #[derive(Clone)]
 #[repr(u16)]
 enum ControllerMaxLen {
@@ -52,31 +57,6 @@ enum ControllerMaxLen {
 impl From<ControllerMaxLen> for u16 {
     fn from(value: ControllerMaxLen) -> Self {
         value as u16
-    }
-}
-
-struct ActionOutput {
-    typ: ActionType,  // u16
-    port: PseudoPort, // u32
-    max_len: ControllerMaxLen,
-}
-
-impl ActionOutput {
-    pub const LEN: usize = 16;
-    pub fn marshal(&self, bytes: &mut Vec<u8>) {
-        self.typ.marshal(bytes);
-        self.port.marshal(bytes);
-        bytes.write_u16::<BigEndian>(self.max_len.clone().into());
-        // write padding 48 bytes [32 + 16]
-        bytes.write_u32::<BigEndian>(0);
-        bytes.write_u16::<BigEndian>(0);
-    }
-    pub fn new(port: PseudoPort, max_len: ControllerMaxLen) -> Self {
-        Self {
-            typ: ActionType::Output,
-            port,
-            max_len,
-        }
     }
 }
 
@@ -98,67 +78,68 @@ pub enum SetField {
 }
 
 impl SetField {
-    pub fn marshal(&self, bytes: &mut Vec<u8>) {
+    pub fn marshal(&self, bytes: &mut Vec<u8>) -> Result<(), Error> {
         match &self {
             SetField::InPort(port) => {
-                OxmHeader::new(OxmMatchFields::InPort, 4, false).marshal(bytes);
+                OxmHeader::new(OxmMatchFields::InPort, 4, false).marshal(bytes)?;
                 port.marshal(bytes);
             }
             SetField::EthDst(mac) => {
-                OxmHeader::new(OxmMatchFields::EthDst, 12, true).marshal(bytes);
+                OxmHeader::new(OxmMatchFields::EthDst, 12, true).marshal(bytes)?;
                 mac.marshal(bytes);
                 MacAddr::from(!0).marshal(bytes);
             }
             SetField::EthSrc(mac) => {
-                OxmHeader::new(OxmMatchFields::EthSrc, 12, true).marshal(bytes);
+                OxmHeader::new(OxmMatchFields::EthSrc, 12, true).marshal(bytes)?;
                 mac.marshal(bytes);
                 MacAddr::from(!0).marshal(bytes);
             }
             SetField::EthTyp(eth) => {
-                OxmHeader::new(OxmMatchFields::EthType, 2, false).marshal(bytes);
-                bytes.write_u16::<BigEndian>(*eth);
+                OxmHeader::new(OxmMatchFields::EthType, 2, false).marshal(bytes)?;
+                bytes.write_u16::<BigEndian>(*eth)?;
             }
             SetField::IpProto(proto) => {
-                OxmHeader::new(OxmMatchFields::IpProto, 1, false).marshal(bytes);
-                bytes.write_u8(*proto);
+                OxmHeader::new(OxmMatchFields::IpProto, 1, false).marshal(bytes)?;
+                bytes.write_u8(*proto)?;
             }
             SetField::Ipv4Src(ipv4) => {
-                OxmHeader::new(OxmMatchFields::Ipv4Src, 8, true).marshal(bytes);
-                bytes.write_u32::<BigEndian>(ipv4.clone().into());
-                bytes.write_u32::<BigEndian>(!0);
+                OxmHeader::new(OxmMatchFields::Ipv4Src, 8, true).marshal(bytes)?;
+                bytes.write_u32::<BigEndian>(ipv4.clone().into())?;
+                bytes.write_u32::<BigEndian>(!0)?;
             }
             SetField::Ipv4Dst(ipv4) => {
-                OxmHeader::new(OxmMatchFields::Ipv4Dst, 8, true).marshal(bytes);
-                bytes.write_u32::<BigEndian>(ipv4.clone().into());
-                bytes.write_u32::<BigEndian>(!0);
+                OxmHeader::new(OxmMatchFields::Ipv4Dst, 8, true).marshal(bytes)?;
+                bytes.write_u32::<BigEndian>(ipv4.clone().into())?;
+                bytes.write_u32::<BigEndian>(!0)?;
             }
             SetField::Ipv6Src(ipv6) => {
-                OxmHeader::new(OxmMatchFields::Ipv6Src, 32, true).marshal(bytes);
-                bytes.write_u128::<BigEndian>(ipv6.clone().into());
-                bytes.write_u128::<BigEndian>(!0);
+                OxmHeader::new(OxmMatchFields::Ipv6Src, 32, true).marshal(bytes)?;
+                bytes.write_u128::<BigEndian>(ipv6.clone().into())?;
+                bytes.write_u128::<BigEndian>(!0)?;
             }
             SetField::Ipv6Dst(ipv6) => {
-                OxmHeader::new(OxmMatchFields::Ipv6Dst, 32, true).marshal(bytes);
-                bytes.write_u128::<BigEndian>(ipv6.clone().into());
-                bytes.write_u128::<BigEndian>(!0);
+                OxmHeader::new(OxmMatchFields::Ipv6Dst, 32, true).marshal(bytes)?;
+                bytes.write_u128::<BigEndian>(ipv6.clone().into())?;
+                bytes.write_u128::<BigEndian>(!0)?;
             }
             SetField::TcpSrc(tcp) => {
-                OxmHeader::new(OxmMatchFields::TcpSrc, 2, false).marshal(bytes);
-                bytes.write_u16::<BigEndian>(*tcp);
+                OxmHeader::new(OxmMatchFields::TcpSrc, 2, false).marshal(bytes)?;
+                bytes.write_u16::<BigEndian>(*tcp)?;
             }
             SetField::TcpDst(tcp) => {
-                OxmHeader::new(OxmMatchFields::TcpDst, 2, false).marshal(bytes);
-                bytes.write_u16::<BigEndian>(*tcp);
+                OxmHeader::new(OxmMatchFields::TcpDst, 2, false).marshal(bytes)?;
+                bytes.write_u16::<BigEndian>(*tcp)?;
             }
             SetField::UdpSrc(udp) => {
-                OxmHeader::new(OxmMatchFields::UdpSrc, 2, false).marshal(bytes);
-                bytes.write_u16::<BigEndian>(*udp);
+                OxmHeader::new(OxmMatchFields::UdpSrc, 2, false).marshal(bytes)?;
+                bytes.write_u16::<BigEndian>(*udp)?;
             }
             SetField::UdpDst(udp) => {
-                OxmHeader::new(OxmMatchFields::UdpDst, 2, false).marshal(bytes);
-                bytes.write_u16::<BigEndian>(*udp);
+                OxmHeader::new(OxmMatchFields::UdpDst, 2, false).marshal(bytes)?;
+                bytes.write_u16::<BigEndian>(*udp)?;
             }
         }
+        Ok(())
     }
 }
 
@@ -189,7 +170,7 @@ pub enum Action {
 }
 
 impl Action {
-    pub fn action_type(&self) -> ActionType {
+    fn action_type(&self) -> ActionType {
         match &self {
             Action::Oputput(_) => ActionType::Output,
             Action::CopyTtlOut => ActionType::CopyTtlOut,
@@ -210,78 +191,79 @@ impl Action {
             Action::Experimenter(_) => ActionType::Experimenter,
         }
     }
-    pub fn marshal(&self, bytes: &mut Vec<u8>) {
+    pub fn marshal(&self, bytes: &mut Vec<u8>) -> Result<(), Error> {
         match &self {
             Action::Oputput(port) => {
-                self.action_type().marshal(bytes);
-                bytes.write_u16::<BigEndian>(16); // len
+                self.action_type().marshal(bytes)?;
+                bytes.write_u16::<BigEndian>(16)?; // len
                 port.marshal(bytes);
-                bytes.write_u16::<BigEndian>(ControllerMaxLen::NoBuffer.into());
+                bytes.write_u16::<BigEndian>(ControllerMaxLen::NoBuffer.into())?;
                 // padding 48bit
-                bytes.write_u32::<BigEndian>(0);
-                bytes.write_u16::<BigEndian>(0);
+                bytes.write_u32::<BigEndian>(0)?;
+                bytes.write_u16::<BigEndian>(0)?;
             }
             Action::SetMplsTtl(mpls_ttl) => {
-                self.action_type().marshal(bytes);
-                bytes.write_u16::<BigEndian>(8);
-                bytes.write_u8(*mpls_ttl);
+                self.action_type().marshal(bytes)?;
+                bytes.write_u16::<BigEndian>(8)?;
+                bytes.write_u8(*mpls_ttl)?;
                 // padding 24bit
-                bytes.write_u16::<BigEndian>(0);
-                bytes.write_u8(0);
+                bytes.write_u16::<BigEndian>(0)?;
+                bytes.write_u8(0)?;
             }
             Action::PushVlan(ethertype)
             | Action::PushMpls(ethertype)
             | Action::PushPbb(ethertype) => {
-                self.action_type().marshal(bytes);
-                bytes.write_u16::<BigEndian>(8);
-                bytes.write_u16::<BigEndian>(*ethertype);
+                self.action_type().marshal(bytes)?;
+                bytes.write_u16::<BigEndian>(8)?;
+                bytes.write_u16::<BigEndian>(*ethertype)?;
                 // padding 16 bit
-                bytes.write_u16::<BigEndian>(0);
+                bytes.write_u16::<BigEndian>(0)?;
             }
             Action::PopVlan(ethertype) | Action::PopMpls(ethertype) | Action::PopPbb(ethertype) => {
-                self.action_type().marshal(bytes);
-                bytes.write_u16::<BigEndian>(8);
-                bytes.write_u16::<BigEndian>(*ethertype);
-                bytes.write_u16::<BigEndian>(0);
+                self.action_type().marshal(bytes)?;
+                bytes.write_u16::<BigEndian>(8)?;
+                bytes.write_u16::<BigEndian>(*ethertype)?;
+                bytes.write_u16::<BigEndian>(0)?;
             }
             Action::SetQueue(queue_id) => {
-                self.action_type().marshal(bytes);
-                bytes.write_u16::<BigEndian>(8);
-                bytes.write_u32::<BigEndian>(*queue_id);
+                self.action_type().marshal(bytes)?;
+                bytes.write_u16::<BigEndian>(8)?;
+                bytes.write_u32::<BigEndian>(*queue_id)?;
             }
             Action::Group(group_id) => {
-                self.action_type().marshal(bytes);
-                bytes.write_u16::<BigEndian>(8);
-                bytes.write_u32::<BigEndian>(*group_id);
+                self.action_type().marshal(bytes)?;
+                bytes.write_u16::<BigEndian>(8)?;
+                bytes.write_u32::<BigEndian>(*group_id)?;
             }
             Action::SetNwTtl(nw_ttl) => {
-                self.action_type().marshal(bytes);
-                bytes.write_u16::<BigEndian>(8);
-                bytes.write_u8(*nw_ttl);
+                self.action_type().marshal(bytes)?;
+                bytes.write_u16::<BigEndian>(8)?;
+                bytes.write_u8(*nw_ttl)?;
                 // padding 24bit
-                bytes.write_u16::<BigEndian>(0);
-                bytes.write_u8(0);
+                bytes.write_u16::<BigEndian>(0)?;
+                bytes.write_u8(0)?;
             }
             Action::SetField(omx_field) => {
                 let mut field_bytes: Vec<u8> = Vec::new();
-                omx_field.marshal(&mut field_bytes);
+                omx_field.marshal(&mut field_bytes)?;
 
-                self.action_type().marshal(bytes);
-                bytes.write_u16::<BigEndian>(4 + field_bytes.len() as u16);
+                self.action_type().marshal(bytes)?;
+                bytes.write_u16::<BigEndian>(4 + field_bytes.len() as u16)?;
                 bytes.append(&mut field_bytes);
             }
             Action::Experimenter(exper_id) => {
-                self.action_type().marshal(bytes);
-                bytes.write_u16::<BigEndian>(8);
-                bytes.write_u32::<BigEndian>(*exper_id);
+                self.action_type().marshal(bytes)?;
+                bytes.write_u16::<BigEndian>(8)?;
+                bytes.write_u32::<BigEndian>(*exper_id)?;
             }
             Action::DecMplsTtl | Action::DecNwTtl | Action::CopyTtlOut | Action::CopyTtlIn => {
-                self.action_type().marshal(bytes);
-                bytes.write_u16::<BigEndian>(8);
+                self.action_type().marshal(bytes)?;
+                bytes.write_u16::<BigEndian>(8)?;
                 // padding 32 bit
-                bytes.write_u32::<BigEndian>(0);
+                bytes.write_u32::<BigEndian>(0)?;
             }
         }
+        Ok(())
     }
 
     // TODO

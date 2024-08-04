@@ -113,8 +113,8 @@ impl MessageMarshal for FlowModEvent {
 
         self.flags.marshal(bytes);
         // padding
-        bytes.write_u16::<BigEndian>(0);
-        self.match_fields.marshal(bytes);
+        let _ = bytes.write_u16::<BigEndian>(0);
+        let _ = self.match_fields.marshal(bytes);
         self.instruction.marshal(bytes);
     }
 }

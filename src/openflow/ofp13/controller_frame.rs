@@ -92,6 +92,7 @@ where
     fn echo_request_handler(&self, xid: u32, echo: EchoRequestEvent, stream: &mut TcpStream) {
         self.send_msg(EchoReplyEvent::new(echo.payload), xid, stream);
     }
+    #[allow(unused)]
     fn switch_features_handler(
         &self,
         xid: u32,

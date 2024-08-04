@@ -29,12 +29,12 @@ impl MessageMarshal for PacketOutEvent {
         }
         let mut action_byte: Vec<u8> = Vec::new();
         for act in self.actions.iter() {
-            act.marshal(&mut action_byte);
+            let _ = act.marshal(&mut action_byte);
         }
         let _ = bytes.write_u16::<BigEndian>(action_byte.len() as u16);
         // padding 48 bit
-        bytes.write_u32::<BigEndian>(0);
-        bytes.write_u16::<BigEndian>(0);
+        let _ = bytes.write_u32::<BigEndian>(0);
+        let _ = bytes.write_u16::<BigEndian>(0);
 
         bytes.append(&mut action_byte);
         self.payload.marshal(bytes);

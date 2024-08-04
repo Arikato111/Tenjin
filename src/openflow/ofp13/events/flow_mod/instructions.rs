@@ -20,7 +20,7 @@ pub enum InstructType {
 
 impl InstructType {
     pub fn marshal(&self, bytes: &mut Vec<u8>) {
-        bytes.write_u16::<BigEndian>(self.clone().into());
+        let _ = bytes.write_u16::<BigEndian>(self.clone().into());
     }
 }
 
@@ -49,11 +49,11 @@ impl GotoTable {
 impl InstructTrait for GotoTable {
     fn marshal(&self, bytes: &mut Vec<u8>) {
         self.typ.marshal(bytes);
-        bytes.write_u16::<BigEndian>(self.len);
-        bytes.write_u8(self.table_id);
+        let _ = bytes.write_u16::<BigEndian>(self.len);
+        let _ = bytes.write_u8(self.table_id);
         // padding
-        bytes.write_u16::<BigEndian>(0);
-        bytes.write_u8(0);
+        let _ = bytes.write_u16::<BigEndian>(0);
+        let _ = bytes.write_u8(0);
     }
 }
 
@@ -78,12 +78,12 @@ impl WriteMetadata {
 impl InstructTrait for WriteMetadata {
     fn marshal(&self, bytes: &mut Vec<u8>) {
         self.typ.marshal(bytes);
-        bytes.write_u16::<BigEndian>(self.len);
+        let _ = bytes.write_u16::<BigEndian>(self.len);
         // padding
-        bytes.write_u32::<BigEndian>(0);
+        let _ = bytes.write_u32::<BigEndian>(0);
         // *******
-        bytes.write_u64::<BigEndian>(self.metadata);
-        bytes.write_u64::<BigEndian>(self.meta_mask);
+        let _ = bytes.write_u64::<BigEndian>(self.metadata);
+        let _ = bytes.write_u64::<BigEndian>(self.meta_mask);
     }
 }
 
@@ -110,12 +110,12 @@ impl InstructTrait for InstructActions {
     fn marshal(&self, bytes: &mut Vec<u8>) {
         let mut builder = Vec::new();
         for act in self.actions.iter() {
-            act.marshal(&mut builder);
+            let _ = act.marshal(&mut builder);
         }
         self.typ.marshal(bytes);
-        bytes.write_u16::<BigEndian>(self.len + (builder.len() as u16));
+        let _ = bytes.write_u16::<BigEndian>(self.len + (builder.len() as u16));
         // padding
-        bytes.write_u32::<BigEndian>(0);
+        let _ = bytes.write_u32::<BigEndian>(0);
         bytes.append(&mut builder);
     }
 }
@@ -139,8 +139,8 @@ impl InstructMeter {
 impl InstructTrait for InstructMeter {
     fn marshal(&self, bytes: &mut Vec<u8>) {
         self.typ.marshal(bytes);
-        bytes.write_u16::<BigEndian>(self.len);
-        bytes.write_u32::<BigEndian>(self.meter_id);
+        let _ = bytes.write_u16::<BigEndian>(self.len);
+        let _ = bytes.write_u32::<BigEndian>(self.meter_id);
     }
 }
 
