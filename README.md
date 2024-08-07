@@ -6,7 +6,37 @@ Software-defined networking with Rust.
 
 To understand The software-defined networking well, I trying to create a simple SDN with Rust language to support Openflow 1.0 first and 1.3 later.
 
-## Get started
+## Run with command line
+
+#### Run Controller by default (Controller13 with OpenFlow 1.3)
+
+```bash
+tenjin run
+```
+
+#### Run Controller10 with Openflow 1.0
+
+```bash
+tenjin run ctrl10
+```
+
+#### Run with specific port
+
+```bash
+tenjin run --port 6653
+```
+
+#### Show details of `run` command
+
+```bash
+tenjin run --help
+```
+
+## Run only Controller
+
+You need to clone source code to your workspace and modify the code.
+this code below is the example for run only Controller.
+If you would like to modify Controller's code, it waiting for you at ./src/example/
 
 ### Openflow 1.3
 
@@ -16,10 +46,9 @@ To understand The software-defined networking well, I trying to create a simple 
 use tenjin::{example, openflow::ofp13::ControllerFrame13};
 extern crate byteorder;
 
-fn main() -> Result<(), std::io::Error> {
+fn main() {
     let controller = example::Controller13::new();
     controller.listener("127.0.0.1:6633");
-    Ok(())
 }
 ```
 
@@ -43,10 +72,9 @@ import Controller10 into main func.
 use tenjin::{example, openflow::ofp10::ControllerFrame10};
 extern crate byteorder;
 
-fn main() -> Result<(), std::io::Error> {
+fn main() {
     let controller = example::Controller10::new();
     controller.listener("127.0.0.1:6633");
-    Ok(())
 }
 ```
 

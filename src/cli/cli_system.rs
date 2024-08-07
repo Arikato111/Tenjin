@@ -22,11 +22,12 @@ enum Commands {
         port: u16,
         #[arg(
             default_value = "127.0.0.1",
-            short = 'a',
-            long = "address",
+            short = 'l',
+            long = "listen",
+            value_name = "ADDRESS",
             help = "ip address"
         )]
-        address: String,
+        listen: String,
     },
 }
 
@@ -44,9 +45,9 @@ pub fn system() {
         Commands::Run {
             controller,
             port,
-            address,
+            listen,
         } => {
-            let addr = format!("{}:{}", address.as_str(), port.to_string());
+            let addr = format!("{}:{}", listen.as_str(), port.to_string());
             match controller {
                 Some(controller) => match controller {
                     Controllers::Ctrl13 => Controller13::new().listener(&addr),

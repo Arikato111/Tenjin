@@ -8,6 +8,7 @@ edition = "2021"
 readme = "README.md"
 repository = "https://github.com/Arikato111/Tenjin"
 categories = ["command-line-utilities"]
+keywords = ["sdn", "cli", "openflow"]
 
 [lib]
 name = "tenjin"
