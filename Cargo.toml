@@ -1,5 +1,5 @@
 [package]
-name = "tenjin"
+name = "tenjin_sdn"
 description = "The software defined network and Openflow protocol"
 version = "0.3.0"
 authors = ["Nawasan <nawasan.dev@gmail.com>"]

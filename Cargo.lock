@@ -151,7 +151,7 @@ dependencies = [
 ]
 
 [[package]]
-name = "tenjin"
+name = "tenjin_sdn"
 version = "0.3.0"
 dependencies = [
  "byteorder",
