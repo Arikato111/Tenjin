@@ -6,6 +6,25 @@ Software-defined networking with Rust.
 
 To understand The software-defined networking well, I trying to create a simple SDN with Rust language to support Openflow 1.0 first and 1.3 later.
 
+## Installation
+
+### Install [Rust](https://www.rust-lang.org/)
+
+[official webpage installation](https://www.rust-lang.org/tools/install)
+
+or run this command below. (For macOS, Linux, or another Unix-like OS)
+
+```
+curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh
+
+```
+
+### Install Tenjin
+
+```
+cargo install tenjin_sdn
+```
+
 ## Run with command line
 
 #### Run Controller by default (Controller13 with OpenFlow 1.3)
@@ -58,7 +77,6 @@ fn main() {
 cargo run --release
 ```
 
-
 ### Openflow 1.0
 
 import Controller10 into main func.
@@ -81,14 +99,15 @@ cargo run --release
 
 ## Mininet
 
- Mininet is a network emulator to create virtual networks for rapid prototyping of Software-Defined.
- Using mininet for testing this SDN Framework.
+Mininet is a network emulator to create virtual networks for rapid prototyping of Software-Defined.
+Using mininet for testing this SDN Framework.
 
 ### Run Mininet with Openflow 1.3
 
 ```bash
 sudo mn --controller=remote,ip=127.0.0.1 --mac --switch=ovsk,protocols=OpenFlow13 --topo=tree,2
 ```
+
 ### Run Mininet with Openflow 1.3
 
 ```bash
