@@ -44,6 +44,11 @@ tenjin run ctrl10
 tenjin run --port 6653
 ```
 
+```bash
+tenjin run --port 6653,6633
+```
+
+
 #### Show details of `run` command
 
 ```bash
