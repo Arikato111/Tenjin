@@ -58,11 +58,6 @@ fn main() {
 cargo run --release
 ```
 
-3. run mininet
-
-```bash
-sudo mn --controller=remote,ip=127.0.0.1 --mac --switch=ovsk,protocols=OpenFlow13 --topo=tree,2
-```
 
 ### Openflow 1.0
 
@@ -84,9 +79,19 @@ run Tenjin
 cargo run --release
 ```
 
-run mininet
+## Mininet
 
+ Mininet is a network emulator to create virtual networks for rapid prototyping of Software-Defined.
+ Using mininet for testing this SDN Framework.
+
+### Run Mininet with Openflow 1.3
+
+```bash
+sudo mn --controller=remote,ip=127.0.0.1 --mac --switch=ovsk,protocols=OpenFlow13 --topo=tree,2
 ```
+### Run Mininet with Openflow 1.3
+
+```bash
 sudo mn --controller=remote,ip=127.0.0.1 --mac --switch=ovsk,protocols=OpenFlow10 --topo=tree,2
 ```
 
