@@ -16,7 +16,6 @@ or run this command below. (For macOS, Linux, or another Unix-like OS)
 
 ```
 curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh
-
 ```
 
 ### Install Tenjin
