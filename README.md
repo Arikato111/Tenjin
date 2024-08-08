@@ -112,7 +112,7 @@ Using mininet for testing this SDN Framework.
 sudo mn --controller=remote,ip=127.0.0.1 --mac --switch=ovsk,protocols=OpenFlow13 --topo=tree,2
 ```
 
-### Run Mininet with Openflow 1.3
+### Run Mininet with Openflow 1.0
 
 ```bash
 sudo mn --controller=remote,ip=127.0.0.1 --mac --switch=ovsk,protocols=OpenFlow10 --topo=tree,2
