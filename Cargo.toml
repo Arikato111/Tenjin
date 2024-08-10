@@ -10,6 +10,8 @@ repository = "https://github.com/Arikato111/Tenjin"
 categories = ["command-line-utilities"]
 keywords = ["sdn", "cli", "openflow"]
 
+include = ["src/*"]
+
 [lib]
 name = "tenjin"
 path = "src/lib.rs"
