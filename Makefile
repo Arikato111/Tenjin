@@ -1,7 +1,7 @@
 SHELL := /bin/bash
-l = "127.0.0.1"
-p = "6653,6633"
-ofp = "13"
+l = 127.0.0.1
+p = 6653,6633
+ofp = 13
 
 install:
 	cargo install --path "."
