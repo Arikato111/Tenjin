@@ -57,7 +57,14 @@ tenjin run --help
 
 ## Run only Controller
 
-You need to clone source code to your workspace and modify the code.
+You can add tenjin to your project with command
+
+```
+cargo add tenjin
+```
+
+Or you can clone this source code into your workspace and modify the code.
+
 this code below is the example for run only Controller.
 If you would like to modify Controller's code, it waiting for you at ./src/example/
 
