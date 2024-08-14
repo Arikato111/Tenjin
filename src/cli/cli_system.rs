@@ -13,7 +13,7 @@ struct Cli {
 }
 
 #[derive(Subcommand)]
-enum Commands {
+pub enum Commands {
     /// Run the controller
     Run {
         #[command(subcommand)]
@@ -32,7 +32,7 @@ enum Commands {
 }
 
 #[derive(Subcommand)]
-enum Controllers {
+pub enum Controllers {
     /// Openflow 1.3 with Controller13
     Ctrl13,
     /// Openflow 1.0 with Controller10
