@@ -7,7 +7,6 @@ use crate::{
     openflow::ofp10::{
         self,
         events::{flow_mod::MatchFields, Action},
-        ofp_manager::Openflow10,
         ControllerFrame10, FlowModEvent, OfpMsgEvent, PacketInEvent,
     },
 };
@@ -60,7 +59,7 @@ impl ControllerFrame10 for Controller10 {
         let actions = vec![Action::Oputput(out_port.clone())];
 
         if let ofp10::PseudoPort::PhysicalPort(_) = out_port {
-            let mut match_fields = MatchFields::match_all();
+            let mut match_fields = ofp10::MatchFields::match_all();
             match_fields.in_port = Some(packetin.in_port);
             match_fields.mac_dest = Some(mac_dst);
             match_fields.mac_src = Some(mac_src);

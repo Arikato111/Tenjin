@@ -7,7 +7,6 @@ use crate::{
     openflow::ofp13::{
         self,
         events::{flow_mod::MatchFields, Action},
-        ofp_manager::Openflow13,
         ControllerFrame13, FlowModEvent, OfpMsgEvent, PacketInEvent,
     },
 };

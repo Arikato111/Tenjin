@@ -8,7 +8,7 @@ pub mod packet_out;
 pub use packet_out::PacketOutEvent;
 
 pub mod flow_mod;
-pub use flow_mod::FlowModEvent;
+pub use flow_mod::{FlowModEvent, MatchFields};
 
 pub mod actions;
 pub use actions::Action;

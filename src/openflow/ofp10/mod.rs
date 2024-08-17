@@ -6,8 +6,8 @@ pub use ofp_port::PseudoPort;
 
 pub mod events;
 pub use events::{
-    Action, EchoReplyEvent, EchoRequestEvent, ErrorEvent, FlowModEvent, HelloEvent, PacketInEvent,
-    PacketOutEvent,
+    Action, EchoReplyEvent, EchoRequestEvent, ErrorEvent, FlowModEvent, HelloEvent, MatchFields,
+    PacketInEvent, PacketOutEvent,
 };
 
 pub mod ofp_header;
