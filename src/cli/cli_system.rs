@@ -2,8 +2,9 @@ use crate::{
     example::{Controller10, Controller13},
     openflow::{ofp10::ControllerFrame10, ofp13::ControllerFrame13},
 };
-use clap::{command, Parser, Subcommand};
-use std::thread;
+use clap::{command, CommandFactory, Parser, Subcommand};
+use clap_complete::{generate, Shell};
+use std::{io, thread};
 
 #[derive(Parser)]
 #[command(name = "tenjin",author, version, about, long_about = None)]
@@ -13,7 +14,7 @@ struct Cli {
 }
 
 #[derive(Subcommand)]
-pub enum Commands {
+enum Commands {
     /// Run the controller
     Run {
         #[command(subcommand)]
@@ -29,6 +30,8 @@ pub enum Commands {
         )]
         listen: String,
     },
+    /// Generate auto complete for shell
+    Generate { shell: Shell },
 }
 
 #[derive(Subcommand)]
@@ -68,6 +71,10 @@ pub fn system() {
             for th in thread_list {
                 let _ = th.join();
             }
+        }
+        Commands::Generate { shell } => {
+            let mut cli_gen = Cli::command();
+            generate(shell, &mut cli_gen, "tenjin", &mut io::stdout());
         }
     }
 }
