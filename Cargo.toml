@@ -22,8 +22,14 @@ path = "src/main.rs"
 
 [dependencies]
 byteorder = "1.0.0"
-clap = { version = "4.5.13", features = ["derive"] }
-clap_complete = "4.5.23"
+clap = { version = "4.5.13", features = ["derive"], optional = true }
+clap_complete = { version = "4.5.23", optional = true }
 
 [profile.release]
 strip = true
+
+[features]
+default = []
+example = []
+cli = ["dep:clap", "dep:clap_complete", "example"]
+full = ["cli"]
