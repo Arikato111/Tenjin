@@ -3,7 +3,7 @@ p = 6653,6633
 ofp = 13
 
 install:
-	cargo install --path "."
+	cargo install --path "." -F cli
 
 uninstall:
 	cargo uninstall tenjin_sdn
