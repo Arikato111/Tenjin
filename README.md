@@ -118,14 +118,6 @@ sudo mn --controller=remote,ip=127.0.0.1 --mac --switch=ovsk,protocols=OpenFlow1
 sudo mn --controller=remote,ip=127.0.0.1 --mac --switch=ovsk,protocols=OpenFlow10 --topo=tree,2
 ```
 
-## TODOs
-
-- [x] design structure of code and working.
-- [x] test case. ([Read docs](https://doc.rust-lang.org/book/ch11-01-writing-tests.html))
-- [ ] write more description in README.
-- [x] handle needed messages.
-- [x] remove all unwarp.
-
 ## Learning resources
 
 - [Openflow 1.3 Document](https://opennetworking.org/wp-content/uploads/2014/10/openflow-spec-v1.3.0.pdf)
