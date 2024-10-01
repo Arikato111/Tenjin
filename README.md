@@ -38,7 +38,7 @@ curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh
 ### Install Tenjin
 
 ```
-cargo install tenjin_sdn
+cargo install tenjin_sdn -F cli
 ```
 
 ## Cli usage
