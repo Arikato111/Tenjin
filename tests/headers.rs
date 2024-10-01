@@ -1,3 +1,4 @@
+#![cfg(feature = "full")]
 #[cfg(test)]
 mod tests {
     use tenjin::example::Controller10;

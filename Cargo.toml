@@ -19,6 +19,7 @@ path = "src/lib.rs"
 [[bin]]
 name = "tenjin"
 path = "src/main.rs"
+required-features = ["cli"]
 
 [dependencies]
 byteorder = "1.0.0"
