@@ -1,6 +1,6 @@
 [package]
 name = "tenjin_sdn"
-description = "The software defined network and Openflow protocol"
+description = "Tenjin is The software-defined networking framework written in Rust, offering high performance and memory safety. It can be used as both a framework and a command line tool."
 version = "0.3.3"
 authors = ["Nawasan <nawasan.dev@gmail.com>"]
 license = "MIT"

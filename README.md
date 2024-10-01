@@ -1,7 +1,5 @@
 # Tenjin SDN
 
-Tenjin is The Software-defined network with Rust.
-
 Tenjin is The software-defined networking framework written in Rust, offering high performance and memory safety. It can be used as both a framework and a command line tool.
 
 ## Menu
