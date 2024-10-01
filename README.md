@@ -1,12 +1,31 @@
 # Tenjin SDN
 
-Software-defined networking with Rust.
+Tenjin is The Software-defined network with Rust.
 
-## Goals
+Tenjin is The software-defined networking framework written in Rust, offering high performance and memory safety. It can be used as both a framework and a command line tool.
 
-To understand The software-defined networking well, I trying to create a simple SDN with Rust language to support Openflow 1.0 first and 1.3 later.
+## Menu
 
-## Installation
+- [Installation to your project](#Installation-to-your-project)
+- [Installation for cli](#Installation-for-cli)
+- [Cli usage](#Cli-usage)
+- [Run The example controller](#Run-The-example-controller)
+- [Mininet](#Mininet)
+
+## Installation to your project
+
+```
+cargo add tenjin_sdn
+```
+
+if you pefer to use with `example` Controller
+
+```
+cargo install --features=example tenjin_sdn
+```
+
+
+## Installation for cli
 
 ### Install [Rust](https://www.rust-lang.org/)
 
@@ -24,7 +43,7 @@ curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh
 cargo install tenjin_sdn
 ```
 
-## Run with command line
+## Cli usage
 
 #### Run Controller by default (Controller13 with OpenFlow 1.3)
 
@@ -55,22 +74,11 @@ tenjin run --port 6653,6633
 tenjin run --help
 ```
 
-## Run only Controller
+## Run The example controller
 
-You can add tenjin to your project with command
-
-```
-cargo add tenjin
-```
-
-Or you can clone this source code into your workspace and modify the code.
-
-this code below is the example for run only Controller.
-If you would like to modify Controller's code, it waiting for you at ./src/example/
+After you install `tenjin_sdn` to your project with feature `example`, you can run example controller with this code below.
 
 ### Openflow 1.3
-
-1. import Controller13 into main func.
 
 ```rust
 use tenjin::{example, openflow::ofp13::ControllerFrame13};
@@ -82,15 +90,8 @@ fn main() {
 }
 ```
 
-2. run Tenjin
-
-```bash
-cargo run --release
-```
-
 ### Openflow 1.0
 
-import Controller10 into main func.
 
 ```rust
 use tenjin::{example, openflow::ofp10::ControllerFrame10};
@@ -100,12 +101,6 @@ fn main() {
     let controller = example::Controller10::new();
     controller.listener("127.0.0.1:6633");
 }
-```
-
-run Tenjin
-
-```bash
-cargo run --release
 ```
 
 ## Mininet
@@ -135,6 +130,7 @@ sudo mn --controller=remote,ip=127.0.0.1 --mac --switch=ovsk,protocols=OpenFlow1
 
 ## Learning resources
 
+- [Openflow 1.3 Document](https://opennetworking.org/wp-content/uploads/2014/10/openflow-spec-v1.3.0.pdf)
 - [rust_ofp](https://github.com/baxtersa/rust_ofp)
 - [awesome-sdn](https://github.com/sdnds-tw/awesome-sdn)
 - [ryu](https://github.com/faucetsdn/ryu)
