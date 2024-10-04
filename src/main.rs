@@ -1,7 +1,5 @@
 use tenjin::cli;
 
-extern crate byteorder;
-
 /**
  * If you prefer to run only Controller without cli.
  * use this instead.
