@@ -80,7 +80,6 @@ After you install `tenjin_sdn` to your project with feature `example`, you can r
 
 ```rust
 use tenjin::{example, openflow::ofp13::ControllerFrame13};
-extern crate byteorder;
 
 fn main() {
     let controller = example::Controller13::new();
@@ -93,7 +92,6 @@ fn main() {
 
 ```rust
 use tenjin::{example, openflow::ofp10::ControllerFrame10};
-extern crate byteorder;
 
 fn main() {
     let controller = example::Controller10::new();
