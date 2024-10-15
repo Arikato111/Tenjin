@@ -14,7 +14,7 @@ impl Payload {
     pub fn marshal(&self, bytes: &mut Vec<u8>) {
         match self {
             Payload::Buffered(_, buf) | Payload::NoBuffered(buf) => {
-                let _ = bytes.write_all(&buf);
+                let _ = bytes.write_all(buf);
             }
         }
     }

@@ -1,7 +1,5 @@
 #![allow(unused)]
 #![allow(unused_variables)]
-use std::{collections::HashMap, net::TcpStream};
-
 use crate::{
     etherparser::{ether_type::EtherType, MacAddr},
     openflow::ofp13::{
@@ -10,6 +8,8 @@ use crate::{
         ControllerFrame13, FlowModEvent, OfpMsgEvent, PacketInEvent,
     },
 };
+use std::collections::HashMap;
+use tokio::net::TcpStream;
 /**
  * Here is Controller you can modify and write the process or more you need.
  * In production please remove allow unused.
@@ -29,7 +29,7 @@ impl ControllerFrame13 for Controller13 {
     /**
      * Start here for handle packetIn message.
      */
-    fn switch_features_handler(
+    async fn switch_features_handler(
         &self,
         xid: u32,
         features_reply: ofp13::FeaturesReplyEvent,
@@ -38,8 +38,14 @@ impl ControllerFrame13 for Controller13 {
         let matchs = MatchFields::match_all();
         let actions = vec![Action::Oputput(ofp13::PseudoPort::Controller(!0))];
         self.add_flow(xid, 0, matchs, &actions, 0, None, stream)
+            .await;
     }
-    fn packet_in_handler(&mut self, xid: u32, packetin: PacketInEvent, stream: &mut TcpStream) {
+    async fn packet_in_handler(
+        &mut self,
+        xid: u32,
+        packetin: PacketInEvent,
+        stream: &mut TcpStream,
+    ) {
         let pkt = match packetin.ether_parse() {
             Ok(pkt) => pkt,
             Err(_) => return,
@@ -74,8 +80,8 @@ impl ControllerFrame13 for Controller13 {
         if let ofp13::PseudoPort::PhysicalPort(_) = out_port {
             let mut match_fields = MatchFields::match_all();
             match_fields.in_port = Some(in_port);
-            match_fields.eth_dst = Some(MacAddr::from(mac_dst));
-            match_fields.eth_src = Some(MacAddr::from(mac_src));
+            match_fields.eth_dst = Some(mac_dst);
+            match_fields.eth_src = Some(mac_src);
             if let Some(buf_id) = packetin.buf_id {
                 self.add_flow(
                     xid,
@@ -85,7 +91,8 @@ impl ControllerFrame13 for Controller13 {
                     packetin.table_id,
                     Some(buf_id),
                     stream,
-                );
+                )
+                .await;
                 return;
             } else {
                 self.add_flow(
@@ -96,18 +103,19 @@ impl ControllerFrame13 for Controller13 {
                     packetin.table_id,
                     None,
                     stream,
-                );
+                )
+                .await;
             }
         }
         let packet_out = self
             .ofp()
             .packet_out(Some(in_port), packetin.payload, actions);
-        self.send_msg(packet_out, xid, stream);
+        self.send_msg(packet_out, xid, stream).await;
     }
 }
 
 impl Controller13 {
-    fn add_flow(
+    async fn add_flow(
         &self,
         xid: u32,
         priority: u16,
@@ -122,5 +130,6 @@ impl Controller13 {
             xid,
             stream,
         )
+        .await
     }
 }

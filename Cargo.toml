@@ -19,18 +19,18 @@ path = "src/lib.rs"
 [[bin]]
 name = "tenjin"
 path = "src/main.rs"
-required-features = ["cli"]
 
 [dependencies]
 byteorder = "1.0.0"
 clap = { version = "4.5.13", features = ["derive"], optional = true }
 clap_complete = { version = "4.5.23", optional = true }
+tokio = { version = "1.40.0", features = ["full"] }
 
 [profile.release]
 strip = true
 
 [features]
-default = []
+default = ["full"]
 example = []
 cli = ["dep:clap", "dep:clap_complete", "example"]
 full = ["cli"]

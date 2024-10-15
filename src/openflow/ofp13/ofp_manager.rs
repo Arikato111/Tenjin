@@ -12,6 +12,12 @@ impl Openflow13 {
     }
 }
 
+impl Default for Openflow13 {
+    fn default() -> Self {
+        Self::new()
+    }
+}
+
 impl OfpMsgEvent for Openflow13 {
     fn header_parse(&self, bytes: &Vec<u8>) -> Result<OfpHeader, std::io::Error> {
         OfpHeader::parse(bytes)

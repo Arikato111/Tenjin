@@ -1,44 +1,44 @@
-use std::{io::Read, net::TcpListener, thread};
-
-use crate::openflow::ofp13::HelloEvent;
-
 use super::{ControllerFrame13, OfpMsgEvent};
+use crate::openflow::ofp13::HelloEvent;
+use tokio::{
+    io::AsyncReadExt,
+    net::{TcpListener, TcpStream},
+};
 
-pub fn tcp_listener_handler(
+pub async fn tcp_listener_handler(
     address: &str,
-    controller: impl ControllerFrame13 + Send + 'static + Clone,
+    controller: &(impl ControllerFrame13 + 'static + Clone + Sync),
 ) -> Result<(), std::io::Error> {
-    let listener = TcpListener::bind(address)?;
-    for stream in listener.incoming() {
-        match stream {
-            Ok(mut stream) => {
-                if let Ok(addr) = stream.peer_addr() {
-                    println!("server has connection from {}", addr);
-                }
+    let listener = TcpListener::bind(address).await?;
+    loop {
+        let (mut stream, _) = listener.accept().await?;
+        if let Ok(addr) = stream.peer_addr() {
+            println!("server has connection from {}", addr);
+        }
 
-                let mut ctrl = controller.clone();
-                thread::spawn(move || {
-                    ctrl.send_msg(HelloEvent::new(), 0, &mut stream);
-                    let ofp_size = ctrl.ofp().header_size();
-                    let mut buffer = vec![0u8; ofp_size];
-                    loop {
-                        match stream.read(&mut buffer) {
-                            Ok(v) if v > 0 => {
-                                ctrl.request_handler(&mut buffer, &mut stream);
-                            }
-                            Ok(_) => {
-                                break;
-                            }
-                            Err(_) => {
-                                println!("cannot read packet");
-                                break;
-                            }
-                        }
-                    }
-                });
+        let mut ctrl = controller.clone();
+        tokio::spawn(async move {
+            processing(&mut ctrl, &mut stream).await;
+        });
+    }
+}
+
+async fn processing(ctrl: &mut (impl ControllerFrame13 + Clone + Sync), stream: &mut TcpStream) {
+    ctrl.send_msg(HelloEvent::new(), 0, stream).await;
+    let ofp_size = ctrl.ofp().header_size();
+    let mut buffer = vec![0u8; ofp_size];
+    loop {
+        match stream.read(&mut buffer).await {
+            Ok(v) if v > 0 => {
+                ctrl.request_handler(&mut buffer, stream).await;
             }
-            Err(_) => panic!("Connection failed!"),
+            Ok(_) => {
+                break;
+            }
+            Err(_) => {
+                println!("cannot read packet");
+                break;
+            }
         }
     }
-    Ok(())
 }

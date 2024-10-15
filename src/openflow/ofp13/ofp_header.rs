@@ -40,7 +40,7 @@ impl OpenflowHeader for OfpHeader {
         size_of::<Self>()
     }
     fn pkt_size(&self) -> usize {
-        return self.length as usize - size_of::<Self>();
+        self.length as usize - size_of::<Self>()
     }
 
     fn parse(buf: &Vec<u8>) -> Result<Self, Error> {
