@@ -53,11 +53,17 @@ pub fn system() {
             // creat runner function to run inside thread spawn
             let runner = match controller {
                 Some(controller) => match controller {
-                    Controllers::Ctrl13 => |addr: &str| Controller13::new().listener(addr),
-                    Controllers::Ctrl10 => |addr: &str| Controller10::new().listener(addr),
+                    Controllers::Ctrl13 => |addr: &str| {
+                        Controller13::new().listener(addr);
+                    },
+                    Controllers::Ctrl10 => |addr: &str| {
+                        Controller10::new().listener(addr);
+                    },
                 },
                 // Set Default Controller at here
-                None => |addr: &str| Controller13::new().listener(addr),
+                None => |addr: &str| {
+                    Controller13::new().listener(addr);
+                },
             };
             // spawn and run threads
             let mut thread_list = Vec::new();
