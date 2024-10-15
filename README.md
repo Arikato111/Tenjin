@@ -4,11 +4,11 @@ Tenjin is The software-defined networking framework written in Rust, offering hi
 
 ## Menu
 
-- [Installation to your project](#Installation-to-your-project)
-- [Installation for cli](#Installation-for-cli)
-- [Cli usage](#Cli-usage)
-- [Run The example controller](#Run-The-example-controller)
-- [Mininet](#Mininet)
+- [Installation to your project](#installation-to-your-project)
+- [Installation for cli](#installation-for-cli)
+- [Cli usage](#cli-usage)
+- [Run The example controller](#run-The-example-controller)
+- [Mininet](#mininet)
 
 ## Installation to your project
 
