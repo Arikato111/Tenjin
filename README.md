@@ -1,10 +1,10 @@
 # Tenjin SDN
 
-![version]
-![download]
-![license]
+[![version]](https://crates.io/crates/tenjin_sdn)
+[![download]](https://crates.io/crates/tenjin_sdn)
+[![license]](LICENSE)
 ![size]
-![issue]
+[![issue]](https://github.com/Arikato111/Tenjin/issues)
 ![last-commit]
 
 [last-commit]: https://img.shields.io/github/last-commit/Arikato111/Tenjin
