@@ -1,5 +1,20 @@
 # Tenjin SDN
 
+![version]
+![download]
+![license]
+![size]
+![issue]
+![last-commit]
+
+[last-commit]: https://img.shields.io/github/last-commit/Arikato111/Tenjin
+[size]: https://img.shields.io/crates/size/tenjin_sdn
+[issue]: https://img.shields.io/github/issues/Arikato111/Tenjin
+[license]: https://img.shields.io/github/license/Arikato111/Tenjin
+[download]: https://img.shields.io/crates/d/tenjin_sdn
+[version]: https://img.shields.io/crates/v/tenjin_sdn
+
+
 Tenjin is The software-defined networking framework written in Rust, offering high performance and memory safety. It can be used as both a framework and a command line tool.
 
 ## Menu
