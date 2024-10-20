@@ -4,7 +4,7 @@ use crate::{
 };
 use clap::{command, CommandFactory, Parser, Subcommand};
 use clap_complete::{generate, Shell};
-use std::{io, thread};
+use std::io;
 
 #[derive(Parser)]
 #[command(name = "tenjin",author, version, about, long_about = None)]
@@ -34,7 +34,7 @@ enum Commands {
     Generate { shell: Shell },
 }
 
-#[derive(Subcommand)]
+#[derive(Subcommand, Clone)]
 pub enum Controllers {
     /// Openflow 1.3 with Controller13
     Ctrl13,
@@ -42,7 +42,7 @@ pub enum Controllers {
     Ctrl10,
 }
 
-pub fn system() {
+pub async fn system() {
     let cli = Cli::parse();
     match cli.command {
         Commands::Run {
@@ -50,32 +50,19 @@ pub fn system() {
             port,
             listen,
         } => {
-            // creat runner function to run inside thread spawn
-            let runner = match controller {
-                Some(controller) => match controller {
-                    Controllers::Ctrl13 => |addr: &str| {
-                        Controller13::new().listener(addr);
-                    },
-                    Controllers::Ctrl10 => |addr: &str| {
-                        Controller10::new().listener(addr);
-                    },
-                },
-                // Set Default Controller at here
-                None => |addr: &str| {
-                    Controller13::new().listener(addr);
-                },
-            };
-            // spawn and run threads
-            let mut thread_list = Vec::new();
             for p in port.iter() {
                 let addr = format!("{}:{}", listen, p);
-                let t = thread::spawn(move || {
-                    runner(&addr);
+                let controller = controller.clone();
+                tokio::spawn(async move {
+                    match controller {
+                        Some(controller) => match controller {
+                            Controllers::Ctrl13 => Controller13::new().listener(&addr).await,
+                            Controllers::Ctrl10 => Controller10::new().listener(&addr).await,
+                        },
+                        // Set Default Controller at here
+                        None => Controller13::new().listener(&addr).await,
+                    }
                 });
-                thread_list.push(t);
-            }
-            for th in thread_list {
-                let _ = th.join();
             }
         }
         Commands::Generate { shell } => {

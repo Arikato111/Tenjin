@@ -1,6 +1,7 @@
 #![allow(unused)]
 #![allow(unused_variables)]
-use std::{collections::HashMap, net::TcpStream};
+use std::collections::HashMap;
+use tokio::net::TcpStream;
 
 use crate::{
     etherparser::ether_type::EtherType,
@@ -29,7 +30,12 @@ impl ControllerFrame10 for Controller10 {
     /**
      * Start here for handle packetIn message.
      */
-    fn packet_in_handler(&mut self, xid: u32, packetin: PacketInEvent, stream: &mut TcpStream) {
+    async fn packet_in_handler(
+        &mut self,
+        xid: u32,
+        packetin: PacketInEvent,
+        stream: &mut TcpStream,
+    ) {
         let pkt = match packetin.ether_parse() {
             Ok(pkt) => pkt,
             Err(_) => return,
@@ -64,21 +70,23 @@ impl ControllerFrame10 for Controller10 {
             match_fields.mac_dest = Some(mac_dst);
             match_fields.mac_src = Some(mac_src);
             if let Some(buf_id) = packetin.buf_id {
-                self.add_flow(xid, 1, match_fields, &actions, Some(buf_id as u32), stream);
+                self.add_flow(xid, 1, match_fields, &actions, Some(buf_id as u32), stream)
+                    .await;
                 return;
             } else {
-                self.add_flow(xid, 1, match_fields, &actions, None, stream);
+                self.add_flow(xid, 1, match_fields, &actions, None, stream)
+                    .await;
             }
         }
         let packet_out = self
             .ofp()
             .packet_out(Some(packetin.in_port), packetin.payload, actions);
-        self.send_msg(packet_out, xid, stream);
+        self.send_msg(packet_out, xid, stream).await;
     }
 }
 
 impl Controller10 {
-    fn add_flow(
+    async fn add_flow(
         &self,
         xid: u32,
         priority: u16,
@@ -92,5 +100,6 @@ impl Controller10 {
             xid,
             stream,
         )
+        .await;
     }
 }
