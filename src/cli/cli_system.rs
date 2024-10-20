@@ -50,10 +50,11 @@ pub async fn system() {
             port,
             listen,
         } => {
+            let mut thread_list = Vec::new();
             for p in port.iter() {
                 let addr = format!("{}:{}", listen, p);
                 let controller = controller.clone();
-                tokio::spawn(async move {
+                let t = tokio::spawn(async move {
                     match controller {
                         Some(controller) => match controller {
                             Controllers::Ctrl13 => Controller13::new().listener(&addr).await,
@@ -63,6 +64,10 @@ pub async fn system() {
                         None => Controller13::new().listener(&addr).await,
                     }
                 });
+                thread_list.push(t);
+            }
+            for th in thread_list {
+                let _ = th.await;
             }
         }
         Commands::Generate { shell } => {
