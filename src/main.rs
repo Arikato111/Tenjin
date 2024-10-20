@@ -1,4 +1,4 @@
-use tenjin::{example::{Controller10, Controller13}, openflow::{ofp10::ControllerFrame10, ofp13::ControllerFrame13}};
+use tenjin::cli::cli_system;
 
 /**
  * If you prefer to run only Controller without cli.
@@ -12,6 +12,5 @@ fn main() {
  */
 #[tokio::main]
 async fn main() {
-    let controller = Controller10::new();
-    controller.listener("127.0.0.1:6653").await;
+    cli_system::system().await;
 }

@@ -70,7 +70,7 @@ impl ControllerFrame10 for Controller10 {
             match_fields.mac_dest = Some(mac_dst);
             match_fields.mac_src = Some(mac_src);
             if let Some(buf_id) = packetin.buf_id {
-                self.add_flow(xid, 1, match_fields, &actions, Some(buf_id as u32), stream)
+                self.add_flow(xid, 1, match_fields, &actions, Some(buf_id), stream)
                     .await;
                 return;
             } else {
