@@ -31,7 +31,7 @@ enum Commands {
         listen: String,
     },
     /// Generate auto complete for shell
-    Generate { shell: Shell },
+    Completions { shell: Shell },
 }
 
 #[derive(Subcommand, Clone)]
@@ -70,7 +70,7 @@ pub async fn system() {
                 let _ = th.await;
             }
         }
-        Commands::Generate { shell } => {
+        Commands::Completions { shell } => {
             let mut cli_gen = Cli::command();
             generate(shell, &mut cli_gen, "tenjin", &mut io::stdout());
         }
