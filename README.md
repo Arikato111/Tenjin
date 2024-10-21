@@ -22,7 +22,7 @@ Tenjin is The software-defined networking framework written in Rust, offering hi
 - [Installation to your project](#installation-to-your-project)
 - [Installation as Command line program](#installation-as-command-line-program)
 - [Cli usage](#cli-usage)
-- [Run The example controller](#run-The-example-controller)
+- [Run The example controller](#run-the-example-controller)
 - [Mininet](#mininet)
 
 ## Installation to your project
