@@ -20,27 +20,45 @@ Tenjin is The software-defined networking framework written in Rust, offering hi
 ## Menu
 
 - [Installation to your project](#installation-to-your-project)
-- [Installation for cli](#installation-for-cli)
+- [Installation as Command line program](#installation-as-command-line-program)
 - [Cli usage](#cli-usage)
 - [Run The example controller](#run-The-example-controller)
 - [Mininet](#mininet)
 
 ## Installation to your project
 
-```
+#### Normal install includes `full` feature by default.
+
+```bash
 cargo add tenjin_sdn
 ```
 
-if you pefer to use with `example` Controller
+#### if you pefer to use only needed library with lightweight and faster compile.
 
+some features needed dependencies you might be not using,which can cause slow compilation.
+Using only features you needed can decrease number of dependencies you need to compile.
+
+```bash
+cargo install tenjin_sdn --no-default-features 
 ```
-cargo install --features=example tenjin_sdn
+if you need to use example controller, add `-F example` flag to command.
+
+### Install Tokio 
+
+Tenjin is asynchronous,so for using it, you need to make your main function be async by using [tokio](https://tokio.rs/). install tokio with command below.
+
+```bash
+cargo add tokio
 ```
 
 
-## Installation for cli
+## Installation as Command line program
+
+With Tenjin as cli you can run **The example controller** with your terminal without writing any code. (see example controller at ./src/example)
 
 ### Install [Rust](https://www.rust-lang.org/)
+
+first, you need `rust` and `cargo` to install Tenjin as comand line program. go to official website for installation.
 
 [official webpage installation](https://www.rust-lang.org/tools/install)
 
@@ -52,8 +70,10 @@ curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh
 
 ### Install Tenjin
 
+after installing rust and cargo, use can use command below to install Tenjin.
+
 ```
-cargo install tenjin_sdn -F cli
+cargo install tenjin_sdn 
 ```
 
 ## Cli usage
@@ -138,38 +158,3 @@ sudo mn --controller=remote,ip=127.0.0.1 --mac --switch=ovsk,protocols=OpenFlow1
 - [awesome-sdn](https://github.com/sdnds-tw/awesome-sdn)
 - [ryu](https://github.com/faucetsdn/ryu)
 - [learn-sdn-with-ryu](https://github.com/knetsolutions/learn-sdn-with-ryu)
-
-## Plan
-
-<details>
-<summary>Diagram</summary>
-
-```mermaid
-stateDiagram
-con: Controller
-conf10: Controller frame 10
-conf13: Controller frame 13
-
-ofp10: Openflow Manager 10
-ofp13: Openflow Manager 13
-
-ofpv10_h: openflow v1.0 header
-ofpv10_e: openflow v1.0 Event
-
-ofpv13_h: openflow v1.3 header
-ofpv13_e: openflow v1.3 Event
-
-[*] --> con
-con --> conf10
-conf10 --> ofp10
-ofp10 --> ofpv10_h
-ofp10 --> ofpv10_e
-
-con --> conf13
-conf13 --> ofp13
-ofp13 --> ofpv13_h
-ofp13 --> ofpv13_e
-
-```
-
-</details>
