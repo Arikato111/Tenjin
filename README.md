@@ -70,7 +70,7 @@ curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh
 
 ### Install Tenjin
 
-after installing rust and cargo, use can use command below to install Tenjin.
+after installing rust and cargo, you can use command below to install Tenjin.
 
 ```
 cargo install tenjin_sdn 

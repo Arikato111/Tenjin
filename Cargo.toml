@@ -24,7 +24,12 @@ path = "src/main.rs"
 byteorder = "1.0.0"
 clap = { version = "4.5.13", features = ["derive"], optional = true }
 clap_complete = { version = "4.5.23", optional = true }
-tokio = { version = "1.40.0", features = ["full"] }
+tokio = { version = "1.40.0", features = [
+    "rt-multi-thread",
+    "net",
+    "macros",
+    "io-util",
+] }
 
 [profile.release]
 strip = true
