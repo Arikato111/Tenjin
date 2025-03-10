@@ -1,10 +1,14 @@
 #![allow(unused)]
 #![allow(unused_variables)]
+use etherparse::EtherType;
 use std::collections::HashMap;
 use tokio::net::TcpStream;
 
 use crate::{
-    etherparser::ether_type::EtherType,
+    etherparser::{
+        lib::{GetMacAddr, Log, ToU64},
+        MacAddr,
+    },
     openflow::ofp10::{
         self,
         events::{flow_mod::MatchFields, Action},
@@ -40,20 +44,27 @@ impl ControllerFrame10 for Controller10 {
             Ok(pkt) => pkt,
             Err(_) => return,
         };
-        println!(
-            "packet in {} {} {}",
-            pkt.mac_src_string(),
-            pkt.mac_dst_string(),
-            packetin.in_port
-        );
+        let (mac_dst, mac_src, ether_type) = match pkt.link.macs() {
+            Ok(macs) => (
+                MacAddr::from(macs.destination),
+                MacAddr::from(macs.source),
+                macs.ether_type,
+            ),
+            Err(_) => return,
+        };
 
-        self.mac_to_port
-            .insert(pkt.mac_src.into(), packetin.in_port);
+        if let Some(net) = pkt.net {
+            println!(
+                "packet in {} {} {}",
+                mac_src.to_string(),
+                mac_dst.to_string(),
+                packetin.in_port
+            );
+        }
 
-        let mac_dst = pkt.mac_dst;
-        let mac_src = pkt.mac_src;
+        self.mac_to_port.insert(mac_src.into(), packetin.in_port);
 
-        if let EtherType::LLDP = pkt.ether_type {
+        if EtherType::from(0x88cc) == ether_type {
             return;
         }
 

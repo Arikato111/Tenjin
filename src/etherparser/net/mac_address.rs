@@ -39,6 +39,12 @@ impl From<MacAddr> for u64 {
     }
 }
 
+impl From<[u8; 6]> for MacAddr {
+    fn from(value: [u8; 6]) -> Self {
+        Self { mac: value }
+    }
+}
+
 impl From<u64> for MacAddr {
     fn from(value: u64) -> Self {
         let mut mac = [0u8; 6];

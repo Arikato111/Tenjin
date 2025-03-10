@@ -1,2 +1,2 @@
-pub mod mac_address;
+mod mac_address;
 pub use mac_address::MacAddr;
