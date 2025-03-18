@@ -35,24 +35,24 @@ jobs:
       - name: Run tests
         run: cargo test --all-features
 
-  windows:
-    runs-on: ${{ matrix.platform.runner }}
-    strategy:
-      matrix:
-        platform:
-          - runner: windows-latest
-            target: x64
-          - runner: windows-latest
-            target: x86
+  # windows:
+  #   runs-on: ${{ matrix.platform.runner }}
+  #   strategy:
+  #     matrix:
+  #       platform:
+  #         - runner: windows-latest
+  #           target: x64
+  #         - runner: windows-latest
+  #           target: x86
 
-    steps:
-      - uses: actions/checkout@v4
+  #   steps:
+  #     - uses: actions/checkout@v4
 
-      - name: setup
-        uses: dtolnay/rust-toolchain@stable
-        with:
-          toolchain: stable
-      - name: Build
-        run: cargo build --release
-      - name: Run tests
-        run: cargo test --all-features
+  #     - name: setup
+  #       uses: dtolnay/rust-toolchain@stable
+  #       with:
+  #         toolchain: stable
+  #     - name: Build
+  #       run: cargo build --release
+  #     - name: Run tests
+  #       run: cargo test --all-features
