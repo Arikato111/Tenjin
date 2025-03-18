@@ -17,6 +17,11 @@
 
 Tenjin is The software-defined networking framework written in Rust, offering high performance and memory safety. It can be used as both a framework and a command line tool.
 
+## Update!
+
+- use `etherparse` instead of writing your own.
+- change name of lib to `tenjin_sdn`.
+
 ## Menu
 
 - [Installation to your project](#installation-to-your-project)
@@ -114,7 +119,7 @@ After you install `tenjin_sdn` to your project with feature `example`, you can r
 ### Openflow 1.3
 
 ```rust
-use tenjin::{example, openflow::ofp13::ControllerFrame13};
+use tenjin_sdn::{example, openflow::ofp13::ControllerFrame13};
 
 fn main() {
     let controller = example::Controller13::new();
@@ -126,7 +131,7 @@ fn main() {
 
 
 ```rust
-use tenjin::{example, openflow::ofp10::ControllerFrame10};
+use tenjin_sdn::{example, openflow::ofp10::ControllerFrame10};
 
 fn main() {
     let controller = example::Controller10::new();
