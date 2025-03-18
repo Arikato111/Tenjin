@@ -7,12 +7,12 @@ use etherparse::NetSlice;
 pub trait GetIp {
     fn ipv4_dst(&self) -> Result<Ipv4Addr, String>;
     fn ipv4_src(&self) -> Result<Ipv4Addr, String>;
-    fn ipv6_des(&self) -> Result<Ipv6Addr, String>;
+    fn ipv6_dst(&self) -> Result<Ipv6Addr, String>;
     fn ipv6_src(&self) -> Result<Ipv6Addr, String>;
 }
 
 impl<'a> GetIp for NetSlice<'a> {
-    fn ipv6_des(&self) -> Result<Ipv6Addr, String> {
+    fn ipv6_dst(&self) -> Result<Ipv6Addr, String> {
         if let NetSlice::Ipv6(ip) = self {
             return Ok(ip.header().source_addr());
         } else {
