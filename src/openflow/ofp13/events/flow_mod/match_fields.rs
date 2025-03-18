@@ -6,7 +6,7 @@ use std::{
 
 use byteorder::{BigEndian, ReadBytesExt, WriteBytesExt};
 
-use crate::etherparser::MacAddr;
+use crate::utils::MacAddr;
 
 /**
  * +---------------+---------------+---------------------------+
@@ -225,7 +225,7 @@ impl MatchFields {
             udp_dst: None,
         }
     }
-    pub fn marshal(&self, bytes: &mut Vec<u8>)  -> Result<(), Error>{
+    pub fn marshal(&self, bytes: &mut Vec<u8>) -> Result<(), Error> {
         let mut ofp_match = OfpMatch::new();
         let ofp_byte = ofp_match.oxm_fields.as_mut();
 

@@ -1,4 +1,4 @@
-use crate::{etherparser::MacAddr, openflow::ofp13::PseudoPort};
+use crate::{openflow::ofp13::PseudoPort, utils::MacAddr};
 use byteorder::{BigEndian, WriteBytesExt};
 use std::{
     io::Error,

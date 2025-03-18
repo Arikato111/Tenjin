@@ -1,12 +1,12 @@
 #![allow(unused)]
 #![allow(unused_variables)]
 use crate::{
-    etherparser::{lib::GetMacAddr, MacAddr},
     openflow::ofp13::{
         self,
         events::{flow_mod::MatchFields, Action},
         ControllerFrame13, FlowModEvent, OfpMsgEvent, PacketInEvent,
     },
+    utils::{net::GetMacAddr, MacAddr},
 };
 use etherparse::EtherType;
 use std::collections::HashMap;

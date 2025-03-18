@@ -1,5 +1,5 @@
+/// Convert any value to u64.
 pub trait ToU64 {
-    /// Convert to u64 type
     fn to_u64(&self) -> u64;
 }
 impl ToU64 for [u8; 6] {

@@ -1,5 +1,6 @@
 use byteorder::WriteBytesExt;
 
+/// The sturct use for managing Mac address.
 #[derive(Clone, Copy)]
 pub struct MacAddr {
     mac: [u8; 6],

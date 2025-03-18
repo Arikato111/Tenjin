@@ -1,6 +1,6 @@
 pub mod openflow;
 
-pub mod etherparser;
+pub mod utils;
 
 #[cfg(feature = "example")]
 pub mod example;

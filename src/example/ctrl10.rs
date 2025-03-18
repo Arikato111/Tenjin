@@ -5,15 +5,12 @@ use std::collections::HashMap;
 use tokio::net::TcpStream;
 
 use crate::{
-    etherparser::{
-        lib::{GetMacAddr, Log, ToU64},
-        MacAddr,
-    },
     openflow::ofp10::{
         self,
         events::{flow_mod::MatchFields, Action},
         ControllerFrame10, FlowModEvent, OfpMsgEvent, PacketInEvent,
     },
+    utils::{log::Log, net::GetMacAddr, MacAddr, ToU64},
 };
 /**
  * Here is Controller you can modify and write the process or more you need.

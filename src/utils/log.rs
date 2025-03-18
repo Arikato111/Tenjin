@@ -1,7 +1,9 @@
+//! This module is related to Log.
 use std::net::{Ipv4Addr, Ipv6Addr};
 
 use etherparse::NetSlice;
 
+/// this trait is used to show any value as string as log format.
 pub trait Log {
     fn to_log(&self) -> String;
 }

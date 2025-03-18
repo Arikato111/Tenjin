@@ -5,7 +5,7 @@ use std::{
 
 use byteorder::{BigEndian, ReadBytesExt, WriteBytesExt};
 
-use crate::{etherparser::MacAddr, openflow::ofp10::PseudoPort};
+use crate::{openflow::ofp10::PseudoPort, utils::MacAddr};
 
 pub enum ActionType {
     Output = 0,

@@ -2,8 +2,8 @@ use std::io::{BufRead, Cursor, Error};
 
 use byteorder::{BigEndian, ReadBytesExt, WriteBytesExt};
 
-use crate::etherparser::{
-    tools::bits::{bit_bool, set_bit},
+use crate::utils::{
+    value_converter::{bit_bool, set_bit},
     MacAddr,
 };
 
