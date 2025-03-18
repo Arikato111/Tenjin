@@ -13,7 +13,7 @@ keywords = ["sdn", "cli", "openflow"]
 include = ["src/*"]
 
 [lib]
-name = "tenjin"
+name = "tenjin_sdn"
 path = "src/lib.rs"
 
 [[bin]]

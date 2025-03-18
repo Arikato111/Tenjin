@@ -1,4 +1,4 @@
-use tenjin::cli::cli_system;
+use tenjin_sdn::cli::cli_system;
 
 /**
  * If you prefer to run only Controller without cli.

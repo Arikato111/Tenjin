@@ -1,9 +1,9 @@
 #![cfg(feature = "full")]
 #[cfg(test)]
 mod tests {
-    use tenjin::example::Controller10;
-    use tenjin::openflow::ofp10::ControllerFrame10;
-    use tenjin::openflow::ofp10::{Msg, OfpMsgEvent, OpenflowHeader};
+    use tenjin_sdn::example::Controller10;
+    use tenjin_sdn::openflow::ofp10::ControllerFrame10;
+    use tenjin_sdn::openflow::ofp10::{Msg, OfpMsgEvent, OpenflowHeader};
 
     #[test]
     fn test_header_v1_0_parser() {
