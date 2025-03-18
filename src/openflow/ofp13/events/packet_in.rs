@@ -1,7 +1,8 @@
-use crate::etherparser::ethernet::EthernetFrame;
+use etherparse::err::packet::SliceError;
 
 use super::{MatchFields, Payload};
 use byteorder::{BigEndian, ReadBytesExt};
+use etherparse::SlicedPacket;
 use std::io::{BufRead, Cursor, Error};
 
 #[repr(u8)]
@@ -35,9 +36,9 @@ pub struct PacketInEvent {
 }
 
 impl PacketInEvent {
-    pub fn ether_parse(&self) -> Result<EthernetFrame, Error> {
+    pub fn ether_parse(&self) -> Result<SlicedPacket<'_>, SliceError> {
         match &self.payload {
-            Payload::Buffered(_, p) | Payload::NoBuffered(p) => EthernetFrame::parse(&p),
+            Payload::Buffered(_, p) | Payload::NoBuffered(p) => SlicedPacket::from_ethernet(&p),
         }
     }
     pub fn parse(payload: &Vec<u8>) -> Result<PacketInEvent, Error> {

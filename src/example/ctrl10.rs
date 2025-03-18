@@ -64,6 +64,7 @@ impl ControllerFrame10 for Controller10 {
 
         self.mac_to_port.insert(mac_src.into(), packetin.in_port);
 
+        // LLDP = 0x88cc
         if EtherType::from(0x88cc) == ether_type {
             return;
         }
