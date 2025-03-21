@@ -70,10 +70,6 @@ impl FlowModEvent {
             instruction: Instrucion::InstructActions(actions.to_instruct()),
         }
     }
-
-    // TODO
-    // pub fn parse(buf: &[u8]) -> Result<FlowModEvent, Error> {
-    // }
 }
 
 impl MessageMarshal for FlowModEvent {

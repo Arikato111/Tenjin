@@ -265,25 +265,6 @@ impl Action {
         }
         Ok(())
     }
-
-    // TODO
-    // pub fn parse_sequence(bytes: &mut Cursor<Vec<u8>>) -> Vec<Action> {
-    //     if bytes.get_ref().is_empty() {
-    //         vec![]
-    //     } else {
-    //         if let Ok(action) = Action::parse(bytes) {
-    //             let mut v = vec![action];
-    //             v.append(&mut Action::parse_sequence(bytes));
-    //             v
-    //         } else {
-    //             vec![]
-    //         }
-    //     }
-    // }
-
-    // TODO
-    // pub fn parse(bytes: &mut Cursor<Vec<u8>>) -> Result<Action, Error> {
-    // }
 }
 
 pub trait ToInstruction {
