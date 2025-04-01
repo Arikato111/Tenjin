@@ -1,5 +1,5 @@
 //! OpenFlow 1.0 Message Types
-//! 
+//!
 //! This module defines the message types used in OpenFlow 1.0 protocol communication.
 //! Each message type corresponds to a specific OpenFlow protocol message that can be
 //! exchanged between the controller and switch.
@@ -7,7 +7,7 @@
 use std::mem::transmute;
 
 /// Represents all possible OpenFlow 1.0 message types
-/// 
+///
 /// Each variant corresponds to a specific message type in the OpenFlow 1.0 protocol.
 /// The values match the official OpenFlow 1.0 specification message type codes.
 #[derive(Clone)]
@@ -67,10 +67,10 @@ impl Msg {
     }
 
     /// Creates a message type from an integer value
-    /// 
+    ///
     /// # Arguments
     /// * `msg_code` - The integer code representing the message type
-    /// 
+    ///
     /// # Returns
     /// The corresponding Msg enum variant, or NotFound if the code is invalid
     pub fn from(msg_code: u8) -> Self {

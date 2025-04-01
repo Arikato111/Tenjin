@@ -20,7 +20,7 @@ use crate::utils::MacAddr;
 /// |     Type      |     Length    |      OXM Fields           |
 /// |---------------|---------------|---------------------------|
 /// |  (Optional)   |  (16 bits)    | (Array of variable length)|
-/// 
+///
 pub struct OfpMatch {
     /// Type of match
     typ: MatchType,

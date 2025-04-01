@@ -1,5 +1,5 @@
 //! OpenFlow v1.3 Protocol Events Module
-//! 
+//!
 //! This module contains all the event types and structures used in OpenFlow v1.3 protocol communication.
 //! It includes message types for flow modification, packet handling, features negotiation,
 //! and various control messages.

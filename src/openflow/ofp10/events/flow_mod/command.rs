@@ -1,15 +1,15 @@
 //! OpenFlow 1.0 Flow Modification Commands
-//! 
+//!
 //! This module implements the flow modification commands used in OpenFlow 1.0
 //! for managing flow entries in the switch's flow tables.
-//! 
+//!
 //! The module provides:
 //! - Flow modification command enumeration
 //! - Command parsing and conversion
 //! - Command type validation
 
 /// Represents the different types of flow modification commands
-/// 
+///
 /// Each variant corresponds to a specific operation that can be performed
 /// on flow entries in the switch's flow tables.
 #[derive(Debug)]
@@ -30,7 +30,7 @@ pub enum FlowModCommand {
 
 impl FlowModCommand {
     /// Converts the command to its numeric value
-    /// 
+    ///
     /// # Returns
     /// The command value as a usize
     pub fn to_number(&self) -> usize {
@@ -45,10 +45,10 @@ impl FlowModCommand {
     }
 
     /// Parses a command from a byte value
-    /// 
+    ///
     /// # Arguments
     /// * `byte` - The byte value containing the command code
-    /// 
+    ///
     /// # Returns
     /// The corresponding FlowModCommand variant
     pub fn parse(byte: u16) -> Self {

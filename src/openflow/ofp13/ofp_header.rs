@@ -1,9 +1,9 @@
 //! OpenFlow 1.3 Protocol Header
-//! 
+//!
 //! This module implements the OpenFlow 1.3 protocol header structure and its
 //! serialization/deserialization functionality. The header is common to all
 //! OpenFlow messages and contains essential metadata about the message.
-//! 
+//!
 //! OpenFlow 1.3 maintains the same header structure as 1.0 but uses version 4
 //! to indicate the protocol version.
 
@@ -18,7 +18,7 @@ use crate::openflow::ofp13::OpenflowHeader;
 use super::{OfpMsgEvent, Openflow13};
 
 /// Represents the OpenFlow 1.3 protocol header
-/// 
+///
 /// The header contains four fields that are common to all OpenFlow messages:
 /// - version: Protocol version (4 for OpenFlow 1.3)
 /// - message: Type of message
@@ -38,7 +38,7 @@ pub struct OfpHeader {
 
 impl OpenflowHeader for OfpHeader {
     /// Creates a new OpenFlow header
-    /// 
+    ///
     /// # Arguments
     /// * `message` - The message type identifier
     /// * `length` - Length of the message payload
@@ -83,10 +83,10 @@ impl OpenflowHeader for OfpHeader {
     }
 
     /// Parses a byte buffer into an OpenFlow header
-    /// 
+    ///
     /// # Arguments
     /// * `buf` - Byte buffer containing the header data
-    /// 
+    ///
     /// # Returns
     /// Result containing either the parsed header or an error
     fn parse(buf: &Vec<u8>) -> Result<Self, Error> {
@@ -104,7 +104,7 @@ impl OpenflowHeader for OfpHeader {
     }
 
     /// Serializes the header into a byte buffer
-    /// 
+    ///
     /// # Arguments
     /// * `bytes` - Mutable reference to the byte buffer to write to
     fn marshal(&self, bytes: &mut Vec<u8>) {

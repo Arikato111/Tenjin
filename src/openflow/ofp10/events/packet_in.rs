@@ -1,9 +1,9 @@
 //! OpenFlow 1.0 Packet-In Event
-//! 
+//!
 //! This module implements the packet-in event handling for OpenFlow 1.0.
 //! Packet-in events are sent by the switch to the controller when a packet
 //! needs to be processed according to the flow table rules.
-//! 
+//!
 //! The module provides:
 //! - Packet-in reason enumeration
 //! - Packet-in event structure
@@ -17,7 +17,7 @@ use etherparse::SlicedPacket;
 use std::io::{BufRead, Cursor, Error};
 
 /// Represents the reason why a packet was sent to the controller
-/// 
+///
 /// Each variant corresponds to a specific reason defined in the OpenFlow 1.0
 /// specification for why a packet needs controller processing.
 #[derive(Debug)]
@@ -34,10 +34,10 @@ pub enum PacketInReason {
 
 impl PacketInReason {
     /// Creates a new PacketInReason from a reason code
-    /// 
+    ///
     /// # Arguments
     /// * `code` - The reason code from the packet-in message
-    /// 
+    ///
     /// # Returns
     /// The corresponding PacketInReason variant
     fn new(code: u8) -> Self {
@@ -51,7 +51,7 @@ impl PacketInReason {
 }
 
 /// Represents a packet-in event from the switch
-/// 
+///
 /// Contains all the information about a packet that needs controller processing,
 /// including metadata about why it was sent and the packet data itself.
 #[derive(Debug)]
@@ -72,7 +72,7 @@ pub struct PacketInEvent {
 
 impl PacketInEvent {
     /// Parses the packet payload as an Ethernet packet
-    /// 
+    ///
     /// # Returns
     /// Result containing either the parsed Ethernet packet or a parsing error
     pub fn ether_parse(&self) -> Result<SlicedPacket<'_>, SliceError> {
@@ -82,10 +82,10 @@ impl PacketInEvent {
     }
 
     /// Parses a packet-in event from a byte buffer
-    /// 
+    ///
     /// # Arguments
     /// * `payload` - The byte buffer containing the packet-in event data
-    /// 
+    ///
     /// # Returns
     /// Result containing either the parsed PacketInEvent or an error
     pub fn parse(payload: &Vec<u8>) -> Result<PacketInEvent, Error> {

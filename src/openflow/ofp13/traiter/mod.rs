@@ -1,5 +1,5 @@
 //! OpenFlow v1.3 Traits
-//! 
+//!
 //! This module defines the core traits used throughout the OpenFlow v1.3 implementation.
 //! These traits provide common functionality for message handling, event processing,
 //! and header management.

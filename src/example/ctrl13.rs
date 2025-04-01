@@ -1,5 +1,5 @@
 //! OpenFlow 1.3 Controller Implementation
-//! 
+//!
 //! This module implements an OpenFlow 1.3 controller that handles packet forwarding
 //! and flow management in a software-defined network.
 #![allow(unused)]
@@ -18,7 +18,7 @@ use std::collections::HashMap;
 use tokio::net::TcpStream;
 
 /// OpenFlow 1.3 Controller implementation
-/// 
+///
 /// This controller maintains a mapping of MAC addresses to ports and handles
 /// packet forwarding based on this information.
 #[derive(Clone)]
@@ -36,7 +36,7 @@ impl ControllerFrame13 for Controller13 {
     }
 
     /// Handles switch features reply messages
-    /// 
+    ///
     /// Sets up initial flow rules to send all packets to the controller
     async fn switch_features_handler(
         &self,
@@ -46,11 +46,13 @@ impl ControllerFrame13 for Controller13 {
     ) {
         let matchs = MatchFields::match_all();
         let actions = vec![Action::Oputput(ofp13::PseudoPort::Controller(!0))];
-        let _ = self.add_flow(xid, 0, matchs, &actions, 0, None, stream).await;
+        let _ = self
+            .add_flow(xid, 0, matchs, &actions, 0, None, stream)
+            .await;
     }
 
     /// Handles incoming packets
-    /// 
+    ///
     /// This function implements the main packet forwarding logic:
     /// 1. Parses the incoming packet
     /// 2. Updates the MAC-to-port mapping
@@ -127,30 +129,32 @@ impl ControllerFrame13 for Controller13 {
 
             // Use buffer ID if available to avoid packet duplication
             if let Some(buf_id) = packetin.buf_id {
-                let _ = self.add_flow(
+                let _ = self
+                    .add_flow(
+                        xid,
+                        1,
+                        match_fields,
+                        &actions,
+                        packetin.table_id,
+                        Some(buf_id),
+                        stream,
+                    )
+                    .await;
+                return;
+            }
+
+            // Add flow rule without buffer ID
+            let _ = self
+                .add_flow(
                     xid,
                     1,
                     match_fields,
                     &actions,
                     packetin.table_id,
-                    Some(buf_id),
+                    None,
                     stream,
                 )
                 .await;
-                return;
-            }
-
-            // Add flow rule without buffer ID
-            let _ = self.add_flow(
-                xid,
-                1,
-                match_fields,
-                &actions,
-                packetin.table_id,
-                None,
-                stream,
-            )
-            .await;
         }
 
         // Forward the packet
@@ -163,7 +167,7 @@ impl ControllerFrame13 for Controller13 {
 
 impl Controller13 {
     /// Adds a flow rule to the switch
-    /// 
+    ///
     /// # Arguments
     /// * `xid` - Transaction ID
     /// * `priority` - Flow rule priority
@@ -182,11 +186,12 @@ impl Controller13 {
         buffer_id: Option<u32>,
         stream: &mut TcpStream,
     ) {
-        let _ = self.send_msg(
-            FlowModEvent::add_flow(priority, flow, actions.to_vec(), table_id, buffer_id),
-            xid,
-            stream,
-        )
-        .await;
+        let _ = self
+            .send_msg(
+                FlowModEvent::add_flow(priority, flow, actions.to_vec(), table_id, buffer_id),
+                xid,
+                stream,
+            )
+            .await;
     }
 }

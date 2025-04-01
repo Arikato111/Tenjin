@@ -1,5 +1,5 @@
 //! OpenFlow v1.3 Packet-In Message Implementation
-//! 
+//!
 //! This module implements the Packet-In message type used in OpenFlow v1.3 protocol.
 //! Packet-In messages are sent by the switch to the controller when a packet
 //! matches a table-miss flow entry or when explicitly instructed to do so.
@@ -27,10 +27,10 @@ pub enum PacketInReason {
 
 impl PacketInReason {
     /// Creates a new PacketInReason from a reason code
-    /// 
+    ///
     /// # Arguments
     /// * `code` - The numeric reason code
-    /// 
+    ///
     /// # Returns
     /// The corresponding PacketInReason variant
     fn new(code: u8) -> Self {
@@ -44,7 +44,7 @@ impl PacketInReason {
 }
 
 /// Represents an OpenFlow v1.3 Packet-In message
-/// 
+///
 /// Contains information about a packet that was sent to the controller,
 /// including buffer ID, packet length, reason, table ID, cookie, match fields,
 /// and the actual packet payload.
@@ -67,7 +67,7 @@ pub struct PacketInEvent {
 
 impl PacketInEvent {
     /// Parses the packet payload as an Ethernet frame
-    /// 
+    ///
     /// # Returns
     /// * `Result<SlicedPacket<'_>, SliceError>` - The parsed Ethernet packet or an error
     pub fn ether_parse(&self) -> Result<SlicedPacket<'_>, SliceError> {
@@ -77,10 +77,10 @@ impl PacketInEvent {
     }
 
     /// Parses a Packet-In message from a byte vector
-    /// 
+    ///
     /// # Arguments
     /// * `payload` - The byte vector containing the message data
-    /// 
+    ///
     /// # Returns
     /// * `Result<PacketInEvent, Error>` - The parsed PacketInEvent or an error
     pub fn parse(payload: &Vec<u8>) -> Result<PacketInEvent, Error> {

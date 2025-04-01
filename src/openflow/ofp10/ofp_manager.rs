@@ -20,7 +20,7 @@ impl Openflow10 {
 impl OfpMsgEvent for Openflow10 {
     /// Parses the OpenFlow header from raw bytes
     /// Returns a Result containing either the parsed OfpHeader or an IO error
-    fn header_parse(&self, bytes: &Vec<u8>) -> Result<OfpHeader, std::io::Error>  {
+    fn header_parse(&self, bytes: &Vec<u8>) -> Result<OfpHeader, std::io::Error> {
         OfpHeader::parse(bytes)
     }
 

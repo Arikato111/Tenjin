@@ -1,7 +1,7 @@
 use byteorder::WriteBytesExt;
 
 /// A structure for managing MAC (Media Access Control) addresses.
-/// 
+///
 /// This struct provides functionality for creating, converting, and manipulating MAC addresses.
 /// It stores the MAC address as a 6-byte array and provides various conversion methods.
 #[derive(Clone, Copy, Debug)]
@@ -11,7 +11,7 @@ pub struct MacAddr {
 
 impl MacAddr {
     /// Creates a new MAC address from a 6-byte array.
-    /// 
+    ///
     /// # Arguments
     /// * `mac` - A 6-byte array representing the MAC address
     pub fn new(mac: [u8; 6]) -> Self {
@@ -19,7 +19,7 @@ impl MacAddr {
     }
 
     /// Converts the MAC address to a human-readable string format (XX:XX:XX:XX:XX:XX).
-    /// 
+    ///
     /// # Returns
     /// A string representation of the MAC address in hexadecimal format
     pub fn to_string(&self) -> String {
@@ -33,7 +33,7 @@ impl MacAddr {
     }
 
     /// Serializes the MAC address into a byte vector.
-    /// 
+    ///
     /// # Arguments
     /// * `bytes` - The vector to append the MAC address bytes to
     pub fn marshal(&self, bytes: &mut Vec<u8>) {
@@ -77,10 +77,10 @@ impl From<u64> for MacAddr {
 }
 
 /// Creates a MacAddr from a string representation.
-/// 
+///
 /// # Arguments
 /// * `value` - A string in the format "XX:XX:XX:XX:XX:XX" where XX are hexadecimal values
-/// 
+///
 /// # Returns
 /// A new MacAddr instance. If parsing fails, the address will be set to 00:00:00:00:00:00
 impl From<&str> for MacAddr {

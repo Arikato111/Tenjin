@@ -1,5 +1,5 @@
 //! OpenFlow 1.3 Message Types
-//! 
+//!
 //! This module defines the message types used in OpenFlow 1.3 protocol communication.
 //! OpenFlow 1.3 introduces several new message types and features compared to 1.0,
 //! including support for multiple tables, groups, meters, and enhanced statistics.
@@ -7,7 +7,7 @@
 use std::mem::transmute;
 
 /// Represents all possible OpenFlow 1.3 message types
-/// 
+///
 /// Each variant corresponds to a specific message type in the OpenFlow 1.3 protocol.
 /// The values match the official OpenFlow 1.3 specification message type codes.
 #[repr(u8)]
@@ -84,10 +84,10 @@ impl Msg {
     }
 
     /// Creates a message type from an integer value
-    /// 
+    ///
     /// # Arguments
     /// * `msg_code` - The integer code representing the message type
-    /// 
+    ///
     /// # Returns
     /// The corresponding Msg enum variant, or NotFound if the code is invalid
     pub fn from(msg_code: u8) -> Self {

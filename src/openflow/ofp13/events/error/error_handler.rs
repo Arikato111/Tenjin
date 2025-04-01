@@ -1,5 +1,5 @@
 //! OpenFlow v1.3 Error Event Handler
-//! 
+//!
 //! This module implements the error event handling for OpenFlow v1.3 protocol.
 //! It provides functionality for parsing and handling error messages received
 //! from the OpenFlow switch.
@@ -14,7 +14,7 @@ use crate::openflow::ofp13::{MessageMarshal, Msg};
 use byteorder::{BigEndian, ReadBytesExt};
 
 /// Represents an OpenFlow error event message
-/// 
+///
 /// Contains information about the error type and any additional payload data
 /// associated with the error.
 pub struct ErrorEvent {
@@ -34,10 +34,10 @@ impl ErrorEvent {
     }
 
     /// Parses an error event from a byte buffer
-    /// 
+    ///
     /// # Arguments
     /// * `buf` - The byte buffer containing the error message
-    /// 
+    ///
     /// # Returns
     /// * `Result<ErrorEvent, Error>` - The parsed error event or an error if parsing fails
     pub fn parse(buf: &Vec<u8>) -> Result<ErrorEvent, Error> {
@@ -51,7 +51,7 @@ impl ErrorEvent {
 }
 
 /// Implementation of MessageMarshal trait for ErrorEvent
-/// 
+///
 /// Provides methods for converting ErrorEvent to/from wire format
 impl MessageMarshal for ErrorEvent {
     /// Marshals the error event into a byte buffer
