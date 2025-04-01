@@ -1,12 +1,23 @@
 use etherparse::{Ethernet2Header, LinkSlice};
 
-/// This trait makes easier get mac addr from etherparse
+/// A trait for extracting MAC addresses from etherparse's LinkSlice.
+/// 
+/// This trait provides a simplified interface for getting MAC addresses from network packets,
+/// abstracting away the complexity of dealing with multiple header types and optional values.
 pub trait GetMacAddr {
+    /// Extracts the Ethernet II header containing MAC addresses from the packet.
+    /// 
+    /// # Returns
+    /// * `Result<Ethernet2Header, String>` - The Ethernet II header if found, or an error message if not found
     fn macs(&self) -> Result<Ethernet2Header, String>;
 }
 
+/// Implementation of GetMacAddr for LinkSlice to extract MAC addresses from raw packet data.
 impl<'a> GetMacAddr for LinkSlice<'a> {
-    /// Simpler way to get mac addr
+    /// Extracts the Ethernet II header from the packet slice.
+    /// 
+    /// # Returns
+    /// * `Result<Ethernet2Header, String>` - The Ethernet II header if found, or an error if not found
     fn macs(&self) -> Result<Ethernet2Header, String> {
         if let Some(header) = self.to_header() {
             if let Some(link_header) = header.ethernet2() {
@@ -17,11 +28,15 @@ impl<'a> GetMacAddr for LinkSlice<'a> {
     }
 }
 
-/// This impl try to fix too much 'Some' from struct
-/// When you get value from struct you shall get 'Some(struct)'
-/// and when you unwarp it and get value from struct you get the same 'Some(struct)'
-/// It's too much unwarp needed.
+/// Implementation of GetMacAddr for Option<LinkSlice> to handle optional packet slices.
+/// 
+/// This implementation reduces the need for multiple unwrap() calls when working with
+/// optional packet slices, providing a more ergonomic interface.
 impl<'a> GetMacAddr for Option<LinkSlice<'a>> {
+    /// Extracts the Ethernet II header from an optional packet slice.
+    /// 
+    /// # Returns
+    /// * `Result<Ethernet2Header, String>` - The Ethernet II header if found, or an error if not found
     fn macs(&self) -> Result<Ethernet2Header, String> {
         match self {
             Some(mac) => mac.macs(),

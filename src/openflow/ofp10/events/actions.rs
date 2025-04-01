@@ -1,3 +1,16 @@
+//! OpenFlow 1.0 Actions
+//! 
+//! This module implements the action types and structures used in OpenFlow 1.0
+//! for packet manipulation and forwarding. Actions define what operations should
+//! be performed on packets as they flow through the switch.
+//! 
+//! The module provides:
+//! - Action type definitions
+//! - Action structure implementations
+//! - Serialization/deserialization of actions
+//! - Action sequence handling
+//! - Size checking and controller action reordering
+
 use std::{
     io::{BufRead, Cursor, Error},
     mem::size_of,
@@ -7,38 +20,75 @@ use byteorder::{BigEndian, ReadBytesExt, WriteBytesExt};
 
 use crate::{openflow::ofp10::PseudoPort, utils::MacAddr};
 
+/// Represents the standard OpenFlow 1.0 action types
+/// 
+/// Each variant corresponds to a specific action that can be performed on packets
+/// as defined in the OpenFlow 1.0 specification.
+#[derive(Debug)]
 pub enum ActionType {
+    /// Forward packet to a specific port
     Output = 0,
+    /// Set VLAN ID
     SetVlanId = 1,
+    /// Set VLAN priority
     SetVlanPCP = 2,
+    /// Remove VLAN header
     StripVlan = 3,
+    /// Set source MAC address
     SetSrcMac = 4,
+    /// Set destination MAC address
     SetDstMac = 5,
+    /// Set IPv4 source address
     SetIPv4Src = 6,
+    /// Set IPv4 destination address
     SetIPv4Des = 7,
+    /// Set IP Type of Service
     SetTos = 8,
+    /// Set transport source port
     SetTpSrc = 9,
+    /// Set transport destination port
     SetTpDst = 10,
+    /// Forward packet to a specific queue
     Enqueue = 11,
 }
 
-#[derive(Clone)]
+/// Represents an OpenFlow 1.0 action with its associated parameters
+/// 
+/// Each variant contains the necessary data for performing the specific action
+/// on packets flowing through the switch.
+#[derive(Clone, Debug)]
 pub enum Action {
+    /// Forward packet to a specific port
     Oputput(PseudoPort),
+    /// Set or remove VLAN ID
     SetDlVlan(Option<u16>),
+    /// Set VLAN priority
     SetDlVlanPcp(u8),
+    /// Set source MAC address
     SetDlSrc(MacAddr),
+    /// Set destination MAC address
     SetDlDest(MacAddr),
+    /// Set IPv4 source address
     SetIpSrc(u32),
+    /// Set IPv4 destination address
     SetIpDes(u32),
+    /// Set IP Type of Service
     SetTos(u8),
+    /// Set transport source port
     SetTpSrc(u16),
+    /// Set transport destination port
     SetTpDest(u16),
+    /// Forward packet to a specific queue
     Enqueue(PseudoPort, u32),
+    /// Action that could not be parsed
     Unparsable,
 }
 
 impl Action {
+    /// Converts an action to its corresponding action type code
+    /// 
+    /// # Returns
+    /// The ActionType enum variant corresponding to this action
     pub fn to_action_code(&self) -> ActionType {
         match self {
             Action::Oputput(_) => ActionType::Output,
@@ -55,6 +105,11 @@ impl Action {
             Action::Unparsable => panic!("Unparse Action to ActionType"),
         }
     }
+
+    /// Returns the total length of the action in bytes
+    /// 
+    /// # Returns
+    /// The size of the action including header and payload
     pub fn length(&self) -> usize {
         let header = size_of::<(u16, u16)>();
         let body = match self {
@@ -74,6 +129,10 @@ impl Action {
         header + body
     }
 
+    /// Serializes the action into a byte buffer
+    /// 
+    /// # Arguments
+    /// * `bytes` - Mutable reference to the byte buffer to write to
     pub fn marshal(&self, bytes: &mut Vec<u8>) {
         let _ = bytes.write_u16::<BigEndian>(self.to_action_code() as u16);
         let _ = bytes.write_u16::<BigEndian>(self.length() as u16);
@@ -122,6 +181,14 @@ impl Action {
             Action::Unparsable => (),
         }
     }
+
+    /// Parses a sequence of actions from a byte buffer
+    /// 
+    /// # Arguments
+    /// * `bytes` - Cursor containing the byte buffer to parse
+    /// 
+    /// # Returns
+    /// Vector of parsed actions
     pub fn parse_sequence(bytes: &mut Cursor<Vec<u8>>) -> Vec<Action> {
         if bytes.get_ref().is_empty() {
             vec![]
@@ -136,6 +203,13 @@ impl Action {
         }
     }
 
+    /// Parses a single action from a byte buffer
+    /// 
+    /// # Arguments
+    /// * `bytes` - Cursor containing the byte buffer to parse
+    /// 
+    /// # Returns
+    /// Result containing either the parsed action or an error
     pub fn parse(bytes: &mut Cursor<Vec<u8>>) -> Result<Action, Error> {
         let action_code = bytes.read_u16::<BigEndian>()?;
         let _ = bytes.read_u16::<BigEndian>()?;
@@ -214,16 +288,21 @@ impl Action {
     }
 }
 
+/// Trait for checking action sequence sizes and reordering
 pub trait SizeCheck {
+    /// Returns the total size of an action sequence
     fn size_of_sequence(&self) -> usize;
+    /// Moves controller actions to the end of the sequence
     fn move_controller_last(&self) -> Vec<Action>;
 }
 
 impl SizeCheck for Vec<Action> {
+    /// Calculates the total size of all actions in the sequence
     fn size_of_sequence(&self) -> usize {
         self.iter().fold(0, |acc, x| x.length() + acc)
     }
 
+    /// Reorders actions to ensure controller actions are last
     fn move_controller_last(&self) -> Vec<Action> {
         let mut not_ctrl: Vec<Action> = Vec::new();
         let mut is_ctrl: Vec<Action> = Vec::new();

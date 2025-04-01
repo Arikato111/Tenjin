@@ -1,3 +1,20 @@
+//! OpenFlow 1.0 Controller Frame
+//! 
+//! This module provides the controller frame implementation for OpenFlow 1.0,
+//! handling the communication between the controller and switches. It includes
+//! message parsing, event handling, and TCP communication functionality.
+//! 
+//! The controller frame is responsible for:
+//! - Managing TCP connections with switches
+//! - Parsing and handling OpenFlow messages
+//! - Processing various OpenFlow events
+//! - Sending responses and commands to switches
+//! 
+//! The main component is the `ControllerFrame10` trait which defines the interface
+//! for implementing OpenFlow 1.0 controllers. Implementors can customize the behavior
+//! of message handling and event processing while maintaining compatibility with
+//! the OpenFlow 1.0 protocol specification.
+
 use tokio::{
     io::{AsyncReadExt, AsyncWriteExt},
     net::TcpStream,
