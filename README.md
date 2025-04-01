@@ -15,160 +15,114 @@
 [version]: https://img.shields.io/crates/v/tenjin_sdn
 
 
-Tenjin is The software-defined networking framework written in Rust, offering high performance and memory safety. It can be used as both a framework and a command line tool.
+## Features
 
-## Update!
+- High performance and memory safety through Rust
+- Support for OpenFlow 1.0 and 1.3
+- Asynchronous operation with Tokio
+- Built-in example controllers
+- Command-line interface for quick testing
+- Mininet integration for network emulation
 
-- use `etherparse` instead of writing your own.
-- change name of lib to `tenjin_sdn`.
+## Quick Start
 
-## Menu
+### As a Command-Line Tool
 
-- [Installation to your project](#installation-to-your-project)
-- [Installation as Command line program](#installation-as-command-line-program)
-- [Cli usage](#cli-usage)
-- [Run The example controller](#run-the-example-controller)
-- [Mininet](#mininet)
-
-## Installation to your project
-
-#### Normal install includes `full` feature by default.
-
+1. Install Rust and Cargo:
 ```bash
-cargo add tenjin_sdn
-```
-
-#### if you pefer to use only needed library with lightweight and faster compile.
-
-some features needed dependencies you might be not using,which can cause slow compilation.
-Using only features you needed can decrease number of dependencies you need to compile.
-
-```bash
-cargo install tenjin_sdn --no-default-features 
-```
-if you need to use example controller, add `-F example` flag to command.
-
-### Install Tokio 
-
-Tenjin is asynchronous,so for using it, you need to make your main function be async by using [tokio](https://tokio.rs/). install tokio with command below.
-
-```bash
-cargo add tokio
-```
-
-
-## Installation as Command line program
-
-With Tenjin as cli you can run **The example controller** with your terminal without writing any code. (see example controller at ./src/example)
-
-### Install [Rust](https://www.rust-lang.org/)
-
-first, you need `rust` and `cargo` to install Tenjin as comand line program. go to official website for installation.
-
-[official webpage installation](https://www.rust-lang.org/tools/install)
-
-or run this command below. (For macOS, Linux, or another Unix-like OS)
-
-```
 curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh
 ```
 
-### Install Tenjin
-
-after installing rust and cargo, you can use command below to install Tenjin.
-
-```
-cargo install tenjin_sdn 
+2. Install Tenjin:
+```bash
+cargo install tenjin_sdn
 ```
 
-### Install without compile source code with "cargo-binstall"
-
-use [cargo-binstall](https://github.com/cargo-bins/cargo-binstall) to install compiled binary from github release with following command. (Please ensure that you have installed A.)
-
-```
-cargo binstall tenjin_sdn
-```
-
-
-## Cli usage
-
-#### Run Controller by default (Controller13 with OpenFlow 1.3)
-
+3. Run the example controller:
 ```bash
 tenjin run
 ```
 
-#### Run Controller10 with Openflow 1.0
+### As a Library
 
+1. Add Tenjin to your project:
 ```bash
-tenjin run ctrl10
+cargo add tenjin_sdn
 ```
 
-#### Run with specific port
-
+2. Add Tokio for async support:
 ```bash
-tenjin run --port 6653
+cargo add tokio
 ```
 
-```bash
-tenjin run --port 6653,6633
-```
-
-
-#### Show details of `run` command
-
-```bash
-tenjin run --help
-```
-
-## Run The example controller
-
-After you install `tenjin_sdn` to your project with feature `example`, you can run example controller with this code below.
-
-### Openflow 1.3
-
+3. Use in your code:
 ```rust
 use tenjin_sdn::{example, openflow::ofp13::ControllerFrame13};
 
-fn main() {
+#[tokio::main]
+async fn main() {
     let controller = example::Controller13::new();
     controller.listener("127.0.0.1:6633");
 }
 ```
 
-### Openflow 1.0
+## Usage Guide
 
+### Command-Line Interface
 
-```rust
-use tenjin_sdn::{example, openflow::ofp10::ControllerFrame10};
+#### Basic Usage
+```bash
+# Run default controller (OpenFlow 1.3)
+tenjin run
 
-fn main() {
-    let controller = example::Controller10::new();
-    controller.listener("127.0.0.1:6633");
-}
+# Run OpenFlow 1.0 controller
+tenjin run ctrl10
+
+# Run on specific ports
+tenjin run --port 6653
+tenjin run --port 6653,6633
 ```
 
-## Mininet
+For more options:
+```bash
+tenjin run --help
+```
 
-Mininet is a network emulator to create virtual networks for rapid prototyping of Software-Defined.
-Using mininet for testing this SDN Framework.
+### Network Emulation with Mininet
 
-### Run Mininet with Openflow 1.3
-
+#### OpenFlow 1.3
 ```bash
 sudo mn --controller=remote,ip=127.0.0.1 --mac --switch=ovsk,protocols=OpenFlow13 --topo=tree,2
 ```
 
-### Run Mininet with Openflow 1.0
-
+#### OpenFlow 1.0
 ```bash
 sudo mn --controller=remote,ip=127.0.0.1 --mac --switch=ovsk,protocols=OpenFlow10 --topo=tree,2
 ```
 
-## Learning resources
+## Advanced Installation
 
-- [Openflow 1.3 Document](https://opennetworking.org/wp-content/uploads/2014/10/openflow-spec-v1.3.0.pdf)
+### Minimal Installation
+For faster compilation, you can install only the features you need:
+```bash
+cargo install tenjin_sdn --no-default-features
+```
+
+To include example controllers, add the `example` feature:
+```bash
+cargo install tenjin_sdn --no-default-features -F example
+```
+
+### Binary Installation
+Using cargo-binstall for pre-compiled binaries:
+```bash
+cargo binstall tenjin_sdn
+```
+
+## Learning Resources
+
+- [OpenFlow 1.3 Specification](https://opennetworking.org/wp-content/uploads/2014/10/openflow-spec-v1.3.0.pdf)
 - [rust_ofp](https://github.com/baxtersa/rust_ofp)
 - [awesome-sdn](https://github.com/sdnds-tw/awesome-sdn)
-- [ryu](https://github.com/faucetsdn/ryu)
-- [learn-sdn-with-ryu](https://github.com/knetsolutions/learn-sdn-with-ryu)
+- [Ryu](https://github.com/faucetsdn/ryu)
+- [Learn SDN with Ryu](https://github.com/knetsolutions/learn-sdn-with-ryu)
