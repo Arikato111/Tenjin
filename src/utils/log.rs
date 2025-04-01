@@ -53,4 +53,3 @@ impl<'a> Log for NetSlice<'a> {
         output
     }
 }
-

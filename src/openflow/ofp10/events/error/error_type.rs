@@ -22,11 +22,11 @@ pub enum ErrorType {
 
 impl ErrorType {
     /// Creates a new ErrorType based on the error type and code received from the switch.
-    /// 
+    ///
     /// # Arguments
     /// * `error_type` - The main error type identifier
     /// * `error_code` - The specific error code within that error type
-    /// 
+    ///
     /// # Returns
     /// A new ErrorType instance with the appropriate variant and error details
     pub fn new(error_type: u16, error_code: u16) -> ErrorType {

@@ -1,5 +1,5 @@
 //! OpenFlow 1.0 Protocol Implementation
-//! 
+//!
 //! This module implements the OpenFlow 1.0 protocol specification, providing:
 //! - Message types and structures
 //! - Port definitions and handling

@@ -1,5 +1,5 @@
 //! OpenFlow v1.3 Actions Implementation
-//! 
+//!
 //! This module implements the various actions that can be applied to packets
 //! in OpenFlow v1.3 protocol. Actions include packet forwarding, header modifications,
 //! and various packet processing operations.
@@ -279,7 +279,7 @@ impl Action {
 /// Trait for converting actions to instructions
 pub trait ToInstruction {
     /// Converts the action to an instruction
-    /// 
+    ///
     /// # Returns
     /// The corresponding instruction
     fn to_instruct(&self) -> InstructActions;

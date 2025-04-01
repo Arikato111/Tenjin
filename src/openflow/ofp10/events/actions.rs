@@ -1,9 +1,9 @@
 //! OpenFlow 1.0 Actions
-//! 
+//!
 //! This module implements the action types and structures used in OpenFlow 1.0
 //! for packet manipulation and forwarding. Actions define what operations should
 //! be performed on packets as they flow through the switch.
-//! 
+//!
 //! The module provides:
 //! - Action type definitions
 //! - Action structure implementations
@@ -21,7 +21,7 @@ use byteorder::{BigEndian, ReadBytesExt, WriteBytesExt};
 use crate::{openflow::ofp10::PseudoPort, utils::MacAddr};
 
 /// Represents the standard OpenFlow 1.0 action types
-/// 
+///
 /// Each variant corresponds to a specific action that can be performed on packets
 /// as defined in the OpenFlow 1.0 specification.
 #[derive(Debug)]
@@ -53,7 +53,7 @@ pub enum ActionType {
 }
 
 /// Represents an OpenFlow 1.0 action with its associated parameters
-/// 
+///
 /// Each variant contains the necessary data for performing the specific action
 /// on packets flowing through the switch.
 #[derive(Clone, Debug)]
@@ -86,7 +86,7 @@ pub enum Action {
 
 impl Action {
     /// Converts an action to its corresponding action type code
-    /// 
+    ///
     /// # Returns
     /// The ActionType enum variant corresponding to this action
     pub fn to_action_code(&self) -> ActionType {
@@ -107,7 +107,7 @@ impl Action {
     }
 
     /// Returns the total length of the action in bytes
-    /// 
+    ///
     /// # Returns
     /// The size of the action including header and payload
     pub fn length(&self) -> usize {
@@ -130,7 +130,7 @@ impl Action {
     }
 
     /// Serializes the action into a byte buffer
-    /// 
+    ///
     /// # Arguments
     /// * `bytes` - Mutable reference to the byte buffer to write to
     pub fn marshal(&self, bytes: &mut Vec<u8>) {
@@ -183,10 +183,10 @@ impl Action {
     }
 
     /// Parses a sequence of actions from a byte buffer
-    /// 
+    ///
     /// # Arguments
     /// * `bytes` - Cursor containing the byte buffer to parse
-    /// 
+    ///
     /// # Returns
     /// Vector of parsed actions
     pub fn parse_sequence(bytes: &mut Cursor<Vec<u8>>) -> Vec<Action> {
@@ -204,10 +204,10 @@ impl Action {
     }
 
     /// Parses a single action from a byte buffer
-    /// 
+    ///
     /// # Arguments
     /// * `bytes` - Cursor containing the byte buffer to parse
-    /// 
+    ///
     /// # Returns
     /// Result containing either the parsed action or an error
     pub fn parse(bytes: &mut Cursor<Vec<u8>>) -> Result<Action, Error> {

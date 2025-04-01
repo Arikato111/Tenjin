@@ -1,31 +1,31 @@
-use std::net::{Ipv4Addr, Ipv6Addr};
 use etherparse::NetSlice;
+use std::net::{Ipv4Addr, Ipv6Addr};
 
 /// A trait for extracting IP addresses from etherparse's NetSlice.
-/// 
+///
 /// This trait provides a simplified interface for getting source and destination IP addresses
 /// from network packets, supporting both IPv4 and IPv6 protocols.
 pub trait GetIp {
     /// Extracts the IPv4 destination address from the packet.
-    /// 
+    ///
     /// # Returns
     /// * `Result<Ipv4Addr, String>` - The IPv4 destination address if found, or an error if not found
     fn ipv4_dst(&self) -> Result<Ipv4Addr, String>;
-    
+
     /// Extracts the IPv4 source address from the packet.
-    /// 
+    ///
     /// # Returns
     /// * `Result<Ipv4Addr, String>` - The IPv4 source address if found, or an error if not found
     fn ipv4_src(&self) -> Result<Ipv4Addr, String>;
-    
+
     /// Extracts the IPv6 destination address from the packet.
-    /// 
+    ///
     /// # Returns
     /// * `Result<Ipv6Addr, String>` - The IPv6 destination address if found, or an error if not found
     fn ipv6_dst(&self) -> Result<Ipv6Addr, String>;
-    
+
     /// Extracts the IPv6 source address from the packet.
-    /// 
+    ///
     /// # Returns
     /// * `Result<Ipv6Addr, String>` - The IPv6 source address if found, or an error if not found
     fn ipv6_src(&self) -> Result<Ipv6Addr, String>;
@@ -34,7 +34,7 @@ pub trait GetIp {
 /// Implementation of GetIp for NetSlice to extract IP addresses from raw packet data.
 impl<'a> GetIp for NetSlice<'a> {
     /// Extracts the IPv6 destination address from the packet.
-    /// 
+    ///
     /// # Returns
     /// * `Result<Ipv6Addr, String>` - The IPv6 destination address if found, or an error if not IPv6
     fn ipv6_dst(&self) -> Result<Ipv6Addr, String> {
@@ -46,7 +46,7 @@ impl<'a> GetIp for NetSlice<'a> {
     }
 
     /// Extracts the IPv6 source address from the packet.
-    /// 
+    ///
     /// # Returns
     /// * `Result<Ipv6Addr, String>` - The IPv6 source address if found, or an error if not IPv6
     fn ipv6_src(&self) -> Result<Ipv6Addr, String> {
@@ -58,7 +58,7 @@ impl<'a> GetIp for NetSlice<'a> {
     }
 
     /// Extracts the IPv4 destination address from the packet.
-    /// 
+    ///
     /// # Returns
     /// * `Result<Ipv4Addr, String>` - The IPv4 destination address if found, or an error if not IPv4
     fn ipv4_dst(&self) -> Result<Ipv4Addr, String> {
@@ -70,7 +70,7 @@ impl<'a> GetIp for NetSlice<'a> {
     }
 
     /// Extracts the IPv4 source address from the packet.
-    /// 
+    ///
     /// # Returns
     /// * `Result<Ipv4Addr, String>` - The IPv4 source address if found, or an error if not IPv4
     fn ipv4_src(&self) -> Result<Ipv4Addr, String> {

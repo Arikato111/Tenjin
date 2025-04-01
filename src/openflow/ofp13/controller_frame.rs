@@ -1,20 +1,20 @@
 //! OpenFlow 1.3 Controller Frame
-//! 
+//!
 //! This module provides the controller frame implementation for OpenFlow 1.3,
 //! handling the communication between the controller and switches. It includes
 //! message parsing, event handling, and TCP communication functionality.
-//! 
+//!
 //! The controller frame is responsible for:
 //! - Managing TCP connections with switches
 //! - Parsing and handling OpenFlow messages
 //! - Processing various OpenFlow events
 //! - Sending responses and commands to switches
-//! 
+//!
 //! The main component is the `ControllerFrame13` trait which defines the interface
 //! for implementing OpenFlow 1.3 controllers. Implementors can customize the behavior
 //! of message handling and event processing while maintaining compatibility with
 //! the OpenFlow 1.3 protocol specification.
-//! 
+//!
 //! OpenFlow 1.3 introduces several improvements over 1.0, including:
 //! - Enhanced message types and event handling
 //! - Improved error reporting with payload information
@@ -35,7 +35,7 @@ use tokio::{
 };
 
 /// Trait defining the controller frame functionality for OpenFlow 1.3
-/// 
+///
 /// This trait provides the core functionality needed to implement an OpenFlow 1.3
 /// controller, including message handling, TCP communication, and event processing.
 /// Implementors of this trait can create custom controllers with specific behaviors
@@ -47,7 +47,7 @@ pub trait ControllerFrame13: Send {
     }
 
     /// Handles incoming packet-in events
-    /// 
+    ///
     /// # Arguments
     /// * `xid` - Transaction ID
     /// * `packetin` - The packet-in event to handle
@@ -63,7 +63,7 @@ pub trait ControllerFrame13: Send {
     fn new() -> Self;
 
     /// Starts the TCP listener for accepting switch connections
-    /// 
+    ///
     /// # Arguments
     /// * `address` - The address to listen on
     fn listener(&self, address: &str) -> impl Future<Output = ()> + Send
@@ -79,10 +79,10 @@ pub trait ControllerFrame13: Send {
     }
 
     /// Parses the OpenFlow header from a buffer
-    /// 
+    ///
     /// # Arguments
     /// * `buf` - Buffer containing the header data
-    /// 
+    ///
     /// # Returns
     /// Option containing tuple of (message type, payload size, transaction ID)
     fn handle_header(&mut self, buf: &mut Vec<u8>) -> Option<(u8, usize, u32)> {
@@ -94,7 +94,7 @@ pub trait ControllerFrame13: Send {
     }
 
     /// Handles incoming OpenFlow messages
-    /// 
+    ///
     /// # Arguments
     /// * `buf` - Buffer containing the message data
     /// * `stream` - TCP stream for communication
@@ -142,7 +142,7 @@ pub trait ControllerFrame13: Send {
     }
 
     /// Sends an OpenFlow message over the TCP stream
-    /// 
+    ///
     /// # Arguments
     /// * `msg` - The message to send
     /// * `xid` - Transaction ID
@@ -170,7 +170,7 @@ pub trait ControllerFrame13: Send {
     }
 
     /// Handles OpenFlow Hello messages
-    /// 
+    ///
     /// # Arguments
     /// * `xid` - Transaction ID
     /// * `stream` - TCP stream for communication
@@ -184,7 +184,7 @@ pub trait ControllerFrame13: Send {
     }
 
     /// Handles OpenFlow Error messages
-    /// 
+    ///
     /// # Arguments
     /// * `error` - The error event to handle
     fn error_handler(&self, error: ErrorEvent) {
@@ -192,7 +192,7 @@ pub trait ControllerFrame13: Send {
     }
 
     /// Handles OpenFlow Echo Request messages
-    /// 
+    ///
     /// # Arguments
     /// * `xid` - Transaction ID
     /// * `echo` - The echo request event to handle
@@ -213,7 +213,7 @@ pub trait ControllerFrame13: Send {
     }
 
     /// Handles OpenFlow Features Reply messages
-    /// 
+    ///
     /// # Arguments
     /// * `xid` - Transaction ID
     /// * `features_reply` - The features reply event to handle

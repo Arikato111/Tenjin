@@ -14,7 +14,6 @@
 [download]: https://img.shields.io/crates/d/tenjin_sdn
 [version]: https://img.shields.io/crates/v/tenjin_sdn
 
-
 ## Features
 
 - High performance and memory safety through Rust
@@ -29,16 +28,19 @@
 ### As a Command-Line Tool
 
 1. Install Rust and Cargo:
+
 ```bash
 curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh
 ```
 
 2. Install Tenjin:
+
 ```bash
 cargo install tenjin_sdn
 ```
 
 3. Run the example controller:
+
 ```bash
 tenjin run
 ```
@@ -46,16 +48,19 @@ tenjin run
 ### As a Library
 
 1. Add Tenjin to your project:
+
 ```bash
 cargo add tenjin_sdn
 ```
 
 2. Add Tokio for async support:
+
 ```bash
 cargo add tokio
 ```
 
 3. Use in your code:
+
 ```rust
 use tenjin_sdn::{example, openflow::ofp13::ControllerFrame13};
 
@@ -71,6 +76,7 @@ async fn main() {
 ### Command-Line Interface
 
 #### Basic Usage
+
 ```bash
 # Run default controller (OpenFlow 1.3)
 tenjin run
@@ -84,6 +90,7 @@ tenjin run --port 6653,6633
 ```
 
 For more options:
+
 ```bash
 tenjin run --help
 ```
@@ -91,11 +98,13 @@ tenjin run --help
 ### Network Emulation with Mininet
 
 #### OpenFlow 1.3
+
 ```bash
 sudo mn --controller=remote,ip=127.0.0.1 --mac --switch=ovsk,protocols=OpenFlow13 --topo=tree,2
 ```
 
 #### OpenFlow 1.0
+
 ```bash
 sudo mn --controller=remote,ip=127.0.0.1 --mac --switch=ovsk,protocols=OpenFlow10 --topo=tree,2
 ```
@@ -103,26 +112,23 @@ sudo mn --controller=remote,ip=127.0.0.1 --mac --switch=ovsk,protocols=OpenFlow1
 ## Advanced Installation
 
 ### Minimal Installation
+
 For faster compilation, you can install only the features you need:
+
 ```bash
 cargo install tenjin_sdn --no-default-features
 ```
 
 To include example controllers, add the `example` feature:
+
 ```bash
 cargo install tenjin_sdn --no-default-features -F example
 ```
 
 ### Binary Installation
+
 Using cargo-binstall for pre-compiled binaries:
+
 ```bash
 cargo binstall tenjin_sdn
 ```
-
-## Learning Resources
-
-- [OpenFlow 1.3 Specification](https://opennetworking.org/wp-content/uploads/2014/10/openflow-spec-v1.3.0.pdf)
-- [rust_ofp](https://github.com/baxtersa/rust_ofp)
-- [awesome-sdn](https://github.com/sdnds-tw/awesome-sdn)
-- [Ryu](https://github.com/faucetsdn/ryu)
-- [Learn SDN with Ryu](https://github.com/knetsolutions/learn-sdn-with-ryu)

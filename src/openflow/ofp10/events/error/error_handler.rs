@@ -22,7 +22,7 @@ pub struct ErrorEvent {
 
 impl ErrorEvent {
     /// Creates a new ErrorEvent with the specified error type and payload.
-    /// 
+    ///
     /// # Arguments
     /// * `error_type` - The type of error that occurred
     /// * `payload` - Additional data associated with the error
@@ -34,10 +34,10 @@ impl ErrorEvent {
     }
 
     /// Parses a raw buffer into an ErrorEvent.
-    /// 
+    ///
     /// # Arguments
     /// * `buf` - The raw buffer containing the error event data
-    /// 
+    ///
     /// # Returns
     /// A Result containing either the parsed ErrorEvent or an IO Error
     pub fn parse(buf: &Vec<u8>) -> Result<ErrorEvent, Error> {

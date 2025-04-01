@@ -1,5 +1,5 @@
 //! OpenFlow v1.3 Features Reply Message Implementation
-//! 
+//!
 //! This module implements the Features Reply message type used in OpenFlow v1.3 protocol.
 //! The Features Reply message is sent by the switch in response to a Features Request,
 //! providing information about its capabilities and configuration.
@@ -9,7 +9,7 @@ use std::io::{BufRead, Cursor, Error};
 use byteorder::{BigEndian, ReadBytesExt};
 
 /// Represents an OpenFlow v1.3 Features Reply message
-/// 
+///
 /// Contains information about the switch's capabilities and configuration,
 /// including datapath ID, buffer count, number of tables, and various capabilities.
 pub struct FeaturesReplyEvent {
@@ -30,10 +30,10 @@ pub struct FeaturesReplyEvent {
 
 impl FeaturesReplyEvent {
     /// Parses a Features Reply message from a byte vector
-    /// 
+    ///
     /// # Arguments
     /// * `bytes` - The byte vector containing the message data
-    /// 
+    ///
     /// # Returns
     /// * `Result<Self, Error>` - The parsed FeaturesReplyEvent or an error if parsing fails
     pub fn parse(bytes: &Vec<u8>) -> Result<Self, Error> {
@@ -57,7 +57,7 @@ impl FeaturesReplyEvent {
 }
 
 /// Represents the capabilities of an OpenFlow switch
-/// 
+///
 /// Contains boolean flags indicating which features and statistics
 /// are supported by the switch.
 pub struct Capabilities {
@@ -78,10 +78,10 @@ pub struct Capabilities {
 }
 
 /// Converts a 32-bit integer into a Capabilities struct
-/// 
+///
 /// # Arguments
 /// * `value` - The 32-bit integer containing the capability flags
-/// 
+///
 /// # Returns
 /// A new Capabilities struct with flags set based on the input value
 impl From<u32> for Capabilities {
@@ -99,10 +99,10 @@ impl From<u32> for Capabilities {
 }
 
 /// Converts a Capabilities struct into a 32-bit integer
-/// 
+///
 /// # Arguments
 /// * `value` - The Capabilities struct to convert
-/// 
+///
 /// # Returns
 /// A 32-bit integer containing the capability flags
 impl From<Capabilities> for u32 {

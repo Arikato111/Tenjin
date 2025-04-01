@@ -1,5 +1,5 @@
 //! CLI System for Tenjin SDN Controller
-//! 
+//!
 //! This module provides the command-line interface for the Tenjin SDN controller,
 //! allowing users to run different controller versions and manage the application.
 
@@ -57,14 +57,11 @@ pub enum Controllers {
 }
 
 /// Runs a controller instance on the specified address
-/// 
+///
 /// # Arguments
 /// * `addr` - The socket address to listen on
 /// * `controller` - The controller version to run (defaults to Ctrl13 if None)
-async fn run_controller(
-    addr: SocketAddr,
-    controller: Option<Controllers>,
-) -> Result<(), Error> {
+async fn run_controller(addr: SocketAddr, controller: Option<Controllers>) -> Result<(), Error> {
     let controller = controller.unwrap_or(Controllers::Ctrl13);
     match controller {
         Controllers::Ctrl13 => Ok(Controller13::new().listener(&addr.to_string()).await),
@@ -73,7 +70,7 @@ async fn run_controller(
 }
 
 /// Generates shell completion scripts for the CLI
-/// 
+///
 /// # Arguments
 /// * `shell` - The shell type to generate completions for
 async fn handle_completions(shell: Shell) -> Result<(), Error> {
@@ -83,12 +80,12 @@ async fn handle_completions(shell: Shell) -> Result<(), Error> {
 }
 
 /// Main entry point for the CLI system
-/// 
+///
 /// This function parses command line arguments and executes the appropriate command.
 /// For the run command, it spawns controller instances for each specified port.
 pub async fn system() -> Result<(), Error> {
     let cli = Cli::parse();
-    
+
     match cli.command {
         Commands::Run {
             controller,
@@ -97,20 +94,18 @@ pub async fn system() -> Result<(), Error> {
         } => {
             // Pre-allocate vector for better performance
             let mut handles: Vec<JoinHandle<Result<(), Error>>> = Vec::with_capacity(port.len());
-            
+
             // Spawn controller instances for each port
             for p in port.iter() {
                 let addr = format!("{}:{}", listen, p)
                     .parse::<SocketAddr>()
                     .map_err(|e| format!("Invalid address: {}", e))?;
-                
+
                 let controller = controller.clone();
-                let handle = tokio::spawn(async move {
-                    run_controller(addr, controller).await
-                });
+                let handle = tokio::spawn(async move { run_controller(addr, controller).await });
                 handles.push(handle);
             }
-            
+
             // Wait for all controller instances to complete
             for handle in handles {
                 handle.await??;
@@ -120,6 +115,6 @@ pub async fn system() -> Result<(), Error> {
             handle_completions(shell).await?;
         }
     }
-    
+
     Ok(())
 }

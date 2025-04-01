@@ -1,5 +1,5 @@
 //! OpenFlow v1.3 Flow Modification Commands
-//! 
+//!
 //! This module defines the different commands that can be used to modify
 //! flow entries in the OpenFlow switch's flow tables.
 
@@ -22,7 +22,7 @@ pub enum FlowModCommand {
 
 impl FlowModCommand {
     /// Converts the command to its numeric representation
-    /// 
+    ///
     /// # Returns
     /// * `usize` - The numeric value of the command
     pub fn to_number(&self) -> usize {
@@ -37,10 +37,10 @@ impl FlowModCommand {
     }
 
     /// Parses a command from its numeric representation
-    /// 
+    ///
     /// # Arguments
     /// * `byte` - The numeric value to parse
-    /// 
+    ///
     /// # Returns
     /// * `FlowModCommand` - The parsed command or Unparsable if invalid
     pub fn parse(byte: u16) -> Self {

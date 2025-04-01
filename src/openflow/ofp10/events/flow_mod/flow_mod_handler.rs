@@ -1,9 +1,9 @@
 //! OpenFlow 1.0 Flow Modification Event Handler
-//! 
+//!
 //! This module implements the flow modification event handling for OpenFlow 1.0.
 //! Flow modification events are used to add, modify, or delete flow entries
 //! in the switch's flow tables.
-//! 
+//!
 //! The module provides:
 //! - Flow modification event structure
 //! - Timeout handling for flow entries
@@ -23,7 +23,7 @@ use crate::openflow::ofp10::{
 use super::{FlowModCommand, FlowModFlags, MatchFields};
 
 /// Represents the timeout settings for a flow entry
-/// 
+///
 /// Flow entries can be either permanent or have a specific timeout duration.
 #[derive(Debug)]
 pub enum Timeout {
@@ -35,10 +35,10 @@ pub enum Timeout {
 
 impl Timeout {
     /// Parses a timeout value from a byte value
-    /// 
+    ///
     /// # Arguments
     /// * `tm` - The timeout value in seconds (0 for permanent)
-    /// 
+    ///
     /// # Returns
     /// A new Timeout instance
     pub fn parse(tm: u16) -> Self {
@@ -49,7 +49,7 @@ impl Timeout {
     }
 
     /// Converts the timeout to its numeric value
-    /// 
+    ///
     /// # Returns
     /// The timeout value in seconds (0 for permanent)
     pub fn to_int(&self) -> u16 {
@@ -61,7 +61,7 @@ impl Timeout {
 }
 
 /// Represents a flow modification event
-/// 
+///
 /// Contains all the information needed to add, modify, or delete a flow entry
 /// in the switch's flow tables.
 pub struct FlowModEvent {
@@ -89,13 +89,13 @@ pub struct FlowModEvent {
 
 impl FlowModEvent {
     /// Creates a new flow modification event for adding a flow entry
-    /// 
+    ///
     /// # Arguments
     /// * `priority` - Priority of the flow entry
     /// * `match_fileds` - Match fields for the flow entry
     /// * `actions` - Actions to apply to matching packets
     /// * `buffer_id` - Optional buffer ID if packet is buffered
-    /// 
+    ///
     /// # Returns
     /// A new FlowModEvent instance configured for adding a flow entry
     pub fn add_flow(
@@ -119,10 +119,10 @@ impl FlowModEvent {
     }
 
     /// Parses a flow modification event from a byte buffer
-    /// 
+    ///
     /// # Arguments
     /// * `buf` - The byte buffer containing the flow modification event data
-    /// 
+    ///
     /// # Returns
     /// Result containing either the parsed FlowModEvent or an error
     pub fn parse(buf: &[u8]) -> Result<FlowModEvent, Error> {
@@ -158,11 +158,11 @@ impl FlowModEvent {
 }
 
 /// Implementation of MessageMarshal trait for FlowModEvent
-/// 
+///
 /// Provides functionality for serializing and handling OpenFlow flow modification messages.
 impl MessageMarshal for FlowModEvent {
     /// Returns the message type code as a usize
-    /// 
+    ///
     /// # Returns
     /// The numeric value of the flow modification message type
     fn msg_usize(&self) -> usize {
@@ -170,7 +170,7 @@ impl MessageMarshal for FlowModEvent {
     }
 
     /// Returns the size of the message payload
-    /// 
+    ///
     /// # Returns
     /// The size of the flow modification message in bytes
     fn size_of(&self) -> usize {
@@ -178,7 +178,7 @@ impl MessageMarshal for FlowModEvent {
     }
 
     /// Returns the message type code
-    /// 
+    ///
     /// # Returns
     /// The Msg::FlowMod variant
     fn msg_code(&self) -> Msg {
@@ -186,7 +186,7 @@ impl MessageMarshal for FlowModEvent {
     }
 
     /// Serializes the flow modification message into a byte buffer
-    /// 
+    ///
     /// # Arguments
     /// * `bytes` - Mutable reference to the byte buffer to write to
     fn marshal(&self, bytes: &mut Vec<u8>) {

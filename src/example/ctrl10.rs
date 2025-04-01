@@ -1,5 +1,5 @@
 //! OpenFlow 1.0 Controller Implementation
-//! 
+//!
 //! This module implements an OpenFlow 1.0 controller that handles packet forwarding
 //! and flow management in a software-defined network. This version is compatible
 //! with older OpenFlow switches that only support version 1.0.
@@ -18,7 +18,7 @@ use std::collections::HashMap;
 use tokio::net::TcpStream;
 
 /// OpenFlow 1.0 Controller implementation
-/// 
+///
 /// This controller maintains a mapping of MAC addresses to ports and handles
 /// packet forwarding based on this information. It implements the OpenFlow 1.0
 /// protocol specification.
@@ -37,7 +37,7 @@ impl ControllerFrame10 for Controller10 {
     }
 
     /// Handles incoming packets
-    /// 
+    ///
     /// This function implements the main packet forwarding logic:
     /// 1. Parses the incoming packet
     /// 2. Updates the MAC-to-port mapping
@@ -107,28 +107,16 @@ impl ControllerFrame10 for Controller10 {
 
             // Use buffer ID if available to avoid packet duplication
             if let Some(buf_id) = packetin.buf_id {
-                let _ = self.add_flow(
-                    xid,
-                    1,
-                    match_fields,
-                    &actions,
-                    Some(buf_id),
-                    stream,
-                )
-                .await;
+                let _ = self
+                    .add_flow(xid, 1, match_fields, &actions, Some(buf_id), stream)
+                    .await;
                 return;
             }
 
             // Add flow rule without buffer ID
-            let _ = self.add_flow(
-                xid,
-                1,
-                match_fields,
-                &actions,
-                None,
-                stream,
-            )
-            .await;
+            let _ = self
+                .add_flow(xid, 1, match_fields, &actions, None, stream)
+                .await;
         }
 
         // Forward the packet
@@ -141,7 +129,7 @@ impl ControllerFrame10 for Controller10 {
 
 impl Controller10 {
     /// Adds a flow rule to the switch
-    /// 
+    ///
     /// # Arguments
     /// * `xid` - Transaction ID
     /// * `priority` - Flow rule priority
@@ -158,11 +146,12 @@ impl Controller10 {
         buffer_id: Option<u32>,
         stream: &mut TcpStream,
     ) {
-        let _ = self.send_msg(
-            FlowModEvent::add_flow(priority, flow, actions.to_vec(), buffer_id),
-            xid,
-            stream,
-        )
-        .await;
+        let _ = self
+            .send_msg(
+                FlowModEvent::add_flow(priority, flow, actions.to_vec(), buffer_id),
+                xid,
+                stream,
+            )
+            .await;
     }
 }

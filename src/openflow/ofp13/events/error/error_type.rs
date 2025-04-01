@@ -1,5 +1,5 @@
 //! OpenFlow v1.3 Error Type Definitions
-//! 
+//!
 //! This module defines the various error types and codes that can be returned
 //! by an OpenFlow switch to indicate different types of failures or errors.
 

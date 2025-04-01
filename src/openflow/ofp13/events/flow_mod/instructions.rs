@@ -1,5 +1,5 @@
 //! OpenFlow v1.3 Flow Modification Instructions
-//! 
+//!
 //! This module defines the instructions that can be applied to packets
 //! matching a flow entry in the OpenFlow switch's flow tables.
 
@@ -10,7 +10,7 @@ use crate::openflow::ofp13::Action;
 /// Trait for marshaling instructions into wire format
 pub trait InstructTrait {
     /// Marshals the instruction into a byte buffer
-    /// 
+    ///
     /// # Arguments
     /// * `bytes` - The buffer to write the instruction to
     fn marshal(&self, bytes: &mut Vec<u8>);
@@ -38,7 +38,7 @@ pub enum InstructType {
 
 impl InstructType {
     /// Marshals the instruction type into a byte buffer
-    /// 
+    ///
     /// # Arguments
     /// * `bytes` - The buffer to write the type to
     pub fn marshal(&self, bytes: &mut Vec<u8>) {
@@ -64,10 +64,10 @@ pub struct GotoTable {
 
 impl GotoTable {
     /// Creates a new goto table instruction
-    /// 
+    ///
     /// # Arguments
     /// * `table_id` - ID of the table to jump to
-    /// 
+    ///
     /// # Returns
     /// * `GotoTable` - The new instruction instance
     pub fn new(table_id: u8) -> Self {
@@ -104,11 +104,11 @@ pub struct WriteMetadata {
 
 impl WriteMetadata {
     /// Creates a new write metadata instruction
-    /// 
+    ///
     /// # Arguments
     /// * `metadata` - Metadata value to write
     /// * `meta_mask` - Metadata mask
-    /// 
+    ///
     /// # Returns
     /// * `WriteMetadata` - The new instruction instance
     pub fn new(metadata: u64, meta_mask: u64) -> Self {
@@ -152,10 +152,10 @@ impl InstructActions {
     pub const CLEAR: InstructType = InstructType::ClearActions;
 
     /// Creates a new actions instruction
-    /// 
+    ///
     /// # Arguments
     /// * `typ` - Type of actions instruction
-    /// 
+    ///
     /// # Returns
     /// * `InstructActions` - The new instruction instance
     pub fn new(typ: InstructType) -> Self {
@@ -193,10 +193,10 @@ pub struct InstructMeter {
 
 impl InstructMeter {
     /// Creates a new meter instruction
-    /// 
+    ///
     /// # Arguments
     /// * `meter_id` - ID of the meter to apply
-    /// 
+    ///
     /// # Returns
     /// * `InstructMeter` - The new instruction instance
     pub fn new(meter_id: u32) -> Self {
@@ -230,7 +230,7 @@ pub enum Instrucion {
 
 impl Instrucion {
     /// Marshals the instruction into a byte buffer
-    /// 
+    ///
     /// # Arguments
     /// * `bytes` - The buffer to write the instruction to
     pub fn marshal(&self, bytes: &mut Vec<u8>) {

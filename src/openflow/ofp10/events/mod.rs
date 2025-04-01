@@ -1,9 +1,9 @@
 //! OpenFlow 1.0 Events
-//! 
+//!
 //! This module implements the event handling system for OpenFlow 1.0.
 //! Events represent various messages and notifications exchanged between
 //! the controller and switch.
-//! 
+//!
 //! The module provides implementations for:
 //! - Error handling and reporting
 //! - Packet-in and packet-out events

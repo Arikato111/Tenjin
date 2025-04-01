@@ -1,5 +1,5 @@
 //! OpenFlow v1.3 Flow Modification Handler
-//! 
+//!
 //! This module implements the handler for flow modification messages in OpenFlow v1.3.
 //! It provides functionality to add, modify, and delete flow entries in the switch's flow tables.
 
@@ -23,10 +23,10 @@ pub enum Timeout {
 
 impl Timeout {
     /// Parses a timeout value from a u16
-    /// 
+    ///
     /// # Arguments
     /// * `tm` - Timeout value in seconds (0 for permanent)
-    /// 
+    ///
     /// # Returns
     /// * `Timeout` - The parsed timeout value
     pub fn parse(tm: u16) -> Self {
@@ -37,7 +37,7 @@ impl Timeout {
     }
 
     /// Converts the timeout to a u16 value
-    /// 
+    ///
     /// # Returns
     /// * `u16` - The timeout value in seconds (0 for permanent)
     pub fn to_int(&self) -> u16 {
@@ -80,14 +80,14 @@ pub struct FlowModEvent {
 
 impl FlowModEvent {
     /// Creates a new flow modification event for adding a flow
-    /// 
+    ///
     /// # Arguments
     /// * `priority` - Priority of the flow entry
     /// * `match_fileds` - Match fields for the flow entry
     /// * `actions` - Actions to apply to matching packets
     /// * `table_id` - ID of the table to add the flow to
     /// * `buffer_id` - Optional buffer ID for buffered packets
-    /// 
+    ///
     /// # Returns
     /// * `FlowModEvent` - The new flow modification event
     pub fn add_flow(
@@ -132,7 +132,7 @@ impl MessageMarshal for FlowModEvent {
     }
 
     /// Marshals the message into a byte buffer
-    /// 
+    ///
     /// # Arguments
     /// * `bytes` - The buffer to write the message to
     fn marshal(&self, bytes: &mut Vec<u8>) {

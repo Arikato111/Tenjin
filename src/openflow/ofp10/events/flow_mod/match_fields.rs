@@ -1,9 +1,9 @@
 //! OpenFlow 1.0 Match Fields
-//! 
+//!
 //! This module implements the match fields functionality for OpenFlow 1.0 flow entries.
 //! Match fields define the criteria used to match packets against flow entries in the
 //! switch's flow tables.
-//! 
+//!
 //! The module provides:
 //! - Match field structure definitions
 //! - Wildcard handling for match fields
@@ -20,7 +20,7 @@ use crate::utils::{
 };
 
 /// Represents an IP address with an optional mask
-/// 
+///
 /// Used for matching source and destination IP addresses with subnet masks
 pub struct Mask<T> {
     /// The IP address value
@@ -31,7 +31,7 @@ pub struct Mask<T> {
 
 impl Mask<u32> {
     /// Converts the mask to an integer value
-    /// 
+    ///
     /// # Returns
     /// The mask value as a u32, or 0 if no mask is specified
     pub fn to_int(&self) -> u32 {
@@ -43,7 +43,7 @@ impl Mask<u32> {
 }
 
 /// Represents wildcard flags for match fields
-/// 
+///
 /// Used to specify which match fields should be ignored when matching packets
 struct Wildcards {
     /// Ignore input port
@@ -76,10 +76,10 @@ struct Wildcards {
 
 impl Wildcards {
     /// Creates wildcards from match fields
-    /// 
+    ///
     /// # Arguments
     /// * `match_fields` - The match fields to create wildcards from
-    /// 
+    ///
     /// # Returns
     /// A new Wildcards instance
     pub fn from_match_fields(match_fields: &MatchFields) -> Wildcards {
@@ -100,10 +100,10 @@ impl Wildcards {
     }
 
     /// Parses wildcards from a byte value
-    /// 
+    ///
     /// # Arguments
     /// * `byte` - The byte value containing wildcard flags
-    /// 
+    ///
     /// # Returns
     /// A new Wildcards instance
     pub fn parse(byte: u32) -> Wildcards {
@@ -124,7 +124,7 @@ impl Wildcards {
     }
 
     /// Serializes wildcards to a byte buffer
-    /// 
+    ///
     /// # Arguments
     /// * `bytes` - Mutable reference to the byte buffer to write to
     pub fn marshal(&self, bytes: &mut Vec<u8>) {
@@ -145,11 +145,11 @@ impl Wildcards {
     }
 
     /// Gets network mask bits from a byte value
-    /// 
+    ///
     /// # Arguments
     /// * `f` - The byte value to extract mask bits from
     /// * `offset` - The bit offset to start from
-    /// 
+    ///
     /// # Returns
     /// The mask bits as a u32
     pub fn get_nw_mask(f: u32, offset: usize) -> u32 {
@@ -157,12 +157,12 @@ impl Wildcards {
     }
 
     /// Sets network mask bits in a byte value
-    /// 
+    ///
     /// # Arguments
     /// * `byte` - The byte value to modify
     /// * `offset` - The bit offset to set mask bits at
     /// * `set` - The mask bits to set
-    /// 
+    ///
     /// # Returns
     /// The modified byte value
     pub fn set_nw_mask(byte: u32, offset: usize, set: u32) -> u32 {
@@ -171,10 +171,10 @@ impl Wildcards {
     }
 
     /// Converts a mask to its bit representation
-    /// 
+    ///
     /// # Arguments
     /// * `mask` - The mask to convert
-    /// 
+    ///
     /// # Returns
     /// The mask bits as a u32
     pub fn mask_bits(mask: &Option<Mask<u32>>) -> u32 {
@@ -189,7 +189,7 @@ impl Wildcards {
 }
 
 /// Represents the match fields for an OpenFlow flow entry
-/// 
+///
 /// Contains all possible match criteria that can be used to match packets
 /// against flow entries in the switch's flow tables.
 pub struct MatchFields {
@@ -223,7 +223,7 @@ pub struct MatchFields {
 
 impl MatchFields {
     /// Creates a match fields instance that matches all packets
-    /// 
+    ///
     /// # Returns
     /// A new MatchFields instance with all fields set to None
     pub fn match_all() -> Self {
@@ -244,7 +244,7 @@ impl MatchFields {
     }
 
     /// Serializes match fields to a byte buffer
-    /// 
+    ///
     /// # Arguments
     /// * `bytes` - Mutable reference to the byte buffer to write to
     pub fn marshal(&self, bytes: &mut Vec<u8>) {
@@ -305,10 +305,10 @@ impl MatchFields {
     }
 
     /// Parses match fields from a byte buffer
-    /// 
+    ///
     /// # Arguments
     /// * `bytes` - Cursor containing the byte buffer to parse
-    /// 
+    ///
     /// # Returns
     /// Result containing either the parsed MatchFields or an error
     pub fn parse(bytes: &mut Cursor<Vec<u8>>) -> Result<MatchFields, Error> {

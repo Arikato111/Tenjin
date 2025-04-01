@@ -1,8 +1,8 @@
 //! OpenFlow 1.0 Flow Modification Flags
-//! 
+//!
 //! This module implements the flags used in OpenFlow 1.0 flow modification messages
 //! to control various aspects of flow entry management.
-//! 
+//!
 //! The module provides:
 //! - Flow modification flag structure
 //! - Flag parsing and serialization
@@ -11,7 +11,7 @@
 use byteorder::{BigEndian, WriteBytesExt};
 
 /// Represents the flags that can be set in a flow modification message
-/// 
+///
 /// These flags control various aspects of how flow entries are managed
 /// and how the switch should handle flow modifications.
 pub struct FlowModFlags {
@@ -25,12 +25,12 @@ pub struct FlowModFlags {
 
 impl FlowModFlags {
     /// Creates a new FlowModFlags instance with specified values
-    /// 
+    ///
     /// # Arguments
     /// * `send_flow_rem` - Whether to send flow removed messages
     /// * `check_overlap` - Whether to check for overlapping entries
     /// * `emerg` - Whether this is an emergency flow entry
-    /// 
+    ///
     /// # Returns
     /// A new FlowModFlags instance
     pub fn new(send_flow_rem: bool, check_overlap: bool, emerg: bool) -> Self {
@@ -42,7 +42,7 @@ impl FlowModFlags {
     }
 
     /// Creates a FlowModFlags instance with all flags set to false
-    /// 
+    ///
     /// # Returns
     /// A new FlowModFlags instance with all flags disabled
     pub fn all_false() -> Self {
@@ -54,10 +54,10 @@ impl FlowModFlags {
     }
 
     /// Parses flags from a byte value
-    /// 
+    ///
     /// # Arguments
     /// * `byte` - The byte value containing the flag bits
-    /// 
+    ///
     /// # Returns
     /// A new FlowModFlags instance with parsed flag values
     pub fn parse(byte: u16) -> Self {
@@ -72,7 +72,7 @@ impl FlowModFlags {
     }
 
     /// Serializes flags to a byte buffer
-    /// 
+    ///
     /// # Arguments
     /// * `bytes` - Mutable reference to the byte buffer to write to
     pub fn marshal(&self, bytes: &mut Vec<u8>) {
