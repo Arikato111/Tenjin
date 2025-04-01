@@ -1,3 +1,9 @@
+//! OpenFlow v1.3 Actions Implementation
+//! 
+//! This module implements the various actions that can be applied to packets
+//! in OpenFlow v1.3 protocol. Actions include packet forwarding, header modifications,
+//! and various packet processing operations.
+
 use crate::{openflow::ofp13::PseudoPort, utils::MacAddr};
 use byteorder::{BigEndian, WriteBytesExt};
 use std::{
@@ -10,6 +16,7 @@ use super::flow_mod::{
     match_fields::{OxmHeader, OxmMatchFields},
 };
 
+/// Represents the different types of actions supported in OpenFlow v1.3
 #[derive(Clone)]
 #[repr(u16)]
 enum ActionType {
@@ -60,6 +67,7 @@ impl From<ControllerMaxLen> for u16 {
     }
 }
 
+/// Represents fields that can be set in packet headers
 #[derive(Clone)]
 pub enum SetField {
     InPort(PseudoPort), // Ingress port. This may be a physical or switch-defined logical port.
@@ -144,6 +152,7 @@ impl SetField {
 }
 
 pub type Buffer = u16;
+/// Represents an OpenFlow v1.3 action
 #[derive(Clone)]
 #[repr(u8)]
 pub enum Action {
@@ -267,7 +276,12 @@ impl Action {
     }
 }
 
+/// Trait for converting actions to instructions
 pub trait ToInstruction {
+    /// Converts the action to an instruction
+    /// 
+    /// # Returns
+    /// The corresponding instruction
     fn to_instruct(&self) -> InstructActions;
 }
 

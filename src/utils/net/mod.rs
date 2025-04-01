@@ -1,7 +1,14 @@
-//! The `net` module is the module used for Ethernet related things like Ethernet IP frames.
-//! This module includes trait that work with `Etherparse`,
-//! `MacAddr` struct for managing Mac address.
+//! Network utilities module for handling Ethernet and IP packet processing.
 //! 
+//! This module provides abstractions and utilities for working with network packets,
+//! particularly focusing on Ethernet frames and IP packets. It includes:
+//! 
+//! - MAC address handling and manipulation
+//! - Ethernet frame parsing and processing
+//! - IP address extraction and validation
+//! 
+//! The module integrates with the `etherparse` crate to provide a more ergonomic
+//! interface for working with network packets.
 
 // private
 mod ethernet_impl;

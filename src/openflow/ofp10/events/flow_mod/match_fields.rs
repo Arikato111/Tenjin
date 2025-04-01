@@ -1,3 +1,15 @@
+//! OpenFlow 1.0 Match Fields
+//! 
+//! This module implements the match fields functionality for OpenFlow 1.0 flow entries.
+//! Match fields define the criteria used to match packets against flow entries in the
+//! switch's flow tables.
+//! 
+//! The module provides:
+//! - Match field structure definitions
+//! - Wildcard handling for match fields
+//! - IP address masking
+//! - Serialization/deserialization of match fields
+
 use std::io::{BufRead, Cursor, Error};
 
 use byteorder::{BigEndian, ReadBytesExt, WriteBytesExt};
@@ -7,12 +19,21 @@ use crate::utils::{
     MacAddr,
 };
 
+/// Represents an IP address with an optional mask
+/// 
+/// Used for matching source and destination IP addresses with subnet masks
 pub struct Mask<T> {
+    /// The IP address value
     pub ip: T,
+    /// Optional subnet mask
     pub mask: Option<T>,
 }
 
 impl Mask<u32> {
+    /// Converts the mask to an integer value
+    /// 
+    /// # Returns
+    /// The mask value as a u32, or 0 if no mask is specified
     pub fn to_int(&self) -> u32 {
         match self.mask {
             Some(v) => v,
@@ -21,24 +42,46 @@ impl Mask<u32> {
     }
 }
 
+/// Represents wildcard flags for match fields
+/// 
+/// Used to specify which match fields should be ignored when matching packets
 struct Wildcards {
+    /// Ignore input port
     pub in_port: bool,
+    /// Ignore destination MAC address
     pub mac_dest: bool,
+    /// Ignore source MAC address
     pub mac_src: bool,
+    /// Ignore Ethernet type
     pub ethernet_type: bool,
 
+    /// Ignore VLAN ID
     pub vlan_vid: bool,
+    /// Ignore VLAN priority
     pub vlan_pcp: bool,
 
+    /// IP source address mask bits
     pub ip_src: u32,
+    /// IP destination address mask bits
     pub ip_dest: u32,
+    /// Ignore protocol
     pub protocol: bool,
+    /// Ignore Type of Service
     pub tos: bool,
+    /// Ignore transport source port
     pub transport_src: bool,
+    /// Ignore transport destination port
     pub transport_dest: bool,
 }
 
 impl Wildcards {
+    /// Creates wildcards from match fields
+    /// 
+    /// # Arguments
+    /// * `match_fields` - The match fields to create wildcards from
+    /// 
+    /// # Returns
+    /// A new Wildcards instance
     pub fn from_match_fields(match_fields: &MatchFields) -> Wildcards {
         Wildcards {
             in_port: match_fields.in_port.is_none(),
@@ -55,6 +98,14 @@ impl Wildcards {
             tos: match_fields.tos.is_none(),
         }
     }
+
+    /// Parses wildcards from a byte value
+    /// 
+    /// # Arguments
+    /// * `byte` - The byte value containing wildcard flags
+    /// 
+    /// # Returns
+    /// A new Wildcards instance
     pub fn parse(byte: u32) -> Wildcards {
         Wildcards {
             in_port: bit_bool(0, byte),
@@ -71,6 +122,11 @@ impl Wildcards {
             tos: bit_bool(21, byte),
         }
     }
+
+    /// Serializes wildcards to a byte buffer
+    /// 
+    /// # Arguments
+    /// * `bytes` - Mutable reference to the byte buffer to write to
     pub fn marshal(&self, bytes: &mut Vec<u8>) {
         let mut match_field = 0u32;
         match_field = set_bit(match_field, 0, self.in_port);
@@ -87,13 +143,40 @@ impl Wildcards {
         match_field = set_bit(match_field, 21, self.tos);
         let _ = bytes.write_u32::<BigEndian>(match_field);
     }
+
+    /// Gets network mask bits from a byte value
+    /// 
+    /// # Arguments
+    /// * `f` - The byte value to extract mask bits from
+    /// * `offset` - The bit offset to start from
+    /// 
+    /// # Returns
+    /// The mask bits as a u32
     pub fn get_nw_mask(f: u32, offset: usize) -> u32 {
         (f >> offset) & 0x3f
     }
+
+    /// Sets network mask bits in a byte value
+    /// 
+    /// # Arguments
+    /// * `byte` - The byte value to modify
+    /// * `offset` - The bit offset to set mask bits at
+    /// * `set` - The mask bits to set
+    /// 
+    /// # Returns
+    /// The modified byte value
     pub fn set_nw_mask(byte: u32, offset: usize, set: u32) -> u32 {
         let value = (0x3f & set) << offset;
         byte | value
     }
+
+    /// Converts a mask to its bit representation
+    /// 
+    /// # Arguments
+    /// * `mask` - The mask to convert
+    /// 
+    /// # Returns
+    /// The mask bits as a u32
     pub fn mask_bits(mask: &Option<Mask<u32>>) -> u32 {
         match mask {
             None => 32,
@@ -105,24 +188,44 @@ impl Wildcards {
     }
 }
 
+/// Represents the match fields for an OpenFlow flow entry
+/// 
+/// Contains all possible match criteria that can be used to match packets
+/// against flow entries in the switch's flow tables.
 pub struct MatchFields {
+    /// Input port to match
     pub in_port: Option<u16>,
+    /// Destination MAC address to match
     pub mac_dest: Option<MacAddr>,
+    /// Source MAC address to match
     pub mac_src: Option<MacAddr>,
+    /// Ethernet type to match
     pub ethernet_type: Option<u16>,
 
-    pub vlan_vid: Option<u16>, // vlan type
+    /// VLAN ID to match
+    pub vlan_vid: Option<u16>,
+    /// VLAN priority to match
     pub vlan_pcp: Option<u8>,
 
+    /// Source IP address and mask to match
     pub ip_src: Option<Mask<u32>>,
+    /// Destination IP address and mask to match
     pub ip_dest: Option<Mask<u32>>,
+    /// Protocol to match
     pub protocol: Option<u8>,
+    /// Type of Service to match
     pub tos: Option<u8>,
+    /// Transport source port to match
     pub transport_src: Option<u16>,
+    /// Transport destination port to match
     pub transport_dest: Option<u16>,
 }
 
 impl MatchFields {
+    /// Creates a match fields instance that matches all packets
+    /// 
+    /// # Returns
+    /// A new MatchFields instance with all fields set to None
     pub fn match_all() -> Self {
         Self {
             ethernet_type: None,
@@ -139,6 +242,11 @@ impl MatchFields {
             vlan_vid: None,
         }
     }
+
+    /// Serializes match fields to a byte buffer
+    /// 
+    /// # Arguments
+    /// * `bytes` - Mutable reference to the byte buffer to write to
     pub fn marshal(&self, bytes: &mut Vec<u8>) {
         let wildcard = Wildcards::from_match_fields(self);
         wildcard.marshal(bytes);
@@ -196,6 +304,13 @@ impl MatchFields {
         });
     }
 
+    /// Parses match fields from a byte buffer
+    /// 
+    /// # Arguments
+    /// * `bytes` - Cursor containing the byte buffer to parse
+    /// 
+    /// # Returns
+    /// Result containing either the parsed MatchFields or an error
     pub fn parse(bytes: &mut Cursor<Vec<u8>>) -> Result<MatchFields, Error> {
         let wildcards = Wildcards::parse(bytes.read_u32::<BigEndian>()?);
         let in_port = if wildcards.in_port {

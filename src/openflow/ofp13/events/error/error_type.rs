@@ -1,26 +1,48 @@
+//! OpenFlow v1.3 Error Type Definitions
+//! 
+//! This module defines the various error types and codes that can be returned
+//! by an OpenFlow switch to indicate different types of failures or errors.
+
 use std::mem::transmute;
 
+/// Main error type enum that categorizes different types of OpenFlow errors
 #[repr(u16)]
 #[derive(Debug)]
 pub enum ErrorType {
-    HelloFailed(HelloFailed) = 0,                /* Hello protocol failed. */
-    BadRequest(BadRequest) = 1,                  /* Request was not understood. */
-    BadAction(BadAction) = 2,                    /* Error in action description. */
-    BadInstruction(BadInstruction) = 3,          /* Error in instruction list. */
-    BadMatch(BadMatch) = 4,                      /* Error in match. */
-    FlowModFailed(FlowModFailed) = 5,            /* Problem modifying flow entry. */
-    GroupModFailed(GroupModFailed) = 6,          /* Problem modifying group entry. */
-    PortModFailed(PortModFailed) = 7,            /* Port mod request failed. */
-    TableModFailed(TableModFailed) = 8,          /* Table mod request failed. */
-    QueueOpFailed(QueueOpFailed) = 9,            /* Queue operation failed. */
-    SwitchConfigFailed(SwitchConfigFailed) = 10, /* Switch config request failed. */
-    RoleRequestFailed(RoleRequestFailed) = 11,   /* Controller Role request failed. */
-    MeterModFailed(MeterModFailed) = 12,         /* Error in meter. */
-    TableFeaturesFailed(TableFeaturesFailed) = 13, /* Setting table features failed. */
-    EXPERIMENTER = 0xffff,                       /* Experimenter error messages. */
+    /// Hello protocol failed
+    HelloFailed(HelloFailed) = 0,
+    /// Request was not understood
+    BadRequest(BadRequest) = 1,
+    /// Error in action description
+    BadAction(BadAction) = 2,
+    /// Error in instruction list
+    BadInstruction(BadInstruction) = 3,
+    /// Error in match
+    BadMatch(BadMatch) = 4,
+    /// Problem modifying flow entry
+    FlowModFailed(FlowModFailed) = 5,
+    /// Problem modifying group entry
+    GroupModFailed(GroupModFailed) = 6,
+    /// Port mod request failed
+    PortModFailed(PortModFailed) = 7,
+    /// Table mod request failed
+    TableModFailed(TableModFailed) = 8,
+    /// Queue operation failed
+    QueueOpFailed(QueueOpFailed) = 9,
+    /// Switch config request failed
+    SwitchConfigFailed(SwitchConfigFailed) = 10,
+    /// Controller Role request failed
+    RoleRequestFailed(RoleRequestFailed) = 11,
+    /// Error in meter
+    MeterModFailed(MeterModFailed) = 12,
+    /// Setting table features failed
+    TableFeaturesFailed(TableFeaturesFailed) = 13,
+    /// Experimenter error messages
+    EXPERIMENTER = 0xffff,
 }
 
 impl ErrorType {
+    /// Creates a new error type from the raw error type and code values
     pub fn new(error_type: u16, error_code: u16) -> ErrorType {
         match error_type {
             0 => Self::HelloFailed(HelloFailed::new(error_code)),
@@ -41,13 +63,18 @@ impl ErrorType {
         }
     }
 }
+
+/// Specific error codes for Hello protocol failures
 #[derive(Debug)]
 pub enum HelloFailed {
+    /// Incompatible version
     Incompatible,
+    /// Permission error
     EPerm,
 }
 
 impl HelloFailed {
+    /// Creates a new HelloFailed error from the error code
     pub fn new(error_code: u16) -> Self {
         match error_code {
             0 => Self::Incompatible,
@@ -56,26 +83,42 @@ impl HelloFailed {
     }
 }
 
+/// Specific error codes for bad request errors
 #[repr(u16)]
 #[derive(Debug)]
 pub enum BadRequest {
-    BadVersion = 0,               /* ofp_header.version not supported. */
-    BadType = 1,                  /* ofp_header.type not supported. */
-    BadMultipart = 2,             /* ofp_multipart_request.type not supported. */
-    BadExperimenter = 3, /* Experimenter id not supported in ofp_experimenter_header or ofp_multipart_request or ofp_multipart_reply). */
-    BadExpType = 4,      /* Experimenter type not supported. */
-    EPERM = 5,           /* Permissions error. */
-    BadLen = 6,          /* Wrong request length for type. */
-    BufferEmpty = 7,     /* Specified buffer has already been used. */
-    BufferUnknown = 8,   /* Specified buffer does not exist. */
-    BadTableId = 9,      /* Specified table-id invalid or does not exist. */
-    IsSlave = 10,        /* Denied because controller is slave. */
-    BadPort = 11,        /* Invalid port. */
-    BadPacket = 12,      /* Invalid packet in packet-out. */
-    MultipartBufferOverflow = 13, /* ofp_multipart_request overflowed the assigned buffer. */
+    /// ofp_header.version not supported
+    BadVersion = 0,
+    /// ofp_header.type not supported
+    BadType = 1,
+    /// ofp_multipart_request.type not supported
+    BadMultipart = 2,
+    /// Experimenter id not supported
+    BadExperimenter = 3,
+    /// Experimenter type not supported
+    BadExpType = 4,
+    /// Permissions error
+    EPERM = 5,
+    /// Wrong request length for type
+    BadLen = 6,
+    /// Specified buffer has already been used
+    BufferEmpty = 7,
+    /// Specified buffer does not exist
+    BufferUnknown = 8,
+    /// Specified table-id invalid or does not exist
+    BadTableId = 9,
+    /// Denied because controller is slave
+    IsSlave = 10,
+    /// Invalid port
+    BadPort = 11,
+    /// Invalid packet in packet-out
+    BadPacket = 12,
+    /// ofp_multipart_request overflowed the assigned buffer
+    MultipartBufferOverflow = 13,
 }
 
 impl BadRequest {
+    /// Creates a new BadRequest error from the error code
     pub fn new(error_code: u16) -> Self {
         if error_code < 14 {
             unsafe { transmute::<u16, BadRequest>(error_code) }
@@ -85,34 +128,52 @@ impl BadRequest {
     }
 }
 
+/// Specific error codes for bad action errors
 #[repr(u16)]
 #[derive(Debug)]
 pub enum BadAction {
-    BadType = 0,            /* Unknown action type. */
-    BadLen = 1,             /* Length problem in actions. */
-    BadExperimenter = 2,    /* Unknown experimenter id specified. */
-    BadExpType = 3,         /* Unknown action for experimenter id. */
-    BadOutPort = 4,         /* Problem validating output port. */
-    BadArgument = 5,        /* Bad action argument. */
-    EPERM = 6,              /* Permissions error. */
-    TooMany = 7,            /* Can’t handle this many actions. */
-    BadQueue = 8,           /* Problem validating output queue. */
-    BadOutGroup = 9,        /* Invalid group id in forward action. */
-    MatchInconsistent = 10, /* Action can’t apply for this match, or Set-Field missing prerequisite. */
-    UnsupportedOrder = 11, /* Action order is unsupported for the action list in an Apply-Actions instruction */
-    BadTag = 12,           /* Actions uses an unsupported tag/encap. */
-    BadSetType = 13,       /* Unsupported type in SET_FIELD action. */
-    BadSetLen = 14,        /* Length problem in SET_FIELD action. */
-    BadSetArgument = 15,   /* Bad argument in SET_FIELD action. */
+    /// Unknown action type
+    BadType = 0,
+    /// Length problem in actions
+    BadLen = 1,
+    /// Unknown experimenter id specified
+    BadExperimenter = 2,
+    /// Unknown action for experimenter id
+    BadExpType = 3,
+    /// Problem validating output port
+    BadOutPort = 4,
+    /// Bad action argument
+    BadArgument = 5,
+    /// Permissions error
+    EPERM = 6,
+    /// Can't handle this many actions
+    TooMany = 7,
+    /// Problem validating output queue
+    BadQueue = 8,
+    /// Invalid group id in forward action
+    BadOutGroup = 9,
+    /// Action can't apply for this match, or Set-Field missing prerequisite
+    MatchInconsistent = 10,
+    /// Action order is unsupported for the action list in an Apply-Actions instruction
+    UnsupportedOrder = 11,
+    /// Actions uses an unsupported tag/encap
+    BadTag = 12,
+    /// Unsupported type in SET_FIELD action
+    BadSetType = 13,
+    /// Length problem in SET_FIELD action
+    BadSetLen = 14,
+    /// Bad argument in SET_FIELD action
+    BadSetArgument = 15,
 }
 
 impl Default for BadAction {
     fn default() -> Self {
-        Self::EPERM
+        BadAction::BadType
     }
 }
 
 impl BadAction {
+    /// Creates a new BadAction error from the error code
     pub fn new(error_code: u16) -> Self {
         if error_code < 16 {
             unsafe { transmute::<u16, BadAction>(error_code) }
@@ -122,121 +183,180 @@ impl BadAction {
     }
 }
 
+/// Specific error codes for bad instruction errors
 #[repr(u16)]
 #[derive(Debug)]
 pub enum BadInstruction {
-    UnknownInst = 0,       /* Unknown instruction. */
-    UnsupInst = 1,         /* Switch or table does not support the instruction. */
-    BadTableId = 2,        /* Invalid Table-ID specified. */
-    UnsupMetadata = 3,     /* Metadata value unsupported by datapath. */
-    UnsupMetadataMask = 4, /* Metadata mask value unsupported by datapath. */
-    BadExperimenter = 5,   /* Unknown experimenter id specified. */
-    BadExpType = 6,        /* Unknown instruction for experimenter id. */
-    BadLen = 7,            /* Length problem in instructions. */
-    EPERM = 8,             /* Permissions error. */
+    /// Unknown instruction
+    UnknownInst = 0,
+    /// Switch or table does not support the instruction
+    UnsupInst = 1,
+    /// Invalid Table-ID specified
+    BadTableId = 2,
+    /// Metadata value unsupported by datapath
+    UnsupMetadata = 3,
+    /// Metadata mask value unsupported by datapath
+    UnsupMetadataMask = 4,
+    /// Unknown experimenter id specified
+    BadExperimenter = 5,
+    /// Unknown instruction for experimenter id
+    BadExpType = 6,
+    /// Length problem in instructions
+    BadLen = 7,
+    /// Permissions error
+    EPERM = 8,
 }
 
 impl BadInstruction {
+    /// Creates a new BadInstruction error from the error code
     pub fn new(error_code: u16) -> Self {
         if error_code < 9 {
             unsafe { transmute::<u16, BadInstruction>(error_code) }
         } else {
-            BadInstruction::EPERM
+            BadInstruction::UnknownInst
         }
     }
 }
 
+/// Specific error codes for bad match errors
 #[repr(u16)]
 #[derive(Debug)]
 pub enum BadMatch {
-    BadType = 0,       /* Unsupported match type specified by the match */
-    BadLen = 1,        /* Length problem in match. */
-    BadTag = 2,        /* Match uses an unsupported tag/encap. */
-    BadDlAddrMask = 3, /* Unsupported datalink addr mask - switch does not support arbitrary datalink address mask. */
-    BadNwAddrMask = 4, /* Unsupported network addr mask - switch does not support arbitrary network address mask. */
-    BadWildcards = 5,  /* Unsupported combination of fields masked or omitted in the match. */
-    BadField = 6,      /* Unsupported field type in the match. */
-    BadValue = 7,      /* Unsupported value in a match field. */
-    BadMask = 8, /* Unsupported mask specified in the match, field is not dl-address or nw-address. */
-    BadPrereq = 9, /* A prerequisite was not met. */
-    DupField = 10, /* A field type was duplicated. */
-    EPERM = 11,  /* Permissions error. */
+    /// Unsupported match type specified by the match
+    BadType = 0,
+    /// Length problem in match
+    BadLen = 1,
+    /// Match uses an unsupported tag/encap
+    BadTag = 2,
+    /// Unsupported datalink addr mask
+    BadDlAddrMask = 3,
+    /// Unsupported network addr mask
+    BadNwAddrMask = 4,
+    /// Unsupported combination of fields masked or omitted in the match
+    BadWildcards = 5,
+    /// Unsupported field type in the match
+    BadField = 6,
+    /// Unsupported value in a match field
+    BadValue = 7,
+    /// Unsupported mask specified in the match
+    BadMask = 8,
+    /// A prerequisite was not met
+    BadPrereq = 9,
+    /// A field type was duplicated
+    DupField = 10,
+    /// Permissions error
+    EPERM = 11,
 }
 
 impl BadMatch {
+    /// Creates a new BadMatch error from the error code
     pub fn new(error_code: u16) -> Self {
         if error_code < 12 {
-            unsafe { transmute(error_code) }
+            unsafe { transmute::<u16, BadMatch>(error_code) }
         } else {
-            BadMatch::EPERM
+            BadMatch::BadType
         }
     }
 }
 
+/// Specific error codes for flow modification failures
 #[repr(u16)]
 #[derive(Debug)]
 pub enum FlowModFailed {
-    UNKNOWN = 0,    /* Unspecified error. */
-    TableFull = 1,  /* Flow not added because table was full. */
-    BadTableId = 2, /* Table does not exist */
-    OVERLAP = 3,    /* Attempted to add overlapping flow with CHECK_OVERLAP flag set. */
-    EPERM = 4,      /* Permissions error. */
-    BadTimeout = 5, /* Flow not added because of unsupported idle/hard timeout. */
-    BadCommand = 6, /* Unsupported or unknown command. */
-    BadFlags = 7,   /* Unsupported or unknown flags. */
+    /// Unspecified error
+    UNKNOWN = 0,
+    /// Flow not added because table was full
+    TableFull = 1,
+    /// Table does not exist
+    BadTableId = 2,
+    /// Attempted to add overlapping flow with CHECK_OVERLAP flag set
+    OVERLAP = 3,
+    /// Permissions error
+    EPERM = 4,
+    /// Flow not added because of unsupported idle/hard timeout
+    BadTimeout = 5,
+    /// Unsupported or unknown command
+    BadCommand = 6,
+    /// Unsupported or unknown flags
+    BadFlags = 7,
 }
 
 impl FlowModFailed {
+    /// Creates a new FlowModFailed error from the error code
     pub fn new(error_code: u16) -> Self {
         if error_code < 8 {
-            unsafe { transmute(error_code) }
+            unsafe { transmute::<u16, FlowModFailed>(error_code) }
         } else {
-            FlowModFailed::EPERM
+            FlowModFailed::UNKNOWN
         }
     }
 }
 
+/// Specific error codes for group modification failures
 #[repr(u16)]
 #[derive(Debug)]
 pub enum GroupModFailed {
-    GroupExists = 0, /* Group not added because a group ADD attempted to replace an already-present group. */
-    InvalidGroup = 1, /* Group not added because Group specified is invalid. */
-    WeightUnsupported = 2, /* Switch does not support unequal load sharing with select groups. */
-    OutOfGroups = 3, /* The group table is full. */
-    OutOfBuckets = 4, /* The maximum number of action buckets for a group has been exceeded. */
-    ChainingUnsupported = 5, /* Switch does not support groups that forward to groups. */
-    WatchUnsupported = 6, /* This group cannot watch the watch_port or watch_group specified. */
-    Loop = 7,        /* Group entry would cause a loop. */
-    UnknownGroup = 8, /* Group not modified because a group MODIFY attempted to modify a non-existent group. */
-    ChainedGroup = 9, /* Group not deleted because another group is forwarding to it. */
-    BadType = 10,     /* Unsupported or unknown group type. */
-    BadCommand = 11,  /* Unsupported or unknown command. */
-    BadBucket = 12,   /* Error in bucket. */
-    BadWatch = 13,    /* Error in watch port/group. */
-    EPERM = 14,       /* Permissions error. */
+    /// Group not added because a group ADD attempted to replace an already-present group
+    GroupExists = 0,
+    /// Group not added because Group specified is invalid
+    InvalidGroup = 1,
+    /// Switch does not support unequal load sharing with select groups
+    WeightUnsupported = 2,
+    /// The group table is full
+    OutOfGroups = 3,
+    /// The maximum number of action buckets for a group has been exceeded
+    OutOfBuckets = 4,
+    /// Switch does not support groups that forward to groups
+    ChainingUnsupported = 5,
+    /// This group cannot watch the watch_port or watch_group specified
+    WatchUnsupported = 6,
+    /// Group entry would cause a loop
+    Loop = 7,
+    /// Group not modified because a group MODIFY attempted to modify a non-existent group
+    UnknownGroup = 8,
+    /// Group not deleted because another group is forwarding to it
+    ChainedGroup = 9,
+    /// Unsupported or unknown group type
+    BadType = 10,
+    /// Unsupported or unknown command
+    BadCommand = 11,
+    /// Error in bucket
+    BadBucket = 12,
+    /// Error in watch port/group
+    BadWatch = 13,
+    /// Permissions error
+    EPERM = 14,
 }
 
 impl GroupModFailed {
+    /// Creates a new GroupModFailed error from the error code
     pub fn new(error_code: u16) -> Self {
         if error_code < 15 {
-            unsafe { transmute(error_code) }
+            unsafe { transmute::<u16, GroupModFailed>(error_code) }
         } else {
-            Self::EPERM
+            GroupModFailed::GroupExists
         }
     }
 }
 
+/// Specific error codes for port modification failures
 #[repr(u16)]
 #[derive(Debug)]
 pub enum PortModFailed {
-    BadPort = 0,      /* Specified port number does not exist. */
-    BadHwAddr = 1,    /* Specified hardware address does not * match the port number. */
-    BadConfig = 2,    /* Specified config is invalid. */
-    BadAdvertise = 3, /* Specified advertise is invalid. */
-    EPERM = 4,        /* Permissions error. */
+    /// Specified port number does not exist
+    BadPort = 0,
+    /// Specified hardware address does not match the port number
+    BadHwAddr = 1,
+    /// Specified config is invalid
+    BadConfig = 2,
+    /// Specified advertise is invalid
+    BadAdvertise = 3,
+    /// Permissions error
+    EPERM = 4,
 }
 
 impl PortModFailed {
+    /// Creates a new PortModFailed error from the error code
     pub fn new(error_code: u16) -> Self {
         match error_code {
             0 => Self::BadPort,
@@ -248,15 +368,20 @@ impl PortModFailed {
     }
 }
 
+/// Specific error codes for table modification failures
 #[repr(u16)]
 #[derive(Debug)]
 pub enum TableModFailed {
+    /// Bad table
     BadTable = 0,
+    /// Bad configuration
     BadConfig = 1,
+    /// Permissions error
     EPERM = 2,
 }
 
 impl TableModFailed {
+    /// Creates a new TableModFailed error from the error code
     pub fn new(error_code: u16) -> Self {
         match error_code {
             0 => Self::BadTable,
@@ -266,14 +391,19 @@ impl TableModFailed {
     }
 }
 
+/// Specific error codes for queue operation failures
 #[derive(Debug)]
 pub enum QueueOpFailed {
+    /// Bad port
     BadPort,
+    /// Bad queue
     BadQueue,
+    /// Permissions error
     EPerm,
 }
 
 impl QueueOpFailed {
+    /// Creates a new QueueOpFailed error from the error code
     pub fn new(error_code: u16) -> Self {
         match error_code {
             0 => Self::BadPort,
@@ -283,15 +413,20 @@ impl QueueOpFailed {
     }
 }
 
+/// Specific error codes for switch configuration failures
 #[repr(u16)]
 #[derive(Debug)]
 pub enum SwitchConfigFailed {
+    /// Bad flags
     BadFlags = 0,
+    /// Bad length
     BadLen = 1,
+    /// Permissions error
     EPERM = 2,
 }
 
 impl SwitchConfigFailed {
+    /// Creates a new SwitchConfigFailed error from the error code
     pub fn new(error_code: u16) -> Self {
         match error_code {
             0 => Self::BadFlags,
@@ -301,15 +436,20 @@ impl SwitchConfigFailed {
     }
 }
 
+/// Specific error codes for role request failures
 #[repr(u16)]
 #[derive(Debug)]
 pub enum RoleRequestFailed {
+    /// Stale message
     Stale = 0,
+    /// Unsupported role
     Unsup = 1,
+    /// Bad role
     BadRole = 2,
 }
 
 impl RoleRequestFailed {
+    /// Creates a new RoleRequestFailed error from the error code
     pub fn new(error_code: u16) -> Self {
         match error_code {
             0 => Self::Stale,
@@ -319,50 +459,72 @@ impl RoleRequestFailed {
     }
 }
 
+/// Specific error codes for meter modification failures
 #[repr(u16)]
 #[derive(Debug)]
 pub enum MeterModFailed {
-    Unknown = 0,      /* Unspecified error. */
-    MeterExists = 1, /* Meter not added because a Meter ADD * attempted to replace an existing Meter. */
-    InvalidMeter = 2, /* Meter not added because Meter specified * is invalid. */
-    UnknownMeter = 3, /* Meter not modified because a Meter MODIFY attempted to modify a non-existent Meter. */
-    BadCommand = 4,   /* Unsupported or unknown command. */
-    BadFlags = 5,     /* Flag configuration unsupported. */
-    BadRate = 6,      /* Rate unsupported. */
-    BadBurst = 7,     /* Burst size unsupported. */
-    BadBand = 8,      /* Band unsupported. */
-    BadBandValue = 9, /* Band value unsupported. */
-    OutOfMeters = 10, /* No more meters available. */
-    OutOfBands = 11,  /* The maximum number of properties * for a meter has been exceeded. */
+    /// Unspecified error
+    Unknown = 0,
+    /// Meter not added because a Meter ADD attempted to replace an existing Meter
+    MeterExists = 1,
+    /// Meter not added because Meter specified is invalid
+    InvalidMeter = 2,
+    /// Meter not modified because a Meter MODIFY attempted to modify a non-existent Meter
+    UnknownMeter = 3,
+    /// Unsupported or unknown command
+    BadCommand = 4,
+    /// Flag configuration unsupported
+    BadFlags = 5,
+    /// Rate unsupported
+    BadRate = 6,
+    /// Burst size unsupported
+    BadBurst = 7,
+    /// Band unsupported
+    BadBand = 8,
+    /// Band value unsupported
+    BadBandValue = 9,
+    /// No more meters available
+    OutOfMeters = 10,
+    /// The maximum number of properties for a meter has been exceeded
+    OutOfBands = 11,
 }
 
 impl MeterModFailed {
+    /// Creates a new MeterModFailed error from the error code
     pub fn new(error_code: u16) -> Self {
         if error_code < 12 {
-            unsafe { transmute(error_code) }
+            unsafe { transmute::<u16, MeterModFailed>(error_code) }
         } else {
-            Self::OutOfBands
+            MeterModFailed::Unknown
         }
     }
 }
 
+/// Specific error codes for table features failures
 #[repr(u16)]
 #[derive(Debug)]
 pub enum TableFeaturesFailed {
-    BadTable = 0,    /* Specified table does not exist. */
-    BadMetadata = 1, /* Invalid metadata mask. */
-    BadType = 2,     /* Unknown property type. */
-    BadLen = 3,      /* Length problem in properties. */
-    BadArgument = 4, /* Unsupported property value. */
-    EPERM = 5,       /* Permissions error. */
+    /// Specified table does not exist
+    BadTable = 0,
+    /// Invalid metadata mask
+    BadMetadata = 1,
+    /// Unknown property type
+    BadType = 2,
+    /// Length problem in properties
+    BadLen = 3,
+    /// Unsupported property value
+    BadArgument = 4,
+    /// Permissions error
+    EPERM = 5,
 }
 
 impl TableFeaturesFailed {
+    /// Creates a new TableFeaturesFailed error from the error code
     pub fn new(error_code: u16) -> Self {
         if error_code < 6 {
-            unsafe { transmute(error_code) }
+            unsafe { transmute::<u16, TableFeaturesFailed>(error_code) }
         } else {
-            Self::EPERM
+            TableFeaturesFailed::BadTable
         }
     }
 }

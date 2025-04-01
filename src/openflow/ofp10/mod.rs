@@ -1,3 +1,13 @@
+//! OpenFlow 1.0 Protocol Implementation
+//! 
+//! This module implements the OpenFlow 1.0 protocol specification, providing:
+//! - Message types and structures
+//! - Port definitions and handling
+//! - Event processing for various OpenFlow messages
+//! - Protocol header management
+//! - Connection management and TCP handling
+//! - Message marshaling and event handling traits
+
 pub mod message;
 pub use message::Msg;
 
