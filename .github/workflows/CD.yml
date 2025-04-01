@@ -25,10 +25,19 @@ jobs:
     strategy:
       matrix:
         include:
+          # Linux x86_64
           - target: x86_64-unknown-linux-gnu
             os: ubuntu-latest
+          # Linux Arrch64
+          - target: aarch64-unknown-linux-gnu
+            os: ubuntu-latest
+          # Linux Arm7
+          - target: armv7-unknown-linux-gnueabihf
+            os: ubuntu-latest
+          # Apple x86_64
           - target: x86_64-apple-darwin
             os: macos-latest
+          # Windows x86_64
           - target: x86_64-pc-windows-msvc
             os: windows-latest
     runs-on: ${{ matrix.os }}
