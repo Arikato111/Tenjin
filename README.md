@@ -81,6 +81,15 @@ after installing rust and cargo, you can use command below to install Tenjin.
 cargo install tenjin_sdn 
 ```
 
+### Install without compile source code with "cargo-binstall"
+
+use [cargo-binstall](https://github.com/cargo-bins/cargo-binstall) to install compiled binary from github release with following command. (Please ensure that you have installed A.)
+
+```
+cargo binstall tenjin_sdn
+```
+
+
 ## Cli usage
 
 #### Run Controller by default (Controller13 with OpenFlow 1.3)
