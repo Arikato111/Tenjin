@@ -70,6 +70,11 @@ async fn main() {
     controller.listener("127.0.0.1:6633");
 }
 ```
+4. if you would like to create your own Controller, you need to install [etherparse](https://crates.io/crates/etherparse).
+
+```bash
+cargo add etherparse
+```
 
 ## Usage Guide
 
