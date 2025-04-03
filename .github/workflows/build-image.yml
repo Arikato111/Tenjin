@@ -34,8 +34,8 @@ jobs:
           file: ./Dockerfile # Path to your Dockerfile. Adjust if needed.
           push: true
           tags: |
-            ghcr.io/${{ github.repository_owner }}/${{ github.event.repository.name }}:latest
-            ghcr.io/${{ github.repository_owner }}/${{ github.event.repository.name }}:${{ github.sha }}
+            ghcr.io/${{ toLower(github.repository_owner) }}/${{ toLower(github.event.repository.name) }}:latest
+            ghcr.io/${{ toLower(github.repository_owner) }}/${{ toLower(github.event.repository.name) }}:${{ github.sha }}
 
       - name: Image digest
         run: echo ${{ steps.docker_build.outputs.digest }}
