@@ -28,7 +28,7 @@ jobs:
       - name: Set Image name and version
         run: |
           echo "IMAGE_NAME=$(echo '${{ github.repository_owner }}/${{ github.event.repository.name }}' | tr '[:upper:]' '[:lower:]')" >>${GITHUB_ENV};
-          echo "VERSION=$(cat Cargo.toml|grep version|head -1|awk '{print $3}'| sed 's/"//g') >> ${GITHUB_ENV};
+          echo "VERSION=$(cat Cargo.toml|grep version|head -1|awk '{print $3}'| sed 's/"//g')" >> ${GITHUB_ENV};
 
       - name: Build and push Docker image
         id: docker_build
