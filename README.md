@@ -137,3 +137,17 @@ Using cargo-binstall for pre-compiled binaries:
 ```bash
 cargo binstall tenjin_sdn
 ```
+
+### Docker
+
+run the following command to pull and run.
+
+```
+docker run -it --rm --name tenjin ghcr.io/arikato111/tenjin:latest run
+
+```
+
+or using alias command on Linux.
+
+```
+alias tenjin='docker run -it --rm --name tenjin ghcr.io/arikato111/tenjin:latest'
