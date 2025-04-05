@@ -14,6 +14,19 @@
 [download]: https://img.shields.io/crates/d/tenjin_sdn
 [version]: https://img.shields.io/crates/v/tenjin_sdn
 
+## Table of Contents
+- [Features](#features)
+- [Quick Start](#quick-start)
+  - [As a Command-Line Tool](#as-a-command-line-tool)
+  - [As a Library](#as-a-library)
+- [Usage Guide](#usage-guide)
+  - [Command-Line Interface](#command-line-interface)
+  - [Network Emulation with Mininet](#network-emulation-with-mininet)
+- [Advanced Installation](#advanced-installation)
+  - [Minimal Installation](#minimal-installation)
+  - [Binary Installation](#binary-installation)
+  - [Docker](#docker)
+
 ## Features
 
 - High performance and memory safety through Rust
@@ -151,3 +164,4 @@ or using alias command on Linux.
 
 ```
 alias tenjin='docker run -it --rm --name tenjin ghcr.io/arikato111/tenjin:latest'
+```
