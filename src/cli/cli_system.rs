@@ -17,7 +17,13 @@ type Error = Box<dyn std::error::Error + Send + Sync>;
 
 /// Main CLI command structure
 #[derive(Parser)]
-#[command(name = "tenjin", author, version, about, long_about = None)]
+#[command(name = "tenjin", author, version, about, long_about = None, before_help = r#"
+ _____           _ _       
+|_   _|__ _ __  (_|_)_ __  
+  | |/ _ \ '_ \ | | | '_ \ 
+  | |  __/ | | || | | | | |
+  |_|\___|_| |_|/ |_|_| |_|
+              |__/         "#)]
 struct Cli {
     #[command(subcommand)]
     command: Commands,
